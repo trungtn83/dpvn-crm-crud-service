@@ -62,7 +62,7 @@ tasks.withType(JavaCompile) {
 
 task domainJar(type: Jar) {
     from(sourceSets.main.output) {
-        include 'com/dpvn/crudservice/domain/**'
+        include 'com/dpvn/crmcrudservice/domain/**'
     }
 
     manifest {

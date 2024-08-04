@@ -7,6 +7,8 @@ import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,8 +20,13 @@ public class UserController extends AbstractController<User, UserDto> {
   }
 
   @GetMapping("/username/{username}")
-  public ResponseEntity<UserDto> getCrmUserByUserName(@PathVariable String username) {
+  public UserDto getCrmUserByUserName(@PathVariable String username) {
     Optional<User> user = ((UserService) service).findByUsername(username);
-    return user.map(u -> ResponseEntity.ok(u.toDto())).orElseGet(() -> ResponseEntity.notFound().build());
+    return user.map(User::toDto).orElse(null);
+  }
+
+  @PostMapping("/change-password")
+  public void changePassword(@RequestBody UserDto userDto) {
+    ((UserService) service).changePassword(userDto.getUsername(), userDto.getPassword());
   }
 }

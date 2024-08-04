@@ -39,7 +39,7 @@ spring:
   thymeleaf:
     cache: false
   datasource:
-    url: jdbc:postgresql://localhost:5433/crm
+    url: jdbc:postgresql://localhost:5432/crm
     username: dpvn
     password: dpvietnhat@283
 
@@ -58,7 +58,7 @@ spring:
     activate:
       on-profile: production
   datasource:
-    url: jdbc:postgresql://dpvn-database-craftonline:5433/crm
+    url: jdbc:postgresql://dpvn-database-craftonline:5432/crm
     username: dpvn
     password: dpvietnhat@283
 

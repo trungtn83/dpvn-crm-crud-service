@@ -3,8 +3,8 @@ package com.dpvn.crmcrudservice.user;
 import com.dpvn.crmcrudservice.AbstractController;
 import com.dpvn.crmcrudservice.domain.dto.UserDto;
 import com.dpvn.crmcrudservice.domain.entity.User;
+import java.util.List;
 import java.util.Optional;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,5 +28,10 @@ public class UserController extends AbstractController<User, UserDto> {
   @PostMapping("/change-password")
   public void changePassword(@RequestBody UserDto userDto) {
     ((UserService) service).changePassword(userDto.getUsername(), userDto.getPassword());
+  }
+
+  @PostMapping("/sync-all")
+  public void syncAllUsers(@RequestBody List<UserDto> userDtos) {
+    service.sync(userDtos.stream().map(UserDto::toEntity).toList());
   }
 }

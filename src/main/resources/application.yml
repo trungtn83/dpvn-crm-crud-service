@@ -7,7 +7,7 @@ spring:
   datasource:
     hikari:
       connection-timeout: 60000 #milisecond
-      maximum-pool-size: 50
+      maximum-pool-size: 20
       leak-detection-threshold: 60000 #milisecond
   jpa:
     show-sql: false
@@ -36,8 +36,6 @@ spring:
   config:
     activate:
       on-profile: default, command, local
-  thymeleaf:
-    cache: false
   datasource:
     url: jdbc:postgresql://localhost:5432/crm
     username: dpvn

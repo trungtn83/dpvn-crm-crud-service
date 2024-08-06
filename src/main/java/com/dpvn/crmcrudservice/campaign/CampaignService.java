@@ -57,8 +57,7 @@ public class CampaignService extends AbstractService<Campaign> {
         campaignName, picUser, typeId, status, fromDate, toDate);
   }
 
-  public void createCampaign(
-      CampaignDto campaignDto, List<Long> saleIds, List<Long> customerIds) {
+  public void createCampaign(CampaignDto campaignDto, List<Long> saleIds, List<Long> customerIds) {
     List<User> sales = userService.findByIds(saleIds);
     List<Customer> customers = customerService.findByIds(customerIds);
     // validate all customers are free now
@@ -129,8 +128,7 @@ public class CampaignService extends AbstractService<Campaign> {
 
   public void dispatchCampaign(Campaign campaign) {
     // hardcode for RR
-    List<User> sales =
-        campaign.getCampaignUsers().stream().map(CampaignUser::getUser).toList();
+    List<User> sales = campaign.getCampaignUsers().stream().map(CampaignUser::getUser).toList();
     int saleTotal = sales.size();
 
     List<Customer> customers =

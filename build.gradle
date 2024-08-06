@@ -23,7 +23,7 @@ ext {
 }
 
 dependencies {
-    implementation 'com.dpvn:shared:0.0.1-SNAPSHOT'
+    implementation 'com.dpvn:dpvn-shared:0.0.1-SNAPSHOT'
 
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.boot:spring-boot-starter-web'

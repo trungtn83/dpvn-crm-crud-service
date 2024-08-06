@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/crmcrud/campaign-type")
-public class CampaignTypeController
-    extends AbstractController<CampaignType, CampaignTypeDto> {
+public class CampaignTypeController extends AbstractController<CampaignType, CampaignTypeDto> {
   public CampaignTypeController(CampaignTypeService campaignTypeService) {
     super(campaignTypeService);
   }

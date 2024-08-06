@@ -2,23 +2,58 @@ package com.dpvn.crmcrudservice.user;
 
 import com.dpvn.crmcrudservice.AbstractService;
 import com.dpvn.crmcrudservice.domain.Status;
+import com.dpvn.crmcrudservice.domain.entity.Department;
+import com.dpvn.crmcrudservice.domain.entity.Role;
 import com.dpvn.crmcrudservice.domain.entity.User;
+import com.dpvn.crmcrudservice.repository.DepartmentRepository;
+import com.dpvn.crmcrudservice.repository.RoleRepository;
 import com.dpvn.crmcrudservice.repository.UserRepository;
 import com.dpvn.shared.exception.BadRequestException;
+import com.dpvn.shared.util.ObjectUtil;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService extends AbstractService<User> {
+  private final DepartmentRepository departmentRepository;
+  private final RoleRepository roleRepository;
 
-  public UserService(UserRepository repository) {
+  public UserService(
+      UserRepository repository,
+      DepartmentRepository departmentRepository,
+      RoleRepository roleRepository) {
     super(repository);
+    this.departmentRepository = departmentRepository;
+    this.roleRepository = roleRepository;
   }
 
+  @Async
+  @Transactional
   @Override
   public void sync(List<User> entities) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    Department department = departmentRepository.findByDepartmentName("SALE");
+    Role role = roleRepository.findByRoleName("USER");
+
+    List<User> users = new ArrayList<>();
+    entities.forEach(
+        entity -> {
+          User dbUser = findByUsername(entity.getUsername()).orElse(null);
+          if (dbUser == null) {
+            entity.setPassword("123456");
+            entity.setStatus(-1);
+            entity.setDepartment(department);
+            entity.setRole(role);
+            users.add(entity);
+          } else {
+            ObjectUtil.assign(dbUser, entity, List.of("role", "department", "password", "status"));
+            users.add(dbUser);
+          }
+        });
+    saveAll(users);
   }
 
   public List<User> findByIds(List<Long> ids) {

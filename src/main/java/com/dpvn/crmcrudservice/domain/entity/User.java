@@ -32,13 +32,13 @@ public class User extends BaseEntity {
   private String password;
   private String fullName;
 
-  @Column(unique = true)
   private String email;
 
-  @Column(unique = true)
   private String mobilePhone;
+
   @Column(name = "dob", columnDefinition = "TIMESTAMP WITH TIME ZONE")
   private Instant dob;
+
   @Column(columnDefinition = "TEXT")
   private String description;
 

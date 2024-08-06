@@ -27,14 +27,15 @@ public class BeanMapper {
     //            mapper.map(SourceClass::getOldName, DestinationClass::getNewName);
     //          });
     // Custom mappings
-    modelMapper.addMappings(new PropertyMap<User, UserDto>() {
-      @Override
-      protected void configure() {
-        map().setRoleId(source.getRole().getId());
-        map().setDepartmentId(source.getDepartment().getId());
-        map().setAddressId(source.getAddress().getId());
-      }
-    });
+    modelMapper.addMappings(
+        new PropertyMap<User, UserDto>() {
+          @Override
+          protected void configure() {
+            map().setRoleId(source.getRole().getId());
+            map().setDepartmentId(source.getDepartment().getId());
+            map().setAddressId(source.getAddress().getId());
+          }
+        });
   }
 
   public static BeanMapper instance() {

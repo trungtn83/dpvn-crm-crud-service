@@ -5,6 +5,8 @@ import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.entity.Role;
 import com.dpvn.crmcrudservice.domain.entity.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
+import java.util.HashSet;
 import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -14,7 +16,7 @@ public class RoleDto extends BaseDto {
   private String description;
   private Integer status;
 
-  private Set<User> users;
+  private Set<UserDto> userDtos;
 
   @Override
   public Role toEntity() {
@@ -45,11 +47,11 @@ public class RoleDto extends BaseDto {
     this.status = status;
   }
 
-  public Set<User> getUsers() {
-    return users;
+  public Set<UserDto> getUserDtos() {
+    return userDtos;
   }
 
-  public void setUsers(Set<User> users) {
-    this.users = users;
+  public void setUserDtos(Set<UserDto> userDtos) {
+    this.userDtos = userDtos;
   }
 }

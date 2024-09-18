@@ -4,13 +4,11 @@ INSERT INTO customer(
     gender,
     mobile_phone,
     email,
-    address_detail,
-    address_id,
-    description,
-    tax_code,
+    address,
     level_point,
-    source,
     source_id,
+    source,
+    source_note,
     status,
     customer_type_id,
     created_by,
@@ -27,18 +25,16 @@ SELECT
         END as gender,
     kc.contact_number as mobile_phone,
     null as email,
-    kc.address as address_detail,
-    CAST(NULL AS bigint) as address_id,
-    null as description,
-    null as tax_code,
-    null as level_point,
+    kc.address as address,
+    kc.reward_point as level_point,
+    1 as source_id,
     'KIOTVIET' as source,
-    kc.id as source_id,
+    null as source_note,
     1 as status,
     1 as customer_type_id,
-    kc.created_by,
+    (select u.id from "user" u where u.username = (select ku.username from kv_user ku where ku.id = kc.created_by)) as created_by,
     kc.created_date,
-    kc.modified_by,
+    (select u.id from "user" u where u.username = (select ku.username from kv_user ku where ku.id = kc.modified_by)) as modified_by,
     kc.modified_date
 FROM
     kv_customer kc
@@ -52,18 +48,32 @@ SELECT
     null as gender,
     tc.phone as mobile_phone,
     tc.email as email,
-    tc.address as address_detail,
-    CAST(NULL AS bigint) as address_id,
-    null as description,
-    null as tax_code,
-    tc.level_point as level_point,
-    'THUOCSI' as source,
-    tc.id as source_id,
-    1 as status,
-    454282 as created_by,
-    1 as customer_type_id,
+    tc.address as address,
+    0 as level_point,
+    2 as source_id,
+    'CRAFTONLINE' as source,
+    tc.hash_tag as source_note,
+    case
+        when tc.status = 'ACTIVE' then 1
+        when tc.status = 'INACTIVE' then 0
+        else -1
+        end as status,
+    case
+        when tc.scope = 'PHARMACY' then 1
+        when tc.scope = 'PHARMACIST' then 2
+        when tc.scope = 'PATIENT' then 3
+        when tc.scope = 'HOSPITAL' then 4
+        when tc.scope = 'HEALTHCARE_CENTER' then 5
+        when tc.scope = 'BEAUTY_SALON' then 5
+        when tc.scope = 'DRUGSTORE' then 6
+        when tc.scope = 'CLINIC' then 7
+        when tc.scope = 'DENTISTRY' then 8
+        when tc.scope = 'PHARMA_COMPANY' then 9
+        else 99
+        end as customer_type_id,
+    (select u.id from "user" u where u.username = 'VJP0000000') as created_by,
     tc.created_date,
-    tc.modified_by,
+    (select u.id from "user" u where u.username = 'VJP0000000') as modified_by ,
     tc.modified_date
 FROM
     ts_customer tc

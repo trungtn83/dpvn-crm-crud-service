@@ -15,7 +15,7 @@ public class DepartmentDto extends BaseDto {
   private String description;
   private Integer status = Status.ACTIVE;
 
-  private Set<User> users;
+  private Set<UserDto> userDtos;
 
   @Override
   public Department toEntity() {
@@ -46,11 +46,11 @@ public class DepartmentDto extends BaseDto {
     this.status = status;
   }
 
-  public Set<User> getUsers() {
-    return users;
+  public Set<UserDto> getUserDtos() {
+    return userDtos;
   }
 
-  public void setUsers(Set<User> users) {
-    this.users = users;
+  public void setUserDtos(Set<UserDto> userDtos) {
+    this.userDtos = userDtos;
   }
 }

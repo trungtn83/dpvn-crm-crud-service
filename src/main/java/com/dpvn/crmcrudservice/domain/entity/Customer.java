@@ -3,19 +3,14 @@ package com.dpvn.crmcrudservice.domain.entity;
 import com.dpvn.crmcrudservice.domain.BaseEntity;
 import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.Status;
+import com.dpvn.crmcrudservice.domain.constant.CustomerAvailability;
 import com.dpvn.crmcrudservice.domain.dto.CustomerDto;
-import com.dpvn.crmcrudservice.domain.entity.relationship.CampaignCustomer;
-import com.dpvn.crmcrudservice.domain.entity.relationship.CustomerUser;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.Set;
 
 @Entity
 @Table(name = "customer")
@@ -25,44 +20,55 @@ public class Customer extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false)
   private String customerName;
-
-  @Column(unique = true, nullable = false)
   private String customerCode;
-
   private Integer gender;
-
   private String mobilePhone;
-
   private String email;
 
   @Column(columnDefinition = "TEXT")
-  private String addressDetail;
+  private String address;
 
-  @ManyToOne
-  @JoinColumn(name = "address_id", referencedColumnName = "id")
-  private Address address;
-
-  @Column(columnDefinition = "TEXT")
-  private String description;
-
+  private Long addressCode; // store ward code or address id?
   private String taxCode;
   private Integer levelPoint;
-  private String source;
-  private Long sourceId;
-
-  @Column(nullable = false)
-  private Integer status = Status.ACTIVE;
-
-  @Column(nullable = false)
   private Integer customerTypeId;
 
-  @OneToMany(mappedBy = "customer")
-  private Set<CampaignCustomer> campaignCustomers;
+  private Integer status = Status.ACTIVE;
+  private Integer availability = CustomerAvailability.FREE;
 
-  @OneToMany(mappedBy = "customer")
-  private Set<CustomerUser> customerUsers;
+  private Long sourceId;
+
+  @Column(columnDefinition = "TEXT")
+  private String source;
+
+  @Column(columnDefinition = "TEXT")
+  private String sourceNote;
+
+  private Long internalSourceId;
+
+  @Column(columnDefinition = "TEXT")
+  private String internalSource;
+
+  private String zaloId;
+  private String zaloName;
+  private String facebookId;
+  private String facebookName;
+  private String tiktokId;
+  private String tiktokName;
+  private String shopeeId;
+  private String shopeeName;
+  private String otherId;
+  private String otherName;
+
+  @Column(columnDefinition = "TEXT")
+  private String notes;
+
+  @Column(columnDefinition = "TEXT")
+  private String relationships;
+
+  @Column(columnDefinition = "TEXT")
+  private String specialEvents;
 
   @Override
   public CustomerDto toDto() {
@@ -117,20 +123,20 @@ public class Customer extends BaseEntity {
     this.email = email;
   }
 
-  public String getAddressDetail() {
-    return addressDetail;
-  }
-
-  public void setAddressDetail(String addressDetail) {
-    this.addressDetail = addressDetail;
-  }
-
-  public Address getAddress() {
+  public String getAddress() {
     return address;
   }
 
-  public void setAddress(Address address) {
+  public void setAddress(String address) {
     this.address = address;
+  }
+
+  public Long getAddressCode() {
+    return addressCode;
+  }
+
+  public void setAddressCode(Long addressCode) {
+    this.addressCode = addressCode;
   }
 
   public String getTaxCode() {
@@ -149,20 +155,12 @@ public class Customer extends BaseEntity {
     this.levelPoint = levelPoint;
   }
 
-  public String getSource() {
-    return source;
+  public Integer getCustomerTypeId() {
+    return customerTypeId;
   }
 
-  public void setSource(String source) {
-    this.source = source;
-  }
-
-  public Long getSourceId() {
-    return sourceId;
-  }
-
-  public void setSourceId(Long sourceId) {
-    this.sourceId = sourceId;
+  public void setCustomerTypeId(Integer customerTypeId) {
+    this.customerTypeId = customerTypeId;
   }
 
   public Integer getStatus() {
@@ -173,35 +171,155 @@ public class Customer extends BaseEntity {
     this.status = status;
   }
 
-  public Integer getCustomerTypeId() {
-    return customerTypeId;
+  public Integer getAvailability() {
+    return availability;
   }
 
-  public void setCustomerTypeId(Integer customerTypeId) {
-    this.customerTypeId = customerTypeId;
+  public void setAvailability(Integer availability) {
+    this.availability = availability;
   }
 
-  public String getDescription() {
-    return description;
+  public Long getSourceId() {
+    return sourceId;
   }
 
-  public void setDescription(String description) {
-    this.description = description;
+  public void setSourceId(Long sourceId) {
+    this.sourceId = sourceId;
   }
 
-  public Set<CampaignCustomer> getCampaignCustomers() {
-    return campaignCustomers;
+  public String getSource() {
+    return source;
   }
 
-  public void setCampaignCustomers(Set<CampaignCustomer> crmCampaignCustomers) {
-    this.campaignCustomers = crmCampaignCustomers;
+  public void setSource(String source) {
+    this.source = source;
   }
 
-  public Set<CustomerUser> getCustomerUsers() {
-    return customerUsers;
+  public String getSourceNote() {
+    return sourceNote;
   }
 
-  public void setCustomerUsers(Set<CustomerUser> crmCustomerUsers) {
-    this.customerUsers = crmCustomerUsers;
+  public void setSourceNote(String sourceNote) {
+    this.sourceNote = sourceNote;
+  }
+
+  public Long getInternalSourceId() {
+    return internalSourceId;
+  }
+
+  public void setInternalSourceId(Long internalSourceId) {
+    this.internalSourceId = internalSourceId;
+  }
+
+  public String getInternalSource() {
+    return internalSource;
+  }
+
+  public void setInternalSource(String internalSource) {
+    this.internalSource = internalSource;
+  }
+
+  public String getZaloId() {
+    return zaloId;
+  }
+
+  public void setZaloId(String zaloId) {
+    this.zaloId = zaloId;
+  }
+
+  public String getZaloName() {
+    return zaloName;
+  }
+
+  public void setZaloName(String zaloName) {
+    this.zaloName = zaloName;
+  }
+
+  public String getFacebookId() {
+    return facebookId;
+  }
+
+  public void setFacebookId(String facebookId) {
+    this.facebookId = facebookId;
+  }
+
+  public String getFacebookName() {
+    return facebookName;
+  }
+
+  public void setFacebookName(String facebookName) {
+    this.facebookName = facebookName;
+  }
+
+  public String getTiktokId() {
+    return tiktokId;
+  }
+
+  public void setTiktokId(String tiktokId) {
+    this.tiktokId = tiktokId;
+  }
+
+  public String getTiktokName() {
+    return tiktokName;
+  }
+
+  public void setTiktokName(String tiktokName) {
+    this.tiktokName = tiktokName;
+  }
+
+  public String getShopeeId() {
+    return shopeeId;
+  }
+
+  public void setShopeeId(String shopeeId) {
+    this.shopeeId = shopeeId;
+  }
+
+  public String getShopeeName() {
+    return shopeeName;
+  }
+
+  public void setShopeeName(String shopeeName) {
+    this.shopeeName = shopeeName;
+  }
+
+  public String getOtherId() {
+    return otherId;
+  }
+
+  public void setOtherId(String otherId) {
+    this.otherId = otherId;
+  }
+
+  public String getOtherName() {
+    return otherName;
+  }
+
+  public void setOtherName(String otherName) {
+    this.otherName = otherName;
+  }
+
+  public String getNotes() {
+    return notes;
+  }
+
+  public void setNotes(String notes) {
+    this.notes = notes;
+  }
+
+  public String getRelationships() {
+    return relationships;
+  }
+
+  public void setRelationships(String relationships) {
+    this.relationships = relationships;
+  }
+
+  public String getSpecialEvents() {
+    return specialEvents;
+  }
+
+  public void setSpecialEvents(String specialEvents) {
+    this.specialEvents = specialEvents;
   }
 }

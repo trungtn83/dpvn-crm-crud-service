@@ -13,6 +13,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -31,7 +33,7 @@ public class Role extends BaseEntity {
   private Integer status = Status.ACTIVE;
 
   @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-  private Set<User> users;
+  private Set<User> users = new HashSet<>();
 
   @Override
   public RoleDto toDto() {

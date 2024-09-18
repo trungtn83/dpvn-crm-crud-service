@@ -3,6 +3,8 @@ package com.dpvn.crmcrudservice.domain.entity;
 import com.dpvn.crmcrudservice.domain.BaseEntity;
 import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.Status;
+import com.dpvn.crmcrudservice.domain.dto.DepartmentDto;
+import com.dpvn.crmcrudservice.domain.dto.RoleDto;
 import com.dpvn.crmcrudservice.domain.dto.UserDto;
 import com.dpvn.crmcrudservice.domain.entity.relationship.CustomerUser;
 import jakarta.persistence.CascadeType;
@@ -64,7 +66,10 @@ public class User extends BaseEntity {
 
   @Override
   public UserDto toDto() {
-    return BeanMapper.instance().map(this, UserDto.class);
+    UserDto dto = BeanMapper.instance().map(this, UserDto.class);
+    dto.setRoleDto(BeanMapper.instance().map(this.role, RoleDto.class));
+    dto.setDepartmentDto(BeanMapper.instance().map(this.department, DepartmentDto.class));
+    return dto;
   }
 
   public Long getId() {

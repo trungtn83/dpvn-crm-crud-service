@@ -15,7 +15,9 @@ public class UserDto extends BaseDto {
   private String mobilePhone;
   private Integer status = Status.ACTIVE;
   private Long roleId;
+  private RoleDto roleDto;
   private Long departmentId;
+  private DepartmentDto departmentDto;
   private String addressDetail;
   private Long addressId;
 
@@ -102,5 +104,21 @@ public class UserDto extends BaseDto {
 
   public void setAddressId(Long addressId) {
     this.addressId = addressId;
+  }
+
+  public RoleDto getRoleDto() {
+    return roleDto;
+  }
+
+  public void setRoleDto(RoleDto roleDto) {
+    this.roleDto = roleDto;
+  }
+
+  public DepartmentDto getDepartmentDto() {
+    return departmentDto;
+  }
+
+  public void setDepartmentDto(DepartmentDto departmentDto) {
+    this.departmentDto = departmentDto;
   }
 }

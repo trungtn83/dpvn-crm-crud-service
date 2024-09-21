@@ -3,10 +3,7 @@ package com.dpvn.crmcrudservice.domain.dto;
 import com.dpvn.crmcrudservice.domain.BaseDto;
 import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.entity.Role;
-import com.dpvn.crmcrudservice.domain.entity.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
-import java.util.HashSet;
 import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

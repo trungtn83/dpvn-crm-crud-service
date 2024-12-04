@@ -1,7 +1,7 @@
 package com.dpvn.crmcrudservice.domain.constant;
 
-public class Gender {
-  private Gender() {}
+public class Genders {
+  private Genders() {}
 
   public static final int MALE = 1;
   public static final int FEMALE = 2;

@@ -34,4 +34,9 @@ public class UserController extends AbstractController<User, UserDto> {
   public void syncAllUsers(@RequestBody List<UserDto> userDtos) {
     service.sync(userDtos.stream().map(UserDto::toEntity).toList());
   }
+
+  @PostMapping("/find-by-ids")
+  public List<UserDto> findUsersByIds(@RequestBody List<Long> userIds) {
+    return ((UserService) service).findUsersByIds(userIds).stream().map(User::toDto).toList();
+  }
 }

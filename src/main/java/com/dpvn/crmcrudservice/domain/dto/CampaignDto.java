@@ -2,14 +2,16 @@ package com.dpvn.crmcrudservice.domain.dto;
 
 import com.dpvn.crmcrudservice.domain.BaseDto;
 import com.dpvn.crmcrudservice.domain.BeanMapper;
-import com.dpvn.crmcrudservice.domain.Status;
 import com.dpvn.crmcrudservice.domain.constant.DispatchType;
+import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.entity.Campaign;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
 import java.util.List;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CampaignDto extends BaseDto {
   private String campaignName;
 

@@ -2,12 +2,10 @@ package com.dpvn.crmcrudservice.domain.entity;
 
 import com.dpvn.crmcrudservice.domain.BaseEntity;
 import com.dpvn.crmcrudservice.domain.BeanMapper;
-import com.dpvn.crmcrudservice.domain.Status;
+import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.dto.DepartmentDto;
 import com.dpvn.crmcrudservice.domain.dto.RoleDto;
 import com.dpvn.crmcrudservice.domain.dto.UserDto;
-import com.dpvn.crmcrudservice.domain.entity.relationship.CustomerUser;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,10 +13,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Instant;
-import java.util.Set;
 
 @Entity
 @Table(name = "`user`")
@@ -60,9 +56,6 @@ public class User extends BaseEntity {
   @ManyToOne
   @JoinColumn(name = "address_id", referencedColumnName = "id")
   private Address address;
-
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<CustomerUser> customerUsers;
 
   @Override
   public UserDto toDto() {
@@ -158,14 +151,6 @@ public class User extends BaseEntity {
 
   public void setAddress(Address address) {
     this.address = address;
-  }
-
-  public Set<CustomerUser> getCustomerUsers() {
-    return customerUsers;
-  }
-
-  public void setCustomerUsers(Set<CustomerUser> customerUsers) {
-    this.customerUsers = customerUsers;
   }
 
   public String getDescription() {

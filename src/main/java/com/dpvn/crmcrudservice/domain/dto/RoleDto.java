@@ -3,10 +3,12 @@ package com.dpvn.crmcrudservice.domain.dto;
 import com.dpvn.crmcrudservice.domain.BaseDto;
 import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.entity.Role;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Set;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RoleDto extends BaseDto {
   private String roleName;
 

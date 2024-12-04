@@ -2,46 +2,91 @@ package com.dpvn.crmcrudservice.domain.dto;
 
 import com.dpvn.crmcrudservice.domain.BaseDto;
 import com.dpvn.crmcrudservice.domain.BeanMapper;
+import com.dpvn.crmcrudservice.domain.constant.Customers;
+import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.entity.Customer;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CustomerDto extends BaseDto {
-  private String customerName;
+  private String customerId; // prepare String for both Long, String and UUID case
   private String customerCode;
+  private String customerName;
+  private Instant birthday;
   private Integer gender;
   private String mobilePhone;
   private String email;
   private String address;
   private Long addressCode; // store ward code or address id?
   private String taxCode;
-  private Integer levelPoint;
-  private Integer status;
-  private Integer customerTypeId;
-
-  private Long sourceId;
-  private String source;
+  private String pinCode;
+  private Integer levelPoint = 0;
+  private Integer status = Status.ACTIVE;
+  private Integer customerTypeId = Customers.Type.PHARMACIST; // PHARMACY, DOCRTOR, COMPANY...
+  private Integer customerCategoryId = Customers.Category.WHOLE_SALE; // wholesle, retail, ....
+  private Integer sourceId = Customers.Source.KIOTVIET;
   private String sourceNote;
-  private Long internalSourceId;
-  private String internalSource;
-  private String zaloId;
-  private String zaloName;
-  private String facebookId;
-  private String facebookName;
-  private String tiktokId;
-  private String tiktokName;
-  private String shopeeId;
-  private String shopeeName;
-  private String otherId;
-  private String otherName;
-
   private String notes;
   private String relationships;
   private String specialEvents;
 
+  private List<CustomerReferenceDto> references = new ArrayList<>();
+
   @Override
   public Customer toEntity() {
-    return BeanMapper.instance().map(this, Customer.class);
+    Customer entity = BeanMapper.instance().map(this, Customer.class);
+    entity.getReferences().forEach(reference -> reference.setCustomer(entity));
+    return entity;
+  }
+
+  public int getCustomerCategoryId() {
+    return customerCategoryId;
+  }
+
+  public void setCustomerCategoryId(int customerCategoryId) {
+    this.customerCategoryId = customerCategoryId;
+  }
+
+  public void setLevelPoint(int levelPoint) {
+    this.levelPoint = levelPoint;
+  }
+
+  public void setStatus(int status) {
+    this.status = status;
+  }
+
+  public void setCustomerTypeId(int customerTypeId) {
+    this.customerTypeId = customerTypeId;
+  }
+
+  public int getSourceId() {
+    return sourceId;
+  }
+
+  public void setSourceId(int sourceId) {
+    this.sourceId = sourceId;
+  }
+
+  public String getSourceNote() {
+    return sourceNote;
+  }
+
+  public void setSourceNote(String sourceNote) {
+    this.sourceNote = sourceNote;
+  }
+
+  public List<CustomerReferenceDto> getReferences() {
+    return references;
+  }
+
+  public void setReferences(List<CustomerReferenceDto> references) {
+    this.references = references;
   }
 
   public String getCustomerName() {
@@ -132,126 +177,6 @@ public class CustomerDto extends BaseDto {
     this.customerTypeId = customerTypeId;
   }
 
-  public Long getSourceId() {
-    return sourceId;
-  }
-
-  public void setSourceId(Long sourceId) {
-    this.sourceId = sourceId;
-  }
-
-  public String getSource() {
-    return source;
-  }
-
-  public void setSource(String source) {
-    this.source = source;
-  }
-
-  public String getSourceNote() {
-    return sourceNote;
-  }
-
-  public void setSourceNote(String sourceNote) {
-    this.sourceNote = sourceNote;
-  }
-
-  public Long getInternalSourceId() {
-    return internalSourceId;
-  }
-
-  public void setInternalSourceId(Long internalSourceId) {
-    this.internalSourceId = internalSourceId;
-  }
-
-  public String getInternalSource() {
-    return internalSource;
-  }
-
-  public void setInternalSource(String internalSource) {
-    this.internalSource = internalSource;
-  }
-
-  public String getZaloId() {
-    return zaloId;
-  }
-
-  public void setZaloId(String zaloId) {
-    this.zaloId = zaloId;
-  }
-
-  public String getZaloName() {
-    return zaloName;
-  }
-
-  public void setZaloName(String zaloName) {
-    this.zaloName = zaloName;
-  }
-
-  public String getFacebookId() {
-    return facebookId;
-  }
-
-  public void setFacebookId(String facebookId) {
-    this.facebookId = facebookId;
-  }
-
-  public String getFacebookName() {
-    return facebookName;
-  }
-
-  public void setFacebookName(String facebookName) {
-    this.facebookName = facebookName;
-  }
-
-  public String getTiktokId() {
-    return tiktokId;
-  }
-
-  public void setTiktokId(String tiktokId) {
-    this.tiktokId = tiktokId;
-  }
-
-  public String getTiktokName() {
-    return tiktokName;
-  }
-
-  public void setTiktokName(String tiktokName) {
-    this.tiktokName = tiktokName;
-  }
-
-  public String getShopeeId() {
-    return shopeeId;
-  }
-
-  public void setShopeeId(String shopeeId) {
-    this.shopeeId = shopeeId;
-  }
-
-  public String getShopeeName() {
-    return shopeeName;
-  }
-
-  public void setShopeeName(String shopeeName) {
-    this.shopeeName = shopeeName;
-  }
-
-  public String getOtherId() {
-    return otherId;
-  }
-
-  public void setOtherId(String otherId) {
-    this.otherId = otherId;
-  }
-
-  public String getOtherName() {
-    return otherName;
-  }
-
-  public void setOtherName(String otherName) {
-    this.otherName = otherName;
-  }
-
   public String getNotes() {
     return notes;
   }
@@ -274,5 +199,29 @@ public class CustomerDto extends BaseDto {
 
   public void setSpecialEvents(String specialEvents) {
     this.specialEvents = specialEvents;
+  }
+
+  public String getPinCode() {
+    return pinCode;
+  }
+
+  public void setPinCode(String pinCode) {
+    this.pinCode = pinCode;
+  }
+
+  public String getCustomerId() {
+    return customerId;
+  }
+
+  public void setCustomerId(String customerId) {
+    this.customerId = customerId;
+  }
+
+  public Instant getBirthday() {
+    return birthday;
+  }
+
+  public void setBirthday(Instant birthday) {
+    this.birthday = birthday;
   }
 }

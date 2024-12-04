@@ -4,10 +4,12 @@ import com.dpvn.crmcrudservice.domain.BaseDto;
 import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.entity.CampaignType;
 import com.dpvn.crmcrudservice.domain.entity.CampaignTypeStep;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Set;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CampaignTypeDto extends BaseDto {
   private String campaignTypeName;
 

@@ -1,4 +1,4 @@
-package com.dpvn.crmcrudservice.domain;
+package com.dpvn.crmcrudservice.domain.constant;
 
 public class Status {
   private Status() {}

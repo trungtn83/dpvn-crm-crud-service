@@ -4,6 +4,7 @@ import com.dpvn.crmcrudservice.domain.BaseEntity;
 import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.constant.Visibility;
 import com.dpvn.crmcrudservice.domain.dto.InteractionDto;
+import com.dpvn.shared.util.StringUtil;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,24 +20,37 @@ public class Interaction extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false)
-  private Long interactionTypeId;
+  // TODO: maybe does not need now
+  private Integer typeId;
 
-  private Long campaignId;
-  private Long customerId;
+  @Column(columnDefinition = "TEXT")
+  private String type;
 
   @Column(nullable = false)
   private Long interactBy;
 
-  private Long channelId;
+  private Long campaignId;
+  private Long customerId;
 
-  @Column(nullable = false)
+  @Column(columnDefinition = "TEXT")
+  private String title;
+
+  @Column(columnDefinition = "TEXT")
   private String content;
 
+  @Column(columnDefinition = "TEXT")
   private String urls;
+
+  @Column(columnDefinition = "TEXT")
   private String images;
+
+  @Column(columnDefinition = "TEXT")
   private String audios;
+
+  @Column(columnDefinition = "TEXT")
   private String videos;
+
+  @Column(columnDefinition = "TEXT")
   private String files;
 
   @Column(nullable = false)
@@ -44,7 +58,13 @@ public class Interaction extends BaseEntity {
 
   @Override
   public InteractionDto toDto() {
-    return BeanMapper.instance().map(this, InteractionDto.class);
+    InteractionDto dto = BeanMapper.instance().map(this, InteractionDto.class);
+    dto.setUrls(StringUtil.split(urls));
+    dto.setImages(StringUtil.split(images));
+    dto.setAudios(StringUtil.split(audios));
+    dto.setVideos(StringUtil.split(videos));
+    dto.setFiles(StringUtil.split(files));
+    return dto;
   }
 
   public Long getId() {
@@ -53,14 +73,6 @@ public class Interaction extends BaseEntity {
 
   public void setId(Long id) {
     this.id = id;
-  }
-
-  public Long getInteractionTypeId() {
-    return interactionTypeId;
-  }
-
-  public void setInteractionTypeId(Long interactionTypeId) {
-    this.interactionTypeId = interactionTypeId;
   }
 
   public Long getCampaignId() {
@@ -85,14 +97,6 @@ public class Interaction extends BaseEntity {
 
   public void setInteractBy(Long interactBy) {
     this.interactBy = interactBy;
-  }
-
-  public Long getChannelId() {
-    return channelId;
-  }
-
-  public void setChannelId(Long channelId) {
-    this.channelId = channelId;
   }
 
   public String getContent() {
@@ -149,5 +153,29 @@ public class Interaction extends BaseEntity {
 
   public void setVisibility(Integer visibility) {
     this.visibility = visibility;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
+  public Integer getTypeId() {
+    return typeId;
+  }
+
+  public void setTypeId(Integer typeId) {
+    this.typeId = typeId;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
   }
 }

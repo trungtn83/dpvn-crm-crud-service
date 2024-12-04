@@ -2,7 +2,7 @@ package com.dpvn.crmcrudservice.domain.entity;
 
 import com.dpvn.crmcrudservice.domain.BaseEntity;
 import com.dpvn.crmcrudservice.domain.BeanMapper;
-import com.dpvn.crmcrudservice.domain.Status;
+import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.dto.CampaignDto;
 import com.dpvn.crmcrudservice.domain.entity.relationship.CampaignCustomer;
 import com.dpvn.crmcrudservice.domain.entity.relationship.CampaignUser;

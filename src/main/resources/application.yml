@@ -18,6 +18,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         generate_statistics: false
+        show_sql: true
     open-in-view: true
   task:
     execution:
@@ -31,6 +32,9 @@ logging:
     com:
       dpvn:
         crmcrudservice: ERROR
+    org:
+      hibernate:
+        SQL: DEBUG
 ---
 spring:
   config:

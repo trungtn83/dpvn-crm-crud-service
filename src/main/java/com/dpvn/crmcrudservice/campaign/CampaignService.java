@@ -2,7 +2,7 @@
 //
 // import com.dpvn.crmcrudservice.AbstractService;
 // import com.dpvn.crmcrudservice.customer.CustomerService;
-// import com.dpvn.crmcrudservice.domain.Status;
+// import com.dpvn.crmcrudservice.domain.constant.Status;
 // import com.dpvn.crmcrudservice.domain.constant.RelationshipType;
 // import com.dpvn.crmcrudservice.domain.dto.CampaignDto;
 // import com.dpvn.crmcrudservice.domain.entity.Campaign;

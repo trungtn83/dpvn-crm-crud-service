@@ -31,7 +31,7 @@ SELECT
     'KIOTVIET' as source,
     null as source_note,
     1 as status,
-    1 as customer_type_id,
+    2 as customer_type_id,
     (select u.id from "user" u where u.username = (select ku.username from kv_user ku where ku.id = kc.created_by)) as created_by,
     kc.created_date,
     (select u.id from "user" u where u.username = (select ku.username from kv_user ku where ku.id = kc.modified_by)) as modified_by,

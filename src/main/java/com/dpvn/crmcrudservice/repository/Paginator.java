@@ -1,10 +1,13 @@
 package com.dpvn.crmcrudservice.repository;
 
-public class Paginator {
+public class
+Paginator {
   private String sortBy;
   private String sortDirection;
   private Integer page;
   private Integer size;
+
+  private Paginator() {}
 
   private Paginator(String sortBy, String sortDirection, Integer page, Integer size) {
     this.sortBy = sortBy;
@@ -14,7 +17,7 @@ public class Paginator {
   }
 
   public static Paginator create() {
-    return new Paginator("id", "ASC", 1, 100);
+    return new Paginator();
   }
 
   public Paginator sortBy(String sortBy) {

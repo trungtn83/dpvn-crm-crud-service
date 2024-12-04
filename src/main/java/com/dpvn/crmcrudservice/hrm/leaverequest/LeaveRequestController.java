@@ -1,7 +1,7 @@
 package com.dpvn.crmcrudservice.hrm.leaverequest;
 
 import com.dpvn.crmcrudservice.AbstractController;
-import com.dpvn.crmcrudservice.domain.Status;
+import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.dto.LeaveRequestDto;
 import com.dpvn.crmcrudservice.domain.entity.LeaveRequest;
 import com.dpvn.shared.util.DateUtil;

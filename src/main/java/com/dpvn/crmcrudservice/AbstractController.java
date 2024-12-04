@@ -24,6 +24,11 @@ public abstract class AbstractController<E extends BaseEntity, T extends BaseDto
     return ResponseEntity.ok(service.save(dto.toEntity()).toDto());
   }
 
+  @PostMapping("/upsert")
+  public ResponseEntity<T> upsert(@RequestBody T dto) {
+    return ResponseEntity.ok(service.upsert(dto.toEntity()).toDto());
+  }
+
   @GetMapping("/{id}")
   public ResponseEntity<?> get(@PathVariable Long id) {
     return service

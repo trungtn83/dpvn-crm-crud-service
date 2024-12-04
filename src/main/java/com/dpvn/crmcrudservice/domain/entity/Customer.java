@@ -2,15 +2,22 @@ package com.dpvn.crmcrudservice.domain.entity;
 
 import com.dpvn.crmcrudservice.domain.BaseEntity;
 import com.dpvn.crmcrudservice.domain.BeanMapper;
-import com.dpvn.crmcrudservice.domain.Status;
-import com.dpvn.crmcrudservice.domain.constant.CustomerAvailability;
+import com.dpvn.crmcrudservice.domain.constant.Customers;
+import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.dto.CustomerDto;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "customer")
@@ -20,8 +27,13 @@ public class Customer extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private String customerName;
+  private String customerId;
   private String customerCode;
+
+  @Column(columnDefinition = "TEXT")
+  private String customerName;
+
+  private Instant birthday;
   private Integer gender;
   private String mobilePhone;
   private String email;
@@ -31,35 +43,15 @@ public class Customer extends BaseEntity {
 
   private Long addressCode; // store ward code or address id?
   private String taxCode;
-  private Integer levelPoint;
-  private Integer customerTypeId;
-
+  private String pinCode;
+  private Integer levelPoint = 0;
   private Integer status = Status.ACTIVE;
-  private Integer availability = CustomerAvailability.FREE;
-
-  private Long sourceId;
-
-  @Column(columnDefinition = "TEXT")
-  private String source;
+  private Integer customerTypeId = Customers.Type.PHARMACIST; // PHARMACY, DOCRTOR, COMPANY...
+  private Integer customerCategoryId = Customers.Category.WHOLE_SALE; // wholesle, retail, ....
+  private Integer sourceId = Customers.Source.KIOTVIET;
 
   @Column(columnDefinition = "TEXT")
   private String sourceNote;
-
-  private Long internalSourceId;
-
-  @Column(columnDefinition = "TEXT")
-  private String internalSource;
-
-  private String zaloId;
-  private String zaloName;
-  private String facebookId;
-  private String facebookName;
-  private String tiktokId;
-  private String tiktokName;
-  private String shopeeId;
-  private String shopeeName;
-  private String otherId;
-  private String otherName;
 
   @Column(columnDefinition = "TEXT")
   private String notes;
@@ -69,6 +61,13 @@ public class Customer extends BaseEntity {
 
   @Column(columnDefinition = "TEXT")
   private String specialEvents;
+
+  @OneToMany(
+      mappedBy = "customer",
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      fetch = FetchType.LAZY)
+  private List<CustomerReference> references = new ArrayList<>();
 
   @Override
   public CustomerDto toDto() {
@@ -83,20 +82,20 @@ public class Customer extends BaseEntity {
     this.id = id;
   }
 
-  public String getCustomerName() {
-    return customerName;
-  }
-
-  public void setCustomerName(String customerName) {
-    this.customerName = customerName;
-  }
-
   public String getCustomerCode() {
     return customerCode;
   }
 
   public void setCustomerCode(String customerCode) {
     this.customerCode = customerCode;
+  }
+
+  public String getCustomerName() {
+    return customerName;
+  }
+
+  public void setCustomerName(String customerName) {
+    this.customerName = customerName;
   }
 
   public Integer getGender() {
@@ -147,52 +146,12 @@ public class Customer extends BaseEntity {
     this.taxCode = taxCode;
   }
 
-  public Integer getLevelPoint() {
-    return levelPoint;
+  public String getPinCode() {
+    return pinCode;
   }
 
-  public void setLevelPoint(Integer levelPoint) {
-    this.levelPoint = levelPoint;
-  }
-
-  public Integer getCustomerTypeId() {
-    return customerTypeId;
-  }
-
-  public void setCustomerTypeId(Integer customerTypeId) {
-    this.customerTypeId = customerTypeId;
-  }
-
-  public Integer getStatus() {
-    return status;
-  }
-
-  public void setStatus(Integer status) {
-    this.status = status;
-  }
-
-  public Integer getAvailability() {
-    return availability;
-  }
-
-  public void setAvailability(Integer availability) {
-    this.availability = availability;
-  }
-
-  public Long getSourceId() {
-    return sourceId;
-  }
-
-  public void setSourceId(Long sourceId) {
-    this.sourceId = sourceId;
-  }
-
-  public String getSource() {
-    return source;
-  }
-
-  public void setSource(String source) {
-    this.source = source;
+  public void setPinCode(String pinCode) {
+    this.pinCode = pinCode;
   }
 
   public String getSourceNote() {
@@ -201,102 +160,6 @@ public class Customer extends BaseEntity {
 
   public void setSourceNote(String sourceNote) {
     this.sourceNote = sourceNote;
-  }
-
-  public Long getInternalSourceId() {
-    return internalSourceId;
-  }
-
-  public void setInternalSourceId(Long internalSourceId) {
-    this.internalSourceId = internalSourceId;
-  }
-
-  public String getInternalSource() {
-    return internalSource;
-  }
-
-  public void setInternalSource(String internalSource) {
-    this.internalSource = internalSource;
-  }
-
-  public String getZaloId() {
-    return zaloId;
-  }
-
-  public void setZaloId(String zaloId) {
-    this.zaloId = zaloId;
-  }
-
-  public String getZaloName() {
-    return zaloName;
-  }
-
-  public void setZaloName(String zaloName) {
-    this.zaloName = zaloName;
-  }
-
-  public String getFacebookId() {
-    return facebookId;
-  }
-
-  public void setFacebookId(String facebookId) {
-    this.facebookId = facebookId;
-  }
-
-  public String getFacebookName() {
-    return facebookName;
-  }
-
-  public void setFacebookName(String facebookName) {
-    this.facebookName = facebookName;
-  }
-
-  public String getTiktokId() {
-    return tiktokId;
-  }
-
-  public void setTiktokId(String tiktokId) {
-    this.tiktokId = tiktokId;
-  }
-
-  public String getTiktokName() {
-    return tiktokName;
-  }
-
-  public void setTiktokName(String tiktokName) {
-    this.tiktokName = tiktokName;
-  }
-
-  public String getShopeeId() {
-    return shopeeId;
-  }
-
-  public void setShopeeId(String shopeeId) {
-    this.shopeeId = shopeeId;
-  }
-
-  public String getShopeeName() {
-    return shopeeName;
-  }
-
-  public void setShopeeName(String shopeeName) {
-    this.shopeeName = shopeeName;
-  }
-
-  public String getOtherId() {
-    return otherId;
-  }
-
-  public void setOtherId(String otherId) {
-    this.otherId = otherId;
-  }
-
-  public String getOtherName() {
-    return otherName;
-  }
-
-  public void setOtherName(String otherName) {
-    this.otherName = otherName;
   }
 
   public String getNotes() {
@@ -321,5 +184,69 @@ public class Customer extends BaseEntity {
 
   public void setSpecialEvents(String specialEvents) {
     this.specialEvents = specialEvents;
+  }
+
+  public List<CustomerReference> getReferences() {
+    return references;
+  }
+
+  public void setReferences(List<CustomerReference> references) {
+    this.references = references;
+  }
+
+  public Integer getLevelPoint() {
+    return levelPoint;
+  }
+
+  public void setLevelPoint(Integer levelPoint) {
+    this.levelPoint = levelPoint;
+  }
+
+  public Integer getStatus() {
+    return status;
+  }
+
+  public void setStatus(Integer status) {
+    this.status = status;
+  }
+
+  public Integer getCustomerTypeId() {
+    return customerTypeId;
+  }
+
+  public void setCustomerTypeId(Integer customerTypeId) {
+    this.customerTypeId = customerTypeId;
+  }
+
+  public Integer getCustomerCategoryId() {
+    return customerCategoryId;
+  }
+
+  public void setCustomerCategoryId(Integer customerCategoryId) {
+    this.customerCategoryId = customerCategoryId;
+  }
+
+  public Integer getSourceId() {
+    return sourceId;
+  }
+
+  public void setSourceId(Integer sourceId) {
+    this.sourceId = sourceId;
+  }
+
+  public String getCustomerId() {
+    return customerId;
+  }
+
+  public void setCustomerId(String customerId) {
+    this.customerId = customerId;
+  }
+
+  public Instant getBirthday() {
+    return birthday;
+  }
+
+  public void setBirthday(Instant birthday) {
+    this.birthday = birthday;
   }
 }

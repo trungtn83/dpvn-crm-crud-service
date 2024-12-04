@@ -1,7 +1,7 @@
 package com.dpvn.crmcrudservice.user;
 
 import com.dpvn.crmcrudservice.AbstractService;
-import com.dpvn.crmcrudservice.domain.Status;
+import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.entity.Department;
 import com.dpvn.crmcrudservice.domain.entity.Role;
 import com.dpvn.crmcrudservice.domain.entity.User;
@@ -13,7 +13,6 @@ import com.dpvn.shared.util.ObjectUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +30,6 @@ public class UserService extends AbstractService<User> {
     this.roleRepository = roleRepository;
   }
 
-  @Async
   @Transactional
   @Override
   public void sync(List<User> entities) {
@@ -56,7 +54,7 @@ public class UserService extends AbstractService<User> {
     saveAll(users);
   }
 
-  public List<User> findByIds(List<Long> ids) {
+  public List<User> findUsersByIds(List<Long> ids) {
     return ((UserRepository) repository).findByIdIn(ids);
   }
 

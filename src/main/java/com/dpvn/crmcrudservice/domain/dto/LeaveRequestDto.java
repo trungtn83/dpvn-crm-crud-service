@@ -5,11 +5,13 @@ import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.entity.LeaveRequest;
 import com.dpvn.shared.util.ListUtil;
 import com.dpvn.shared.util.StringUtil;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
 import java.util.List;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LeaveRequestDto extends BaseDto {
   private Long userId;
   private Long reasonId;

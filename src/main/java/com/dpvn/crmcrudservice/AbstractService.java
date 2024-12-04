@@ -1,13 +1,13 @@
 package com.dpvn.crmcrudservice;
 
 import com.dpvn.crmcrudservice.domain.BaseEntity;
+import com.dpvn.shared.util.DateUtil;
 import com.dpvn.shared.util.ObjectUtil;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractService<E extends BaseEntity> {
@@ -19,7 +19,15 @@ public abstract class AbstractService<E extends BaseEntity> {
     this.repository = repository;
   }
 
+  private void injectDate(E entity) {
+    if (entity.getCreatedDate() == null) {
+      entity.setCreatedDate(DateUtil.now());
+    }
+    entity.setModifiedDate(DateUtil.now());
+  }
+
   public E save(E entity) {
+    injectDate(entity);
     return repository.save(entity);
   }
 
@@ -29,13 +37,21 @@ public abstract class AbstractService<E extends BaseEntity> {
     return save(dbEntity);
   }
 
-  @Async
+  public E upsert(E entity) {
+    Object id = ObjectUtil.getField(entity, "id");
+    if (id == null) {
+      return save(entity);
+    }
+    return update(Long.valueOf(id.toString()), entity);
+  }
+
   @Transactional
   public void saveAll(List<E> entities) {
     int batchSize = 50; // Adjust batch size as necessary
     for (int i = 0; i < entities.size(); i += batchSize) {
       int end = Math.min(i + batchSize, entities.size());
       List<E> batch = entities.subList(i, end);
+      batch.forEach(this::injectDate);
       repository.saveAll(batch);
     }
   }
@@ -57,7 +73,6 @@ public abstract class AbstractService<E extends BaseEntity> {
     repository.delete(entity);
   }
 
-  @Async
   @Transactional
   public abstract void sync(List<E> entities);
 }

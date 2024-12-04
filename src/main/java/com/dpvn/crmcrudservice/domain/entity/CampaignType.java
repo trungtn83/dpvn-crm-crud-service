@@ -2,7 +2,7 @@ package com.dpvn.crmcrudservice.domain.entity;
 
 import com.dpvn.crmcrudservice.domain.BaseEntity;
 import com.dpvn.crmcrudservice.domain.BeanMapper;
-import com.dpvn.crmcrudservice.domain.Status;
+import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.dto.CampaignTypeDto;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -12,7 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "campaign_type")
@@ -31,7 +31,7 @@ public class CampaignType extends BaseEntity {
   private Integer steps;
 
   @OneToMany(mappedBy = "campaignType", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<CampaignTypeStep> campaignTypeSteps;
+  private List<CampaignTypeStep> campaignTypeSteps;
 
   @Override
   public CampaignTypeDto toDto() {
@@ -78,11 +78,11 @@ public class CampaignType extends BaseEntity {
     this.steps = steps;
   }
 
-  public Set<CampaignTypeStep> getCampaignTypeSteps() {
+  public List<CampaignTypeStep> getCampaignTypeSteps() {
     return campaignTypeSteps;
   }
 
-  public void setCampaignTypeSteps(Set<CampaignTypeStep> campaignTypeSteps) {
+  public void setCampaignTypeSteps(List<CampaignTypeStep> campaignTypeSteps) {
     this.campaignTypeSteps = campaignTypeSteps;
   }
 }

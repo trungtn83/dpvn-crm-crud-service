@@ -7,12 +7,11 @@ import com.dpvn.crmcrudservice.domain.constant.Tasks;
 import com.dpvn.crmcrudservice.domain.entity.Task;
 import com.dpvn.shared.util.StringUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-//@JsonInclude(JsonInclude.Include.NON_EMPTY)
+// @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TaskDto extends BaseDto {
   private Long userId;

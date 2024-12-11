@@ -23,7 +23,6 @@ import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -217,19 +216,28 @@ public class CustomerService extends AbstractService<Customer> {
         .toList();
   }
 
-  public Page<FastMap> findTaskBasedCustomers(Long userId, String filterText, List<String> tags, int page, int pageSize) {
+  public Page<FastMap> findTaskBasedCustomers(
+      Long userId, String filterText, List<String> tags, int page, int pageSize) {
     Pageable pageable = PageRequest.of(page, pageSize);
     return customerCustomRepository.searchTaskBasedCustomers(userId, filterText, tags, pageable);
   }
 
-  public Page<FastMap> findInPoolCustomers(Long userId, String filterText, List<String> tags, int page, int pageSize) {
+  public Page<FastMap> findInPoolCustomers(
+      Long userId, String filterText, List<String> tags, int page, int pageSize) {
     Pageable pageable = PageRequest.of(page, pageSize);
     return customerCustomRepository.searchInPoolCustomers(userId, filterText, tags, pageable);
   }
 
-  public Page<FastMap> findMyCustomers(Long saleId, Long customerCategoryId, String filterText, List<Integer> reasonIds, int page, int pageSize) {
+  public Page<FastMap> findMyCustomers(
+      Long saleId,
+      Long customerCategoryId,
+      String filterText,
+      List<Integer> reasonIds,
+      int page,
+      int pageSize) {
     Pageable pageable = PageRequest.of(page, pageSize);
-    return customerCustomRepository.searchMyCustomers(saleId, customerCategoryId, filterText, reasonIds, pageable);
+    return customerCustomRepository.searchMyCustomers(
+        saleId, customerCategoryId, filterText, reasonIds, pageable);
   }
 
   public void updateLastTransaction(

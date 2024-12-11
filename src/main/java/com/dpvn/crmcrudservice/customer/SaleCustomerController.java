@@ -7,8 +7,6 @@ import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomerState;
 import com.dpvn.shared.util.FastMap;
 import java.util.List;
-
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,14 +30,10 @@ public class SaleCustomerController extends AbstractController<SaleCustomer, Sal
     ((SaleCustomerService) service).removeSaleCustomerByOptions(dto);
   }
 
-
   /**
-   * @param body: all criteria will be applied if exited and not null, empty
-   *  - saleId: Long
-   *  - customerIds: List<Long> find customer id in this list
-   *  - relationshipType: Integer
-   *  - reasonIds: List<Long> find reason id in this list
-   *  - reasonRef: String
+   * @param body: all criteria will be applied if exited and not null, empty - saleId: Long -
+   *     customerIds: List<Long> find customer id in this list - relationshipType: Integer -
+   *     reasonIds: List<Long> find reason id in this list - reasonRef: String
    */
   @PostMapping("/find-by-options")
   public List<SaleCustomerDto> findSaleCustomersByOptions(@RequestBody FastMap body) {
@@ -49,7 +43,11 @@ public class SaleCustomerController extends AbstractController<SaleCustomer, Sal
     List<Integer> reasonIds = body.getList("reasonIds");
     String reasonRef = body.getString("reasonRef");
 
-    return ((SaleCustomerService) service).findSaleCustomersByOptions(saleId, customerIds, relationshipType, reasonIds, reasonRef).stream().map(SaleCustomer::toDto).toList();
+    return ((SaleCustomerService) service)
+            .findSaleCustomersByOptions(saleId, customerIds, relationshipType, reasonIds, reasonRef)
+            .stream()
+            .map(SaleCustomer::toDto)
+            .toList();
   }
 
   @GetMapping("/state/by-sale")

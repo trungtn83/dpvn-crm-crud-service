@@ -36,7 +36,8 @@ public class SaleCustomers {
     public static final int STAR = 5;
 
     /**
-     * TYPE = EVOLVE Đang request admin để gán customer này thành khách đang chăm sóc, vì nhìn thấy có tiềm năng hoặc đang chăm dở
+     * TYPE = EVOLVE Đang request admin để gán customer này thành khách đang chăm sóc, vì nhìn thấy
+     * có tiềm năng hoặc đang chăm dở
      */
     public static final int REQUESTING = 6;
 

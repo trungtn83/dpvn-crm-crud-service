@@ -42,8 +42,8 @@ public abstract class AbstractController<E extends BaseEntity, T extends BaseDto
     return service.findAll().stream().map(e -> (T) e.toDto()).toList();
   }
 
-  @PutMapping("/{id}")
-  public ResponseEntity<T> updatePut(@PathVariable Long id, @RequestBody T dto) {
+  @PutMapping()
+  public ResponseEntity<T> updatePut(@RequestBody T dto) {
     return ResponseEntity.ok(service.save(dto.toEntity()).toDto());
   }
 

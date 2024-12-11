@@ -2,8 +2,6 @@ package com.dpvn.crmcrudservice.repository;
 
 import com.dpvn.crmcrudservice.domain.entity.Customer;
 import java.util.List;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -12,7 +10,8 @@ import org.springframework.stereotype.Repository;
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
   List<Customer> findByIdIn(List<Long> ids);
 
-  String FIND_CUSTOMER_BY_MOBILE_PHONE = """
+  String FIND_CUSTOMER_BY_MOBILE_PHONE =
+      """
        SELECT DISTINCT
            c.id,
            c.customer_id,
@@ -21,7 +20,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
            c.modified_by,
            c.modified_date,
            c.address,
-           c.address_code,
+           c.address_id,
            c.customer_category_id,
            c.customer_code,
            c.customer_name,
@@ -46,6 +45,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
        WHERE c.mobile_phone = :mobilePhone
           OR ((cr.code = 'MOBILE_PHONE' AND cr.value = :mobilePhone) OR (cr.code = 'ZALO' AND cr.value = :mobilePhone));
       """;
+
   @Query(value = FIND_CUSTOMER_BY_MOBILE_PHONE, nativeQuery = true)
   List<Customer> findCustomersByMobilePhone(String mobilePhone);
 }

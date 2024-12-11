@@ -105,7 +105,7 @@ public class SaleCustomerCustomRepository {
             c.modified_by AS customer_modified_by,
             c.modified_date AS customer_modified_date,
             c.address AS customer_address,
-            c.address_code AS customer_address_code,
+            c.address_id AS customer_address_id,
             c.customer_category_id AS customer_category_id,
             c.customer_code AS customer_code,
             c.customer_name AS customer_name,

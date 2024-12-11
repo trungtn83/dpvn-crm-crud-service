@@ -20,7 +20,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
       """;
 
   @Query(FIND_TASKS_BY_OPTIONS)
-  List<Task> findTaskByOptions(
+  List<Task> findTasksByOptions(
       @Param("userId") Long userId,
       @Param("customerId") Long customerId,
       @Param("campaignId") Long campaignId,

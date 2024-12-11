@@ -1,7 +1,6 @@
 package com.dpvn.crmcrudservice.repository;
 
-public class
-Paginator {
+public class Paginator {
   private String sortBy;
   private String sortDirection;
   private Integer page;

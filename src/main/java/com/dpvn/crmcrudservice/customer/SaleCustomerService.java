@@ -8,13 +8,8 @@ import com.dpvn.crmcrudservice.repository.CustomerRepository;
 import com.dpvn.crmcrudservice.repository.SaleCustomerCustomRepository;
 import com.dpvn.crmcrudservice.repository.SaleCustomerRepository;
 import com.dpvn.shared.exception.BadRequestException;
-import com.dpvn.shared.util.FastMap;
 import com.dpvn.shared.util.ListUtil;
 import java.util.List;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -43,13 +38,8 @@ public class SaleCustomerService extends AbstractService<SaleCustomer> {
       List<Integer> reasonIds,
       String reasonRef) {
     return saleCustomerCustomRepository.findSaleCustomersByOptions(
-        saleId,
-        customerIds,
-        relationshipType,
-        reasonIds,
-        reasonRef);
+        saleId, customerIds, relationshipType, reasonIds, reasonRef);
   }
-
 
   public void removeSaleCustomerByOptions(SaleCustomerDto dto) {
     List<SaleCustomer> saleCustomers =

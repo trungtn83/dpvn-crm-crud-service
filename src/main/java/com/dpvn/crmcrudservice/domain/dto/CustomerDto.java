@@ -2,12 +2,10 @@ package com.dpvn.crmcrudservice.domain.dto;
 
 import com.dpvn.crmcrudservice.domain.BaseDto;
 import com.dpvn.crmcrudservice.domain.BeanMapper;
-import com.dpvn.crmcrudservice.domain.constant.Customers;
 import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,14 +21,14 @@ public class CustomerDto extends BaseDto {
   private String mobilePhone;
   private String email;
   private String address;
-  private Long addressCode; // store ward code or address id?
+  private Long addressId;
   private String taxCode;
   private String pinCode;
   private Integer levelPoint = 0;
   private Integer status = Status.ACTIVE;
-  private Integer customerTypeId = Customers.Type.PHARMACIST; // PHARMACY, DOCRTOR, COMPANY...
-  private Integer customerCategoryId = Customers.Category.WHOLE_SALE; // wholesle, retail, ....
-  private Integer sourceId = Customers.Source.KIOTVIET;
+  private Integer customerTypeId;
+  private Integer customerCategoryId;
+  private Integer sourceId;
   private String sourceNote;
   private String notes;
   private String relationships;
@@ -45,31 +43,19 @@ public class CustomerDto extends BaseDto {
     return entity;
   }
 
-  public int getCustomerCategoryId() {
+  public Integer getCustomerCategoryId() {
     return customerCategoryId;
   }
 
-  public void setCustomerCategoryId(int customerCategoryId) {
+  public void setCustomerCategoryId(Integer customerCategoryId) {
     this.customerCategoryId = customerCategoryId;
   }
 
-  public void setLevelPoint(int levelPoint) {
-    this.levelPoint = levelPoint;
-  }
-
-  public void setStatus(int status) {
-    this.status = status;
-  }
-
-  public void setCustomerTypeId(int customerTypeId) {
-    this.customerTypeId = customerTypeId;
-  }
-
-  public int getSourceId() {
+  public Integer getSourceId() {
     return sourceId;
   }
 
-  public void setSourceId(int sourceId) {
+  public void setSourceId(Integer sourceId) {
     this.sourceId = sourceId;
   }
 
@@ -137,12 +123,12 @@ public class CustomerDto extends BaseDto {
     this.address = address;
   }
 
-  public Long getAddressCode() {
-    return addressCode;
+  public Long getAddressId() {
+    return addressId;
   }
 
-  public void setAddressCode(Long addressCode) {
-    this.addressCode = addressCode;
+  public void setAddressId(Long addressId) {
+    this.addressId = addressId;
   }
 
   public String getTaxCode() {

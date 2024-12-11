@@ -15,8 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/customer")
 public class CustomerController extends AbstractController<Customer, CustomerDto> {
 
-  public CustomerController(
-      CustomerService customerService) {
+  public CustomerController(CustomerService customerService) {
     super(customerService);
   }
 
@@ -27,9 +26,9 @@ public class CustomerController extends AbstractController<Customer, CustomerDto
   }
 
   /**
-   *
    * @param mobilePhone
-   * @return Find customer by mobile phone in main contact, in additional phone and zalo from references
+   * @return Find customer by mobile phone in main contact, in additional phone and zalo from
+   *     references
    */
   @GetMapping("/find-by-mobile-phone")
   public List<CustomerDto> findByMobilePhone(@RequestParam("mobilePhone") String mobilePhone) {
@@ -75,6 +74,7 @@ public class CustomerController extends AbstractController<Customer, CustomerDto
     List<Long> customerIds = body.getList("customerIds");
     return ((CustomerService) service).revokes(saleId, customerIds);
   }
+
   @PostMapping("/my")
   public FastMap findMyCustomers(@RequestBody FastMap body) {
     Long saleId = body.getLong("saleId");
@@ -85,7 +85,9 @@ public class CustomerController extends AbstractController<Customer, CustomerDto
     Integer page = body.getInt("page");
     Integer pageSize = body.getInt("pageSize");
 
-    Page<FastMap> customerPage = ((CustomerService) service).findMyCustomers(saleId, customerCategoryId, filterText, reasonIds, page, pageSize);
+    Page<FastMap> customerPage =
+        ((CustomerService) service)
+            .findMyCustomers(saleId, customerCategoryId, filterText, reasonIds, page, pageSize);
     return FastMap.create()
         .add("rows", customerPage.getContent())
         .add("total", customerPage.getTotalElements())
@@ -102,7 +104,8 @@ public class CustomerController extends AbstractController<Customer, CustomerDto
     Integer page = body.getInt("page");
     Integer pageSize = body.getInt("pageSize");
 
-    Page<FastMap> customerPage = ((CustomerService) service).findInPoolCustomers(saleId,  filterText, tags, page, pageSize);
+    Page<FastMap> customerPage =
+        ((CustomerService) service).findInPoolCustomers(saleId, filterText, tags, page, pageSize);
     return FastMap.create()
         .add("rows", customerPage.getContent())
         .add("total", customerPage.getTotalElements())
@@ -119,7 +122,9 @@ public class CustomerController extends AbstractController<Customer, CustomerDto
     Integer page = body.getInt("page");
     Integer pageSize = body.getInt("pageSize");
 
-    Page<FastMap> customerPage = ((CustomerService) service).findTaskBasedCustomers(saleId,  filterText, tags, page, pageSize);
+    Page<FastMap> customerPage =
+        ((CustomerService) service)
+            .findTaskBasedCustomers(saleId, filterText, tags, page, pageSize);
     return FastMap.create()
         .add("rows", customerPage.getContent())
         .add("total", customerPage.getTotalElements())

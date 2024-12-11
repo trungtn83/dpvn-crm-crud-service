@@ -4,8 +4,6 @@ import com.dpvn.crmcrudservice.AbstractService;
 import com.dpvn.crmcrudservice.domain.entity.Task;
 import com.dpvn.crmcrudservice.repository.TaskRepository;
 import java.util.List;
-
-import com.dpvn.shared.util.ObjectUtil;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,7 +20,7 @@ public class TaskService extends AbstractService<Task> {
   public List<Task> getTasksByOptions(
       Long userId, Long customerId, Long campaignId, Long kpiId, Long otherId) {
     return ((TaskRepository) repository)
-        .findTaskByOptions(userId, customerId, campaignId, kpiId, otherId);
+        .findTasksByOptions(userId, customerId, campaignId, kpiId, otherId);
   }
 
   @Override

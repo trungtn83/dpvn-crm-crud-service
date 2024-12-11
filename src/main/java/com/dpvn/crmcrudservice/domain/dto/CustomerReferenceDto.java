@@ -11,6 +11,13 @@ public class CustomerReferenceDto {
   private String value;
   private String reference;
 
+  public CustomerReferenceDto() {}
+
+  public CustomerReferenceDto(String code, String value) {
+    this.code = code;
+    this.value = value;
+  }
+
   public String getCode() {
     return code;
   }

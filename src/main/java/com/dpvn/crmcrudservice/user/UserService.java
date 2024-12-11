@@ -7,12 +7,17 @@ import com.dpvn.crmcrudservice.domain.entity.Role;
 import com.dpvn.crmcrudservice.domain.entity.User;
 import com.dpvn.crmcrudservice.repository.DepartmentRepository;
 import com.dpvn.crmcrudservice.repository.RoleRepository;
+import com.dpvn.crmcrudservice.repository.UserCustomRepository;
 import com.dpvn.crmcrudservice.repository.UserRepository;
 import com.dpvn.shared.exception.BadRequestException;
+import com.dpvn.shared.util.FastMap;
 import com.dpvn.shared.util.ObjectUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,14 +25,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService extends AbstractService<User> {
   private final DepartmentRepository departmentRepository;
   private final RoleRepository roleRepository;
+  private final UserCustomRepository userCustomRepository;
 
   public UserService(
       UserRepository repository,
       DepartmentRepository departmentRepository,
-      RoleRepository roleRepository) {
+      RoleRepository roleRepository,
+      UserCustomRepository userCustomRepository) {
     super(repository);
     this.departmentRepository = departmentRepository;
     this.roleRepository = roleRepository;
+    this.userCustomRepository = userCustomRepository;
   }
 
   @Transactional
@@ -75,5 +83,29 @@ public class UserService extends AbstractService<User> {
     user.setPassword(password);
     user.setStatus(Status.ACTIVE);
     repository.save(user);
+  }
+
+  public List<User> findUsersByOptions(
+      String username,
+      String fullName,
+      String email,
+      String mobilePhone,
+      String description,
+      String address) {
+    return ((UserRepository) repository)
+        .findUsersByOptions(username, fullName, email, mobilePhone, description, address);
+  }
+
+  public Page<FastMap> searchUsers(
+      String filterText,
+      List<String> departments,
+      List<String> roles,
+      Integer page,
+      Integer pageSize) {
+    Pageable pageable =
+        (page == null || pageSize == null)
+            ? PageRequest.of(0, Integer.MAX_VALUE)
+            : PageRequest.of(page, pageSize);
+    return userCustomRepository.searchUsers(filterText, departments, roles, pageable);
   }
 }

@@ -14,7 +14,7 @@ public class AddressDto extends BaseDto {
   private String wardName;
   private String districtCode;
   private String districtName;
-  private String provinceCod3;
+  private String provinceCode;
   private String provinceName;
   private String regionCode;
   private String regionName;
@@ -58,12 +58,12 @@ public class AddressDto extends BaseDto {
     this.districtName = districtName;
   }
 
-  public String getProvinceCod3() {
-    return provinceCod3;
+  public String getProvinceCode() {
+    return provinceCode;
   }
 
-  public void setProvinceCod3(String provinceCod3) {
-    this.provinceCod3 = provinceCod3;
+  public void setProvinceCode(String provinceCode) {
+    this.provinceCode = provinceCode;
   }
 
   public String getProvinceName() {

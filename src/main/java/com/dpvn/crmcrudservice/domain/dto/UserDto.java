@@ -6,6 +6,7 @@ import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.time.Instant;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -16,6 +17,8 @@ public class UserDto extends BaseDto {
   private String email;
   private String mobilePhone;
   private Integer status = Status.ACTIVE;
+  private Instant dob;
+  private String description;
   private Long roleId;
   private RoleDto roleDto;
   private Long departmentId;
@@ -26,6 +29,22 @@ public class UserDto extends BaseDto {
   @Override
   public User toEntity() {
     return BeanMapper.instance().map(this, User.class);
+  }
+
+  public Instant getDob() {
+    return dob;
+  }
+
+  public void setDob(Instant dob) {
+    this.dob = dob;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 
   public String getUsername() {

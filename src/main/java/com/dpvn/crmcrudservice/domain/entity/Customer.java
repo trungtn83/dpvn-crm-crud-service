@@ -2,7 +2,6 @@ package com.dpvn.crmcrudservice.domain.entity;
 
 import com.dpvn.crmcrudservice.domain.BaseEntity;
 import com.dpvn.crmcrudservice.domain.BeanMapper;
-import com.dpvn.crmcrudservice.domain.constant.Customers;
 import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.dto.CustomerDto;
 import jakarta.persistence.CascadeType;
@@ -14,7 +13,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,14 +39,14 @@ public class Customer extends BaseEntity {
   @Column(columnDefinition = "TEXT")
   private String address;
 
-  private Long addressCode; // store ward code or address id?
+  private Long addressId;
   private String taxCode;
   private String pinCode;
   private Integer levelPoint = 0;
   private Integer status = Status.ACTIVE;
-  private Integer customerTypeId = Customers.Type.PHARMACIST; // PHARMACY, DOCRTOR, COMPANY...
-  private Integer customerCategoryId = Customers.Category.WHOLE_SALE; // wholesle, retail, ....
-  private Integer sourceId = Customers.Source.KIOTVIET;
+  private Integer customerTypeId;
+  private Integer customerCategoryId;
+  private Integer sourceId;
 
   @Column(columnDefinition = "TEXT")
   private String sourceNote;
@@ -130,12 +128,12 @@ public class Customer extends BaseEntity {
     this.address = address;
   }
 
-  public Long getAddressCode() {
-    return addressCode;
+  public Long getAddressId() {
+    return addressId;
   }
 
-  public void setAddressCode(Long addressCode) {
-    this.addressCode = addressCode;
+  public void setAddressId(Long addressCode) {
+    this.addressId = addressCode;
   }
 
   public String getTaxCode() {

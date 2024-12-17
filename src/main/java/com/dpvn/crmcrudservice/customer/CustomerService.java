@@ -1,9 +1,7 @@
 package com.dpvn.crmcrudservice.customer;
 
-import com.dpvn.crmcrudservice.AbstractService;
 import com.dpvn.crmcrudservice.domain.constant.Customers;
 import com.dpvn.crmcrudservice.domain.constant.RelationshipType;
-import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.dpvn.crmcrudservice.domain.entity.CustomerReference;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
@@ -14,6 +12,8 @@ import com.dpvn.crmcrudservice.repository.Paginator;
 import com.dpvn.crmcrudservice.repository.SaleCustomerRepository;
 import com.dpvn.crmcrudservice.user.UserService;
 import com.dpvn.shared.exception.BadRequestException;
+import com.dpvn.shared.log.Logger;
+import com.dpvn.shared.service.AbstractService;
 import com.dpvn.shared.util.FastMap;
 import com.dpvn.shared.util.ObjectUtil;
 import com.dpvn.shared.util.StringUtil;
@@ -108,19 +108,19 @@ public class CustomerService extends AbstractService<Customer> {
 
   private String revoke(User sale, Customer customer) {
     SaleCustomer dbActiveSaleCustomer =
-        saleCustomerRepository.findBySaleIdAndCustomerIdAndStatus(
-            sale.getId(), customer.getId(), Status.ACTIVE);
+        saleCustomerRepository.findBySaleIdAndCustomerIdAndActive(
+            sale.getId(), customer.getId(), Boolean.TRUE);
     if (dbActiveSaleCustomer != null) {
       if (dbActiveSaleCustomer.getRelationshipType() == RelationshipType.PIC) {
         String errorMessage =
             String.format(
                 "Customer %s is belong to other sale: %d",
                 customer.getId(), dbActiveSaleCustomer.getSaleId());
-        LOG.error(errorMessage);
+        Logger.error(errorMessage);
         return errorMessage;
       }
 
-      dbActiveSaleCustomer.setStatus(Status.INACTIVE);
+      dbActiveSaleCustomer.setActive(Boolean.FALSE);
       saleCustomerService.save(dbActiveSaleCustomer);
     }
 

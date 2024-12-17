@@ -1,8 +1,8 @@
 package com.dpvn.crmcrudservice.user;
 
-import com.dpvn.crmcrudservice.AbstractController;
 import com.dpvn.crmcrudservice.domain.dto.UserDto;
 import com.dpvn.crmcrudservice.domain.entity.User;
+import com.dpvn.shared.controller.AbstractController;
 import com.dpvn.shared.util.FastMap;
 import java.util.List;
 import java.util.Optional;
@@ -31,11 +31,6 @@ public class UserController extends AbstractController<User, UserDto> {
   @PostMapping("/change-password")
   public void changePassword(@RequestBody UserDto userDto) {
     ((UserService) service).changePassword(userDto.getUsername(), userDto.getPassword());
-  }
-
-  @PostMapping("/sync-all")
-  public void syncAllUsers(@RequestBody List<UserDto> userDtos) {
-    service.sync(userDtos.stream().map(UserDto::toEntity).toList());
   }
 
   @PostMapping("/find-by-ids")

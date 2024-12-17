@@ -1,9 +1,8 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.BaseEntity;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
-import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.dto.CustomerDto;
+import com.dpvn.shared.domain.BaseEntity;
+import com.dpvn.shared.domain.BeanMapper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -43,7 +42,6 @@ public class Customer extends BaseEntity {
   private String taxCode;
   private String pinCode;
   private Integer levelPoint = 0;
-  private Integer status = Status.ACTIVE;
   private Integer customerTypeId;
   private Integer customerCategoryId;
   private Integer sourceId;
@@ -198,14 +196,6 @@ public class Customer extends BaseEntity {
 
   public void setLevelPoint(Integer levelPoint) {
     this.levelPoint = levelPoint;
-  }
-
-  public Integer getStatus() {
-    return status;
-  }
-
-  public void setStatus(Integer status) {
-    this.status = status;
   }
 
   public Integer getCustomerTypeId() {

@@ -1,8 +1,8 @@
 package com.dpvn.crmcrudservice.domain.dto;
 
-import com.dpvn.crmcrudservice.domain.BaseDto;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.entity.LeaveRequest;
+import com.dpvn.shared.domain.BaseDto;
+import com.dpvn.shared.domain.BeanMapper;
 import com.dpvn.shared.util.ListUtil;
 import com.dpvn.shared.util.StringUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -19,7 +19,6 @@ public class LeaveRequestDto extends BaseDto {
   private Integer requestHours;
   private String notes;
   private List<Long> notifiedUsers;
-  private Integer status;
   private Integer progressStatus;
   private Long approvalBy;
   private Instant approvalDate;
@@ -80,14 +79,6 @@ public class LeaveRequestDto extends BaseDto {
 
   public void setNotifiedUsers(List<Long> notifiedUsers) {
     this.notifiedUsers = notifiedUsers;
-  }
-
-  public Integer getStatus() {
-    return status;
-  }
-
-  public void setStatus(Integer status) {
-    this.status = status;
   }
 
   public Integer getProgressStatus() {

@@ -1,9 +1,9 @@
 package com.dpvn.crmcrudservice.domain.dto;
 
-import com.dpvn.crmcrudservice.domain.BaseDto;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
+import com.dpvn.shared.domain.BaseDto;
+import com.dpvn.shared.domain.BeanMapper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
@@ -20,7 +20,6 @@ public class SaleCustomerDto extends BaseDto {
   private String reasonNote;
   private Instant availableFrom;
   private Instant availableTo;
-  private Integer status;
   private String note;
 
   @Override
@@ -86,14 +85,6 @@ public class SaleCustomerDto extends BaseDto {
 
   public void setAvailableTo(Instant availableTo) {
     this.availableTo = availableTo;
-  }
-
-  public Integer getStatus() {
-    return status;
-  }
-
-  public void setStatus(Integer status) {
-    this.status = status;
   }
 
   public String getNote() {

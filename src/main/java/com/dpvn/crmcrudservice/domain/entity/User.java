@@ -1,11 +1,11 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.BaseEntity;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
-import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.dto.DepartmentDto;
 import com.dpvn.crmcrudservice.domain.dto.RoleDto;
 import com.dpvn.crmcrudservice.domain.dto.UserDto;
+import com.dpvn.shared.domain.BaseEntity;
+import com.dpvn.shared.domain.BeanMapper;
+import com.dpvn.shared.domain.entity.Address;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -39,8 +39,6 @@ public class User extends BaseEntity {
 
   @Column(columnDefinition = "TEXT")
   private String description;
-
-  private Integer status = Status.ACTIVE;
 
   @ManyToOne
   @JoinColumn(name = "role_id", nullable = false, referencedColumnName = "id")
@@ -111,14 +109,6 @@ public class User extends BaseEntity {
 
   public void setMobilePhone(String mobilePhone) {
     this.mobilePhone = mobilePhone;
-  }
-
-  public Integer getStatus() {
-    return status;
-  }
-
-  public void setStatus(Integer status) {
-    this.status = status;
   }
 
   public Role getRole() {

@@ -1,8 +1,8 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.BaseEntity;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.dto.LeaveRequestDto;
+import com.dpvn.shared.domain.BaseEntity;
+import com.dpvn.shared.domain.BeanMapper;
 import com.dpvn.shared.util.StringUtil;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +31,6 @@ public class LeaveRequest extends BaseEntity {
   @Column(columnDefinition = "TEXT")
   private String notifiedUsers;
 
-  private Integer status;
   private Integer progressStatus;
   private Long approvalBy;
   private Instant approvalDate;
@@ -100,14 +99,6 @@ public class LeaveRequest extends BaseEntity {
 
   public void setNotifiedUsers(String notifiedUsers) {
     this.notifiedUsers = notifiedUsers;
-  }
-
-  public Integer getStatus() {
-    return status;
-  }
-
-  public void setStatus(Integer status) {
-    this.status = status;
   }
 
   public Integer getProgressStatus() {

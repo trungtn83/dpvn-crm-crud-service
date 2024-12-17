@@ -1,8 +1,8 @@
 package com.dpvn.crmcrudservice.interaction;
 
-import com.dpvn.crmcrudservice.AbstractController;
 import com.dpvn.crmcrudservice.domain.dto.InteractionDto;
 import com.dpvn.crmcrudservice.domain.entity.Interaction;
+import com.dpvn.shared.controller.AbstractController;
 import com.dpvn.shared.util.FastMap;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;

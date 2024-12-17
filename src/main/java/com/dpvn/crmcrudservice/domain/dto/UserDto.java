@@ -1,9 +1,8 @@
 package com.dpvn.crmcrudservice.domain.dto;
 
-import com.dpvn.crmcrudservice.domain.BaseDto;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
-import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.entity.User;
+import com.dpvn.shared.domain.BaseDto;
+import com.dpvn.shared.domain.BeanMapper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
@@ -16,7 +15,6 @@ public class UserDto extends BaseDto {
   private String fullName;
   private String email;
   private String mobilePhone;
-  private Integer status = Status.ACTIVE;
   private Instant dob;
   private String description;
   private Long roleId;
@@ -87,13 +85,6 @@ public class UserDto extends BaseDto {
     this.mobilePhone = mobilePhone;
   }
 
-  public Integer getStatus() {
-    return status;
-  }
-
-  public void setStatus(Integer status) {
-    this.status = status;
-  }
 
   public Long getRoleId() {
     return roleId;

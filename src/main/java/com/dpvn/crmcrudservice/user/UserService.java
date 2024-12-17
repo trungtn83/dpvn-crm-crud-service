@@ -1,7 +1,5 @@
 package com.dpvn.crmcrudservice.user;
 
-import com.dpvn.crmcrudservice.AbstractService;
-import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.entity.Department;
 import com.dpvn.crmcrudservice.domain.entity.Role;
 import com.dpvn.crmcrudservice.domain.entity.User;
@@ -10,6 +8,7 @@ import com.dpvn.crmcrudservice.repository.RoleRepository;
 import com.dpvn.crmcrudservice.repository.UserCustomRepository;
 import com.dpvn.crmcrudservice.repository.UserRepository;
 import com.dpvn.shared.exception.BadRequestException;
+import com.dpvn.shared.service.AbstractService;
 import com.dpvn.shared.util.FastMap;
 import com.dpvn.shared.util.ObjectUtil;
 import java.util.ArrayList;
@@ -50,7 +49,7 @@ public class UserService extends AbstractService<User> {
           User dbUser = findByUsername(entity.getUsername()).orElse(null);
           if (dbUser == null) {
             entity.setPassword("123456");
-            entity.setStatus(-1);
+            entity.setActive(false);
             entity.setDepartment(department);
             entity.setRole(role);
             users.add(entity);
@@ -81,7 +80,7 @@ public class UserService extends AbstractService<User> {
     }
     User user = userOpt.get();
     user.setPassword(password);
-    user.setStatus(Status.ACTIVE);
+    user.setActive(Boolean.TRUE);
     repository.save(user);
   }
 

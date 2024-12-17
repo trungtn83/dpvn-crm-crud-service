@@ -1,9 +1,8 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.BaseEntity;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
-import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.dto.RoleDto;
+import com.dpvn.shared.domain.BaseEntity;
+import com.dpvn.shared.domain.BeanMapper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,8 +27,6 @@ public class Role extends BaseEntity {
 
   @Column(columnDefinition = "TEXT")
   private String description;
-
-  private Integer status = Status.ACTIVE;
 
   @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   private Set<User> users = new HashSet<>();
@@ -61,14 +58,6 @@ public class Role extends BaseEntity {
 
   public void setDescription(String description) {
     this.description = description;
-  }
-
-  public Integer getStatus() {
-    return status;
-  }
-
-  public void setStatus(Integer status) {
-    this.status = status;
   }
 
   public Set<User> getUsers() {

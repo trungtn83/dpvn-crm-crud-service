@@ -1,9 +1,8 @@
 package com.dpvn.crmcrudservice.hrm.leaverequest;
 
-import com.dpvn.crmcrudservice.AbstractController;
-import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.dto.LeaveRequestDto;
 import com.dpvn.crmcrudservice.domain.entity.LeaveRequest;
+import com.dpvn.shared.controller.AbstractController;
 import com.dpvn.shared.util.DateUtil;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +26,7 @@ public class LeaveRequestController extends AbstractController<LeaveRequest, Lea
   public ResponseEntity<LeaveRequestDto> create(@RequestBody LeaveRequestDto dto) {
     LeaveRequest entity = dto.toEntity();
     entity.setCreatedDate(DateUtil.now());
-    entity.setStatus(Status.ACTIVE);
+    entity.setActive(true);
     entity.setProgressStatus(0);
     return ResponseEntity.ok(service.save(entity).toDto());
   }

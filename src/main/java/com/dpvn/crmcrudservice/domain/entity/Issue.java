@@ -1,8 +1,8 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.BaseEntity;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.dto.IssueDto;
+import com.dpvn.shared.domain.BaseEntity;
+import com.dpvn.shared.domain.BeanMapper;
 import jakarta.persistence.*;
 import java.time.Instant;
 

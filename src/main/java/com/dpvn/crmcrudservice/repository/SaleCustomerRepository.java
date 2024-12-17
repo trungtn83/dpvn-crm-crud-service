@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface SaleCustomerRepository extends JpaRepository<SaleCustomer, Long> {
   List<SaleCustomer> findBySaleIdAndCustomerId(Long saleId, Long customerId);
 
-  SaleCustomer findBySaleIdAndCustomerIdAndStatus(Long saleId, Long customerId, Integer status);
+  SaleCustomer findBySaleIdAndCustomerIdAndActive(Long saleId, Long customerId, Boolean status);
 }

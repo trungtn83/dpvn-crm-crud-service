@@ -1,10 +1,10 @@
 package com.dpvn.crmcrudservice.customer;
 
-import com.dpvn.crmcrudservice.AbstractController;
 import com.dpvn.crmcrudservice.domain.dto.CustomerDto;
 import com.dpvn.crmcrudservice.domain.dto.SaleCustomerDto;
 import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
+import com.dpvn.shared.controller.AbstractController;
 import com.dpvn.shared.util.FastMap;
 import java.time.Instant;
 import java.util.List;

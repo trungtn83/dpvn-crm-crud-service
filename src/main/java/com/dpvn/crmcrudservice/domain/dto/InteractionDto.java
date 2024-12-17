@@ -1,8 +1,8 @@
 package com.dpvn.crmcrudservice.domain.dto;
 
-import com.dpvn.crmcrudservice.domain.BaseDto;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.entity.Interaction;
+import com.dpvn.shared.domain.BaseDto;
+import com.dpvn.shared.domain.BeanMapper;
 import com.dpvn.shared.util.StringUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

@@ -1,6 +1,6 @@
 package com.dpvn.crmcrudservice.repository;
 
-import com.dpvn.crmcrudservice.domain.entity.Address;
+import com.dpvn.shared.domain.entity.Address;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

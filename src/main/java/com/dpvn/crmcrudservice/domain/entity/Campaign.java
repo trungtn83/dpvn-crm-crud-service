@@ -1,11 +1,10 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.BaseEntity;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
-import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.dto.CampaignDto;
 import com.dpvn.crmcrudservice.domain.entity.relationship.CampaignCustomer;
 import com.dpvn.crmcrudservice.domain.entity.relationship.CampaignUser;
+import com.dpvn.shared.domain.BaseEntity;
+import com.dpvn.shared.domain.BeanMapper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,7 +39,6 @@ public class Campaign extends BaseEntity {
   private Instant endDate;
 
   private Integer steps;
-  private Integer status = Status.ACTIVE;
   private Integer dispatchTypeId;
 
   @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -111,14 +109,6 @@ public class Campaign extends BaseEntity {
 
   public void setSteps(Integer steps) {
     this.steps = steps;
-  }
-
-  public Integer getStatus() {
-    return status;
-  }
-
-  public void setStatus(Integer status) {
-    this.status = status;
   }
 
   public Set<CampaignStep> getCampaignSteps() {

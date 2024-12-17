@@ -1,8 +1,8 @@
 package com.dpvn.crmcrudservice.domain.entity.relationship;
 
-import com.dpvn.crmcrudservice.domain.BaseEntity;
 import com.dpvn.crmcrudservice.domain.entity.Campaign;
 import com.dpvn.crmcrudservice.domain.entity.User;
+import com.dpvn.shared.domain.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;

@@ -1,9 +1,9 @@
 package com.dpvn.crmcrudservice.domain.dto;
 
-import com.dpvn.crmcrudservice.domain.BaseDto;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.entity.CampaignType;
 import com.dpvn.crmcrudservice.domain.entity.CampaignTypeStep;
+import com.dpvn.shared.domain.BaseDto;
+import com.dpvn.shared.domain.BeanMapper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Set;
@@ -14,8 +14,6 @@ public class CampaignTypeDto extends BaseDto {
   private String campaignTypeName;
 
   private String description;
-
-  private Integer status;
   private Integer steps;
 
   @Override
@@ -39,14 +37,6 @@ public class CampaignTypeDto extends BaseDto {
 
   public void setDescription(String description) {
     this.description = description;
-  }
-
-  public Integer getStatus() {
-    return status;
-  }
-
-  public void setStatus(Integer status) {
-    this.status = status;
   }
 
   public Integer getSteps() {

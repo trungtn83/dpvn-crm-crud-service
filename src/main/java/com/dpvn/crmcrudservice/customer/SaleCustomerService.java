@@ -1,6 +1,5 @@
 package com.dpvn.crmcrudservice.customer;
 
-import com.dpvn.crmcrudservice.AbstractService;
 import com.dpvn.crmcrudservice.domain.dto.SaleCustomerDto;
 import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
@@ -8,6 +7,7 @@ import com.dpvn.crmcrudservice.repository.CustomerRepository;
 import com.dpvn.crmcrudservice.repository.SaleCustomerCustomRepository;
 import com.dpvn.crmcrudservice.repository.SaleCustomerRepository;
 import com.dpvn.shared.exception.BadRequestException;
+import com.dpvn.shared.service.AbstractService;
 import com.dpvn.shared.util.ListUtil;
 import java.util.List;
 import org.springframework.stereotype.Service;

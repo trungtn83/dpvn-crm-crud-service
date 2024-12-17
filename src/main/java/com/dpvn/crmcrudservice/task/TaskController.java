@@ -1,8 +1,8 @@
 package com.dpvn.crmcrudservice.task;
 
-import com.dpvn.crmcrudservice.AbstractController;
 import com.dpvn.crmcrudservice.domain.dto.TaskDto;
 import com.dpvn.crmcrudservice.domain.entity.Task;
+import com.dpvn.shared.controller.AbstractController;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,9 +1,9 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.BaseEntity;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.constant.Visibility;
 import com.dpvn.crmcrudservice.domain.dto.InteractionDto;
+import com.dpvn.shared.domain.BaseEntity;
+import com.dpvn.shared.domain.BeanMapper;
 import com.dpvn.shared.util.StringUtil;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

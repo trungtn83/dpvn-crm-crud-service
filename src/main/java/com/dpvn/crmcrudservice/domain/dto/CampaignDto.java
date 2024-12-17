@@ -1,10 +1,9 @@
 package com.dpvn.crmcrudservice.domain.dto;
 
-import com.dpvn.crmcrudservice.domain.BaseDto;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.constant.DispatchType;
-import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.entity.Campaign;
+import com.dpvn.shared.domain.BaseDto;
+import com.dpvn.shared.domain.BeanMapper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
@@ -20,7 +19,6 @@ public class CampaignDto extends BaseDto {
   private Instant startDate;
   private Instant endDate;
   private Integer steps;
-  private Integer status = Status.ACTIVE;
   private Integer dispatchTypeId = DispatchType.ROUND_ROBIN;
 
   private List<CampaignStepDto> campaignSteps;
@@ -76,14 +74,6 @@ public class CampaignDto extends BaseDto {
 
   public void setSteps(Integer steps) {
     this.steps = steps;
-  }
-
-  public Integer getStatus() {
-    return status;
-  }
-
-  public void setStatus(Integer status) {
-    this.status = status;
   }
 
   public List<CampaignStepDto> getCampaignSteps() {

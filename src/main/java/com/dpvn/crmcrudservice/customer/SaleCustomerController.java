@@ -1,10 +1,10 @@
 package com.dpvn.crmcrudservice.customer;
 
-import com.dpvn.crmcrudservice.AbstractController;
 import com.dpvn.crmcrudservice.domain.dto.SaleCustomerDto;
 import com.dpvn.crmcrudservice.domain.dto.SaleCustomerStateDto;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomerState;
+import com.dpvn.shared.controller.AbstractController;
 import com.dpvn.shared.util.FastMap;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;

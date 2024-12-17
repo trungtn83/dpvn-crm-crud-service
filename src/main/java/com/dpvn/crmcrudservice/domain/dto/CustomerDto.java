@@ -1,9 +1,8 @@
 package com.dpvn.crmcrudservice.domain.dto;
 
-import com.dpvn.crmcrudservice.domain.BaseDto;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
-import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.entity.Customer;
+import com.dpvn.shared.domain.BaseDto;
+import com.dpvn.shared.domain.BeanMapper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
@@ -25,7 +24,6 @@ public class CustomerDto extends BaseDto {
   private String taxCode;
   private String pinCode;
   private Integer levelPoint = 0;
-  private Integer status = Status.ACTIVE;
   private Integer customerTypeId;
   private Integer customerCategoryId;
   private Integer sourceId;
@@ -145,14 +143,6 @@ public class CustomerDto extends BaseDto {
 
   public void setLevelPoint(Integer levelPoint) {
     this.levelPoint = levelPoint;
-  }
-
-  public Integer getStatus() {
-    return status;
-  }
-
-  public void setStatus(Integer status) {
-    this.status = status;
   }
 
   public Integer getCustomerTypeId() {

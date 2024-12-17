@@ -1,8 +1,8 @@
 package com.dpvn.crmcrudservice.customer;
 
-import com.dpvn.crmcrudservice.AbstractService;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomerState;
 import com.dpvn.crmcrudservice.repository.SaleCustomerStateRepository;
+import com.dpvn.shared.service.AbstractService;
 import java.util.List;
 import org.springframework.stereotype.Service;
 

@@ -1,8 +1,8 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.BaseEntity;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.dto.SaleCustomerDto;
+import com.dpvn.shared.domain.BaseEntity;
+import com.dpvn.shared.domain.BeanMapper;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -41,7 +41,6 @@ public class SaleCustomer extends BaseEntity {
 
   private Instant availableFrom;
   private Instant availableTo;
-  private Integer status;
 
   @Column(columnDefinition = "TEXT")
   private String note;
@@ -108,14 +107,6 @@ public class SaleCustomer extends BaseEntity {
 
   public void setAvailableTo(Instant availableTo) {
     this.availableTo = availableTo;
-  }
-
-  public Integer getStatus() {
-    return status;
-  }
-
-  public void setStatus(Integer status) {
-    this.status = status;
   }
 
   public String getNote() {

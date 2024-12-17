@@ -1,10 +1,9 @@
 package com.dpvn.crmcrudservice.domain.dto;
 
-import com.dpvn.crmcrudservice.domain.BaseDto;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
-import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.constant.Tasks;
 import com.dpvn.crmcrudservice.domain.entity.Task;
+import com.dpvn.shared.domain.BaseDto;
+import com.dpvn.shared.domain.BeanMapper;
 import com.dpvn.shared.util.StringUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.Instant;
@@ -21,7 +20,6 @@ public class TaskDto extends BaseDto {
   private Long otherId;
 
   private Integer priority = Tasks.Priority.LOW;
-  private Integer status = Status.ACTIVE;
   private Integer progress = 0;
   private Integer typeId = Tasks.Type.OTHER;
   private Integer workload;
@@ -78,14 +76,6 @@ public class TaskDto extends BaseDto {
 
   public void setOtherId(Long otherId) {
     this.otherId = otherId;
-  }
-
-  public Integer getStatus() {
-    return status;
-  }
-
-  public void setStatus(Integer status) {
-    this.status = status;
   }
 
   public Integer getProgress() {

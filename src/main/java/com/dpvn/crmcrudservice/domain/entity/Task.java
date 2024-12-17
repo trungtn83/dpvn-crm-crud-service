@@ -1,10 +1,9 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.BaseEntity;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
-import com.dpvn.crmcrudservice.domain.constant.Status;
 import com.dpvn.crmcrudservice.domain.constant.Tasks;
 import com.dpvn.crmcrudservice.domain.dto.TaskDto;
+import com.dpvn.shared.domain.BaseEntity;
+import com.dpvn.shared.domain.BeanMapper;
 import com.dpvn.shared.util.StringUtil;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,7 +28,6 @@ public class Task extends BaseEntity {
   private Long otherId;
 
   private Integer priority = Tasks.Priority.LOW;
-  private Integer status = Status.ACTIVE;
   private Integer progress = 0;
   private Integer typeId = Tasks.Type.OTHER;
   private Integer workload;
@@ -103,14 +101,6 @@ public class Task extends BaseEntity {
 
   public void setOtherId(Long otherId) {
     this.otherId = otherId;
-  }
-
-  public Integer getStatus() {
-    return status;
-  }
-
-  public void setStatus(Integer status) {
-    this.status = status;
   }
 
   public Integer getProgress() {

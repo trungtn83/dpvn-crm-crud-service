@@ -1,8 +1,8 @@
 package com.dpvn.crmcrudservice.campaigntype;
 
-import com.dpvn.crmcrudservice.AbstractController;
 import com.dpvn.crmcrudservice.domain.dto.CampaignTypeDto;
 import com.dpvn.crmcrudservice.domain.entity.CampaignType;
+import com.dpvn.shared.controller.AbstractController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

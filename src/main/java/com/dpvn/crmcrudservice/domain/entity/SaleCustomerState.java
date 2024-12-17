@@ -1,9 +1,9 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.BaseEntity;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.constant.SaleCustomers;
 import com.dpvn.crmcrudservice.domain.dto.SaleCustomerStateDto;
+import com.dpvn.shared.domain.BaseEntity;
+import com.dpvn.shared.domain.BeanMapper;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,7 +24,7 @@ public class SaleCustomerState extends BaseEntity {
   private Long customerId;
   private Long customerCategoryId;
 
-  private Integer status = SaleCustomers.State.NEW_CONTACT;
+  private Integer state = SaleCustomers.State.NEW_CONTACT;
 
   private String feeShip;
   private String priceMakeUp;
@@ -63,12 +63,12 @@ public class SaleCustomerState extends BaseEntity {
     this.customerId = customerId;
   }
 
-  public Integer getStatus() {
-    return status;
+  public Integer getState() {
+    return state;
   }
 
-  public void setStatus(Integer status) {
-    this.status = status;
+  public void setState(Integer status) {
+    this.state = status;
   }
 
   public String getFeeShip() {

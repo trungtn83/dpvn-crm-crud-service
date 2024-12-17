@@ -1,9 +1,9 @@
 package com.dpvn.crmcrudservice.domain.dto;
 
-import com.dpvn.crmcrudservice.domain.BaseDto;
-import com.dpvn.crmcrudservice.domain.BeanMapper;
 import com.dpvn.crmcrudservice.domain.constant.SaleCustomers;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomerState;
+import com.dpvn.shared.domain.BaseDto;
+import com.dpvn.shared.domain.BeanMapper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -13,7 +13,7 @@ public class SaleCustomerStateDto extends BaseDto {
   private Long saleId;
   private Long customerId;
   private Long customerCategoryId;
-  private Integer status = SaleCustomers.State.NEW_CONTACT;
+  private Integer state = SaleCustomers.State.NEW_CONTACT;
   private String feeShip;
   private String priceMakeUp;
   private String preferProducts;
@@ -43,13 +43,6 @@ public class SaleCustomerStateDto extends BaseDto {
     this.customerId = customerId;
   }
 
-  public Integer getStatus() {
-    return status;
-  }
-
-  public void setStatus(Integer status) {
-    this.status = status;
-  }
 
   public String getFeeShip() {
     return feeShip;
@@ -105,5 +98,13 @@ public class SaleCustomerStateDto extends BaseDto {
 
   public void setCustomerCategoryId(Long customerCategoryId) {
     this.customerCategoryId = customerCategoryId;
+  }
+
+  public Integer getState() {
+    return state;
+  }
+
+  public void setState(Integer state) {
+    this.state = state;
   }
 }

@@ -12,7 +12,6 @@ import com.dpvn.crmcrudservice.repository.Paginator;
 import com.dpvn.crmcrudservice.repository.SaleCustomerRepository;
 import com.dpvn.crmcrudservice.user.UserService;
 import com.dpvn.shared.exception.BadRequestException;
-import com.dpvn.shared.log.Logger;
 import com.dpvn.shared.service.AbstractService;
 import com.dpvn.shared.util.FastMap;
 import com.dpvn.shared.util.ObjectUtil;
@@ -116,7 +115,7 @@ public class CustomerService extends AbstractService<Customer> {
             String.format(
                 "Customer %s is belong to other sale: %d",
                 customer.getId(), dbActiveSaleCustomer.getSaleId());
-        Logger.error(errorMessage);
+        LOGGER.error(errorMessage);
         return errorMessage;
       }
 

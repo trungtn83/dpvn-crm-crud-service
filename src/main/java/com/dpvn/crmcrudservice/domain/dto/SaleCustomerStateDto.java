@@ -43,7 +43,6 @@ public class SaleCustomerStateDto extends BaseDto {
     this.customerId = customerId;
   }
 
-
   public String getFeeShip() {
     return feeShip;
   }

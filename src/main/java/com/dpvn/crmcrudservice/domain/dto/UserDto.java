@@ -85,7 +85,6 @@ public class UserDto extends BaseDto {
     this.mobilePhone = mobilePhone;
   }
 
-
   public Long getRoleId() {
     return roleId;
   }

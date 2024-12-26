@@ -7,20 +7,12 @@ import com.dpvn.shared.domain.BeanMapper;
 import com.dpvn.shared.util.StringUtil;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
 
 @Entity
 @Table(name = "task")
-public class Task extends BaseEntity {
-  @Id
-  @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-
+public class Task extends BaseEntity<TaskDto> {
   private Long userId;
   private Long customerId;
   private Long campaignId;
@@ -55,12 +47,8 @@ public class Task extends BaseEntity {
     return dto;
   }
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
+  public Task() {
+    super(TaskDto.class);
   }
 
   public Long getUserId() {

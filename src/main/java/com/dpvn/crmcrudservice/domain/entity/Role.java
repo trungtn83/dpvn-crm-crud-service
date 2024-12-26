@@ -2,14 +2,10 @@ package com.dpvn.crmcrudservice.domain.entity;
 
 import com.dpvn.crmcrudservice.domain.dto.RoleDto;
 import com.dpvn.shared.domain.BaseEntity;
-import com.dpvn.shared.domain.BeanMapper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.HashSet;
@@ -17,31 +13,18 @@ import java.util.Set;
 
 @Entity
 @Table(name = "role")
-public class Role extends BaseEntity {
-  @Id
-  @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-
+public class Role extends BaseEntity<RoleDto> {
+  @Column(columnDefinition = "TEXT")
   private String roleName;
 
   @Column(columnDefinition = "TEXT")
   private String description;
 
-  @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private Set<User> users = new HashSet<>();
 
-  @Override
-  public RoleDto toDto() {
-    return BeanMapper.instance().map(this, RoleDto.class);
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
+  public Role() {
+    super(RoleDto.class);
   }
 
   public String getRoleName() {

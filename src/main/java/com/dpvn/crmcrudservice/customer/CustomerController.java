@@ -4,7 +4,7 @@ import com.dpvn.crmcrudservice.domain.dto.CustomerDto;
 import com.dpvn.crmcrudservice.domain.dto.SaleCustomerDto;
 import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
-import com.dpvn.shared.controller.AbstractController;
+import com.dpvn.shared.controller.AbstractCrudController;
 import com.dpvn.shared.util.FastMap;
 import java.time.Instant;
 import java.util.List;
@@ -13,16 +13,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/customer")
-public class CustomerController extends AbstractController<Customer, CustomerDto> {
+public class CustomerController extends AbstractCrudController<Customer, CustomerDto> {
 
   public CustomerController(CustomerService customerService) {
     super(customerService);
-  }
-
-  @PostMapping("/search")
-  public List<CustomerDto> search(@RequestBody FastMap conditions) {
-    List<Customer> customers = ((CustomerService) service).search(conditions);
-    return customers.stream().map(Customer::toDto).toList();
   }
 
   /**
@@ -39,6 +33,18 @@ public class CustomerController extends AbstractController<Customer, CustomerDto
   @GetMapping("/find-by-ids")
   public List<CustomerDto> findByIds(@RequestBody List<Long> ids) {
     return ((CustomerService) service).findByIds(ids).stream().map(Customer::toDto).toList();
+  }
+
+  /**
+   * @param status can be null and return correct only null value
+   */
+  @GetMapping("/find-by-status")
+  public List<CustomerDto> findByStatus(
+      @RequestParam(value = "status", required = false) String status,
+      @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+      @RequestParam(value = "pageSize", required = false, defaultValue = "100") Integer pageSize) {
+    List<Customer> customers = ((CustomerService) service).findByStatus(status, page, pageSize);
+    return customers.stream().map(Customer::toDto).toList();
   }
 
   @PostMapping("/assign")
@@ -137,5 +143,14 @@ public class CustomerController extends AbstractController<Customer, CustomerDto
     Instant lastTransaction = body.getInstant("lastTransaction");
     boolean isSuccessful = body.getBoolean("isSuccessful");
     ((CustomerService) service).updateLastTransaction(id, lastTransaction, isSuccessful);
+  }
+
+  @GetMapping("/find-last-created")
+  public CustomerDto findLastCreatedCustomer() {
+    Customer customer = ((CustomerService) service).findLastCreatedCustomer();
+    if (customer == null) {
+      return null;
+    }
+    return customer.toDto();
   }
 }

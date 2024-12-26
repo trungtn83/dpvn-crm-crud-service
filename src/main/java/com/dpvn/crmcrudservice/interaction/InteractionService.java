@@ -2,12 +2,12 @@ package com.dpvn.crmcrudservice.interaction;
 
 import com.dpvn.crmcrudservice.domain.entity.Interaction;
 import com.dpvn.crmcrudservice.repository.InteractionRepository;
-import com.dpvn.shared.service.AbstractService;
+import com.dpvn.shared.service.AbstractCrudService;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
-public class InteractionService extends AbstractService<Interaction> {
+public class InteractionService extends AbstractCrudService<Interaction> {
 
   public InteractionService(InteractionRepository repository) {
     super(repository);

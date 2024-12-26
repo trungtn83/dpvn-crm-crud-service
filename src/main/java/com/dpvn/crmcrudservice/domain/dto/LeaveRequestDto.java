@@ -12,7 +12,7 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LeaveRequestDto extends BaseDto {
+public class LeaveRequestDto extends BaseDto<LeaveRequest> {
   private Long userId;
   private Long reasonId;
   private Instant requestDate;
@@ -31,6 +31,10 @@ public class LeaveRequestDto extends BaseDto {
           StringUtil.join(notifiedUsers.stream().map(Object::toString).toList()));
     }
     return leaveRequest;
+  }
+
+  public LeaveRequestDto() {
+    super(LeaveRequest.class);
   }
 
   public Long getUserId() {

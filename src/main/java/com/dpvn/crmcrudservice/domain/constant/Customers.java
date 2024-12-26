@@ -73,4 +73,10 @@ public class Customers {
     public static final String TASK_OVERDUE = "TASK_OVERDUE";
     public static final String TASK_NO_DEADLINE = "TASK_NO_DEADLINE";
   }
+
+  public static class Status {
+    private Status() {}
+
+    public static final String ASSIGNED = "ASSIGNED";
+  }
 }

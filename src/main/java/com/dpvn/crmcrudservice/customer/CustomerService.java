@@ -1,5 +1,6 @@
 package com.dpvn.crmcrudservice.customer;
 
+import com.dpvn.crmcrudservice.address.AddressService;
 import com.dpvn.crmcrudservice.domain.constant.Customers;
 import com.dpvn.crmcrudservice.domain.constant.RelationshipType;
 import com.dpvn.crmcrudservice.domain.entity.Customer;
@@ -8,79 +9,122 @@ import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
 import com.dpvn.crmcrudservice.domain.entity.User;
 import com.dpvn.crmcrudservice.repository.CustomerCustomRepository;
 import com.dpvn.crmcrudservice.repository.CustomerRepository;
-import com.dpvn.crmcrudservice.repository.Paginator;
 import com.dpvn.crmcrudservice.repository.SaleCustomerRepository;
 import com.dpvn.crmcrudservice.user.UserService;
+import com.dpvn.shared.domain.entity.Address;
 import com.dpvn.shared.exception.BadRequestException;
-import com.dpvn.shared.service.AbstractService;
+import com.dpvn.shared.service.AbstractCrudService;
 import com.dpvn.shared.util.FastMap;
+import com.dpvn.shared.util.ListUtil;
 import com.dpvn.shared.util.ObjectUtil;
 import com.dpvn.shared.util.StringUtil;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class CustomerService extends AbstractService<Customer> {
+public class CustomerService extends AbstractCrudService<Customer> {
   private final CustomerCustomRepository customerCustomRepository;
   private final SaleCustomerRepository saleCustomerRepository;
   private final UserService userService;
   private final SaleCustomerService saleCustomerService;
+  private final AddressService addressService;
 
   public CustomerService(
       CustomerRepository repository,
       CustomerCustomRepository customerCustomRepository,
       SaleCustomerRepository saleCustomerRepository,
       UserService userService,
-      SaleCustomerService saleCustomerService) {
+      SaleCustomerService saleCustomerService,
+      AddressService addressService) {
     super(repository);
     this.customerCustomRepository = customerCustomRepository;
     this.saleCustomerRepository = saleCustomerRepository;
     this.userService = userService;
     this.saleCustomerService = saleCustomerService;
+    this.addressService = addressService;
   }
 
+  @Transactional
   @Override
   public void sync(List<Customer> entities) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    List<Customer> customers = new ArrayList<>();
+    AtomicInteger inserted = new AtomicInteger(0);
+    AtomicInteger updated = new AtomicInteger(0);
+
+    try {
+      entities.forEach(
+          entity -> {
+            injectAddressId(entity);
+            if (entity.getId() == null && entity.getIdf() == null) {
+              entity.getReferences().forEach(ref -> ref.setCustomer(entity));
+              customers.add(entity);
+              inserted.getAndIncrement();
+            } else {
+              Customer dbCustomer = findByIdOrIdf(entity.getId(), entity.getIdf()).orElse(null);
+              if (dbCustomer == null) {
+                entity.getReferences().forEach(ref -> ref.setCustomer(entity));
+                customers.add(entity);
+                inserted.getAndIncrement();
+              } else {
+                ObjectUtil.assign(dbCustomer, entity, List.of("references"));
+
+                dbCustomer.getReferences().clear();
+                List<CustomerReference> references = entity.getReferences();
+                references.forEach(ref -> ref.setCustomer(dbCustomer));
+                dbCustomer.getReferences().addAll(references);
+
+                customers.add(dbCustomer);
+                updated.getAndIncrement();
+              }
+            }
+          });
+      saveAll(customers);
+      LOGGER.info(
+          ListUtil.toString(customers.stream().map(Customer::getIdf).toList()),
+          String.format(
+              "Received %d kiotviet customers, stored=%d, inserted=%d, updated=%d",
+              entities.size(), customers.size(), updated.get(), inserted.get()));
+    } catch (Exception e) {
+      LOGGER.error(
+          ListUtil.toString(Arrays.asList(e.getStackTrace())), "Failed to sync customers: %s", e);
+    }
   }
 
-  @Override
-  public Customer update(Long id, Customer entity) {
-    Customer dbEntity = findById(id).orElseThrow();
-    ObjectUtil.assign(dbEntity, entity, List.of("references"));
-    dbEntity.getReferences().clear();
-    List<CustomerReference> references = entity.getReferences();
-    references.forEach(ref -> ref.setCustomer(dbEntity));
-    dbEntity.getReferences().addAll(references);
-    return save(dbEntity);
+  public List<Customer> findByStatus(String status, Integer page, Integer pageSize) {
+    Pageable pageable = PageRequest.of(page, pageSize);
+    return ((CustomerRepository) repository).findByStatus(status, pageable).stream().toList();
   }
+
+  private void injectAddressId(Customer customer) {
+    Address address =
+        addressService.findAddressByWardNameAndLocationName(
+            customer.getWardName(), customer.getLocationName());
+    if (address != null) {
+      customer.setAddressId(address.getId());
+    }
+  }
+
+  //  public Customer update(Long id, Customer entity) {
+  //    Customer dbEntity = findById(id).orElseThrow();
+  //    ObjectUtil.assign(dbEntity, entity, List.of("references"));
+  //    dbEntity.getReferences().clear();
+  //    List<CustomerReference> references = entity.getReferences();
+  //    references.forEach(ref -> ref.setCustomer(dbEntity));
+  //    dbEntity.getReferences().addAll(references);
+  //    return save(dbEntity);
+  //  }
 
   public List<Customer> findByIds(List<Long> ids) {
     return ((CustomerRepository) repository).findByIdIn(ids);
-  }
-
-  public List<Customer> search(FastMap condition) {
-    Paginator paginator = Paginator.create().sortBy("created_date");
-    // TODO: handle paging from condition here
-    return customerCustomRepository.searchCustomers(
-        condition.getString("name"),
-        condition.getString("code"),
-        condition.getInt("gender"),
-        condition.getString("mobilePhone"),
-        condition.getString("email"),
-        condition.getString("address"),
-        condition.getString("taxCode"),
-        condition.getInt("customerType"),
-        condition.getInt("status"),
-        condition.getInt("availability"),
-        condition.getString("source"),
-        condition.getString("note"),
-        paginator);
   }
 
   public List<Customer> findCustomersByMobilePhone(String mobilePhone) {
@@ -88,24 +132,23 @@ public class CustomerService extends AbstractService<Customer> {
   }
 
   /**
-   * @param sale
-   * @param customer
-   * @param info
    * @return null when ok, error message when can not assign based on business rule
    */
-  private String assign(User sale, Customer customer, SaleCustomer info) {
+  @Transactional
+  public String assign(User sale, Customer customer, SaleCustomer info) {
     info.setSaleId(sale.getId());
     info.setCustomer(customer);
 
     String revoke = revoke(sale, customer);
     if (revoke == null) {
-      saleCustomerService.save(info);
+      saleCustomerService.upsert(info);
     }
 
     return revoke;
   }
 
-  private String revoke(User sale, Customer customer) {
+  @Transactional
+  public String revoke(User sale, Customer customer) {
     SaleCustomer dbActiveSaleCustomer =
         saleCustomerRepository.findBySaleIdAndCustomerIdAndActive(
             sale.getId(), customer.getId(), Boolean.TRUE);
@@ -120,15 +163,16 @@ public class CustomerService extends AbstractService<Customer> {
       }
 
       dbActiveSaleCustomer.setActive(Boolean.FALSE);
-      saleCustomerService.save(dbActiveSaleCustomer);
+      saleCustomerService.upsert(dbActiveSaleCustomer);
     }
 
     // update last modified field (and by in the future)
-    save(customer);
+    upsert(customer);
 
     return null;
   }
 
+  @Transactional
   public void assign(Long saleId, Long customerId, SaleCustomer info) {
     User sale =
         userService
@@ -148,6 +192,7 @@ public class CustomerService extends AbstractService<Customer> {
     }
   }
 
+  @Transactional
   public void revoke(Long saleId, Long customerId) {
     User sale =
         userService
@@ -167,11 +212,9 @@ public class CustomerService extends AbstractService<Customer> {
   }
 
   /**
-   * @param saleId
-   * @param customerIds, ignore invalid one
-   * @param info
    * @return list of failed customers that can not be assigned to sale
    */
+  @Transactional
   public List<Long> assigns(Long saleId, List<Long> customerIds, SaleCustomer info) {
     User sale =
         userService
@@ -195,6 +238,7 @@ public class CustomerService extends AbstractService<Customer> {
         .toList();
   }
 
+  @Transactional
   public List<Long> revokes(Long saleId, List<Long> customerIds) {
     User sale =
         userService
@@ -239,6 +283,7 @@ public class CustomerService extends AbstractService<Customer> {
         saleId, customerCategoryId, filterText, reasonIds, pageable);
   }
 
+  @Transactional
   public void updateLastTransaction(
       Long customerId, Instant lastTransaction, boolean isSuccessful) {
     Customer customer =
@@ -271,6 +316,10 @@ public class CustomerService extends AbstractService<Customer> {
     lastTransactionReference.setName("Giao dịch cuối cùng");
     customer.getReferences().add(lastTransactionReference);
 
-    save(customer);
+    upsert(customer);
+  }
+
+  public Customer findLastCreatedCustomer() {
+    return ((CustomerRepository) repository).findFirstByOrderByCreatedDateDesc();
   }
 }

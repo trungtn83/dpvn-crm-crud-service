@@ -2,12 +2,12 @@ package com.dpvn.crmcrudservice.task;
 
 import com.dpvn.crmcrudservice.domain.entity.Task;
 import com.dpvn.crmcrudservice.repository.TaskRepository;
-import com.dpvn.shared.service.AbstractService;
+import com.dpvn.shared.service.AbstractCrudService;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TaskService extends AbstractService<Task> {
+public class TaskService extends AbstractCrudService<Task> {
   public TaskService(TaskRepository repository) {
     super(repository);
   }
@@ -21,10 +21,5 @@ public class TaskService extends AbstractService<Task> {
       Long userId, Long customerId, Long campaignId, Long kpiId, Long otherId) {
     return ((TaskRepository) repository)
         .findTasksByOptions(userId, customerId, campaignId, kpiId, otherId);
-  }
-
-  @Override
-  public Task upsert(Task entity) {
-    return save(entity);
   }
 }

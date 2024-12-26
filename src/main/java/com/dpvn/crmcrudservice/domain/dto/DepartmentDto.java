@@ -2,23 +2,17 @@ package com.dpvn.crmcrudservice.domain.dto;
 
 import com.dpvn.crmcrudservice.domain.entity.Department;
 import com.dpvn.shared.domain.BaseDto;
-import com.dpvn.shared.domain.BeanMapper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DepartmentDto extends BaseDto {
+public class DepartmentDto extends BaseDto<Department> {
   private String departmentName;
-
   private String description;
 
-  private Set<UserDto> userDtos;
-
-  @Override
-  public Department toEntity() {
-    return BeanMapper.instance().map(this, Department.class);
+  public DepartmentDto() {
+    super(Department.class);
   }
 
   public String getDepartmentName() {
@@ -35,13 +29,5 @@ public class DepartmentDto extends BaseDto {
 
   public void setDescription(String description) {
     this.description = description;
-  }
-
-  public Set<UserDto> getUserDtos() {
-    return userDtos;
-  }
-
-  public void setUserDtos(Set<UserDto> userDtos) {
-    this.userDtos = userDtos;
   }
 }

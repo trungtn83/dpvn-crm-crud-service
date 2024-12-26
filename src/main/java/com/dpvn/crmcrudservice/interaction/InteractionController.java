@@ -2,7 +2,7 @@ package com.dpvn.crmcrudservice.interaction;
 
 import com.dpvn.crmcrudservice.domain.dto.InteractionDto;
 import com.dpvn.crmcrudservice.domain.entity.Interaction;
-import com.dpvn.shared.controller.AbstractController;
+import com.dpvn.shared.controller.AbstractCrudController;
 import com.dpvn.shared.util.FastMap;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/interaction")
-public class InteractionController extends AbstractController<Interaction, InteractionDto> {
+public class InteractionController extends AbstractCrudController<Interaction, InteractionDto> {
 
   public InteractionController(InteractionService service) {
     super(service);

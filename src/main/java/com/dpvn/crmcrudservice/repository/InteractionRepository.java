@@ -1,14 +1,14 @@
 package com.dpvn.crmcrudservice.repository;
 
 import com.dpvn.crmcrudservice.domain.entity.Interaction;
+import com.dpvn.shared.repository.AbstractRepository;
 import java.util.List;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface InteractionRepository extends JpaRepository<Interaction, Long> {
+public interface InteractionRepository extends AbstractRepository<Interaction> {
   String FIND_INTERACTIONS_BY_OPTIONS =
       """
       SELECT i FROM Interaction i

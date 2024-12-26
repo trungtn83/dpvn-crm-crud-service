@@ -1,16 +1,10 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.dto.DepartmentDto;
-import com.dpvn.crmcrudservice.domain.dto.RoleDto;
 import com.dpvn.crmcrudservice.domain.dto.UserDto;
 import com.dpvn.shared.domain.BaseEntity;
-import com.dpvn.shared.domain.BeanMapper;
 import com.dpvn.shared.domain.entity.Address;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -18,11 +12,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "`user`")
-public class User extends BaseEntity {
-  @Id
-  @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+public class User extends BaseEntity<UserDto> {
 
   @Column(unique = true, nullable = false)
   private String username;
@@ -55,20 +45,8 @@ public class User extends BaseEntity {
   @JoinColumn(name = "address_id", referencedColumnName = "id")
   private Address address;
 
-  @Override
-  public UserDto toDto() {
-    UserDto dto = BeanMapper.instance().map(this, UserDto.class);
-    dto.setRoleDto(BeanMapper.instance().map(this.role, RoleDto.class));
-    dto.setDepartmentDto(BeanMapper.instance().map(this.department, DepartmentDto.class));
-    return dto;
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
+  public User() {
+    super(UserDto.class);
   }
 
   public String getUsername() {

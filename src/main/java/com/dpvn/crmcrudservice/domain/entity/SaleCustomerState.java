@@ -3,22 +3,14 @@ package com.dpvn.crmcrudservice.domain.entity;
 import com.dpvn.crmcrudservice.domain.constant.SaleCustomers;
 import com.dpvn.crmcrudservice.domain.dto.SaleCustomerStateDto;
 import com.dpvn.shared.domain.BaseEntity;
-import com.dpvn.shared.domain.BeanMapper;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /** EXTEND MORE IN THE FUTURE */
 @Entity
 @Table(name = "sale_customer_state")
-public class SaleCustomerState extends BaseEntity {
-  @Id
-  @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+public class SaleCustomerState extends BaseEntity<SaleCustomerStateDto> {
 
   private Long saleId;
   private Long customerId;
@@ -26,25 +18,29 @@ public class SaleCustomerState extends BaseEntity {
 
   private Integer state = SaleCustomers.State.NEW_CONTACT;
 
+  @Column(columnDefinition = "TEXT")
   private String feeShip;
+
+  @Column(columnDefinition = "TEXT")
   private String priceMakeUp;
+
+  @Column(columnDefinition = "TEXT")
   private String preferProducts;
+
+  @Column(columnDefinition = "TEXT")
   private String preferProductsPrice;
+
+  @Column(columnDefinition = "TEXT")
   private String characteristic;
-  // TODO: more in the future if need
+
+  @Column(columnDefinition = "TEXT")
   private String other; // general information
 
-  @Override
-  public SaleCustomerStateDto toDto() {
-    return BeanMapper.instance().map(this, SaleCustomerStateDto.class);
-  }
+  @Column(columnDefinition = "TEXT")
+  private String note;
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
+  public SaleCustomerState() {
+    super(SaleCustomerStateDto.class);
   }
 
   public Long getSaleId() {
@@ -125,5 +121,13 @@ public class SaleCustomerState extends BaseEntity {
 
   public void setCustomerCategoryId(Long customerCategoryId) {
     this.customerCategoryId = customerCategoryId;
+  }
+
+  public String getNote() {
+    return note;
+  }
+
+  public void setNote(String note) {
+    this.note = note;
   }
 }

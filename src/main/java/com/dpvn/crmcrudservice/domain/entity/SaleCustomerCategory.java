@@ -2,7 +2,6 @@ package com.dpvn.crmcrudservice.domain.entity;
 
 import com.dpvn.crmcrudservice.domain.dto.SaleCustomerCategoryDto;
 import com.dpvn.shared.domain.BaseEntity;
-import com.dpvn.shared.domain.BeanMapper;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,7 +11,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "sale_customer_category")
-public class SaleCustomerCategory extends BaseEntity {
+public class SaleCustomerCategory extends BaseEntity<SaleCustomerCategoryDto> {
   @Id
   @Column(name = "id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,9 +26,8 @@ public class SaleCustomerCategory extends BaseEntity {
   @Column(columnDefinition = "TEXT")
   private String description;
 
-  @Override
-  public SaleCustomerCategoryDto toDto() {
-    return BeanMapper.instance().map(this, SaleCustomerCategoryDto.class);
+  public SaleCustomerCategory() {
+    super(SaleCustomerCategoryDto.class);
   }
 
   public Long getId() {

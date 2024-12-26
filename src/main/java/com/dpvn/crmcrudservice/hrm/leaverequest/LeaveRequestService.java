@@ -2,13 +2,13 @@ package com.dpvn.crmcrudservice.hrm.leaverequest;
 
 import com.dpvn.crmcrudservice.domain.entity.LeaveRequest;
 import com.dpvn.crmcrudservice.repository.LeaveRequestRepository;
-import com.dpvn.shared.service.AbstractService;
+import com.dpvn.shared.service.AbstractCrudService;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
-public class LeaveRequestService extends AbstractService<LeaveRequest> {
+public class LeaveRequestService extends AbstractCrudService<LeaveRequest> {
   public LeaveRequestService(LeaveRequestRepository repository) {
     super(repository);
   }

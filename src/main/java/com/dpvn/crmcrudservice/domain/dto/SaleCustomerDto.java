@@ -10,7 +10,7 @@ import java.time.Instant;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SaleCustomerDto extends BaseDto {
+public class SaleCustomerDto extends BaseDto<SaleCustomer> {
   private Long saleId;
   private Long customerId;
   private CustomerDto customerDto;
@@ -29,6 +29,10 @@ public class SaleCustomerDto extends BaseDto {
     customer.setId(customerId);
     entity.setCustomer(customer);
     return entity;
+  }
+
+  public SaleCustomerDto() {
+    super(SaleCustomer.class);
   }
 
   public Long getSaleId() {

@@ -3,13 +3,12 @@ package com.dpvn.crmcrudservice.domain.dto;
 import com.dpvn.crmcrudservice.domain.constant.SaleCustomers;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomerState;
 import com.dpvn.shared.domain.BaseDto;
-import com.dpvn.shared.domain.BeanMapper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SaleCustomerStateDto extends BaseDto {
+public class SaleCustomerStateDto extends BaseDto<SaleCustomerState> {
   private Long saleId;
   private Long customerId;
   private Long customerCategoryId;
@@ -22,9 +21,8 @@ public class SaleCustomerStateDto extends BaseDto {
   // TODO: more in the future if need
   private String other; // general information
 
-  @Override
-  public SaleCustomerState toEntity() {
-    return BeanMapper.instance().map(this, SaleCustomerState.class);
+  public SaleCustomerStateDto() {
+    super(SaleCustomerState.class);
   }
 
   public Long getSaleId() {

@@ -2,18 +2,12 @@ package com.dpvn.crmcrudservice.domain.entity;
 
 import com.dpvn.crmcrudservice.domain.dto.IssueDto;
 import com.dpvn.shared.domain.BaseEntity;
-import com.dpvn.shared.domain.BeanMapper;
 import jakarta.persistence.*;
 import java.time.Instant;
 
 @Entity
 @Table(name = "issue")
-public class Issue extends BaseEntity {
-  @Id
-  @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-
+public class Issue extends BaseEntity<IssueDto> {
   private Long issueTypeId;
   private String issueCode;
 
@@ -29,17 +23,8 @@ public class Issue extends BaseEntity {
   private Integer statusId;
   private String statusName;
 
-  @Override
-  public IssueDto toDto() {
-    return BeanMapper.instance().map(this, IssueDto.class);
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
+  public Issue() {
+    super(IssueDto.class);
   }
 
   public Long getIssueTypeId() {

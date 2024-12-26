@@ -28,9 +28,9 @@ public class SaleCustomerCustomRepository {
         new StringBuilder(
             """
             SELECT * FROM sale_customer sc
-            WHERE sc.status = 1 AND sc.modified_date = (
+            WHERE sc.active = true AND sc.modified_date = (
               SELECT MAX(inner_sc.modified_date) FROM sale_customer inner_sc
-              WHERE inner_sc.status = 1 AND inner_sc.sale_id = sc.sale_id AND inner_sc.customer_id = sc.customer_id and inner_sc.relationship_type = sc.relationship_type  and inner_sc.reason_id = sc.reason_id
+              WHERE inner_sc.active = true AND inner_sc.sale_id = sc.sale_id AND inner_sc.customer_id = sc.customer_id and inner_sc.relationship_type = sc.relationship_type  and inner_sc.reason_id = sc.reason_id
             )
           """);
 
@@ -122,7 +122,7 @@ public class SaleCustomerCustomRepository {
             c.special_events AS customer_special_events,
             c.status AS customer_status,
             c.tax_code AS customer_tax_code,
-            c.customer_id AS customer_customer_id,
+            c.idf AS customer_customer_id,
             c.birthday AS customer_birthday
         """;
     String SELECT_COUNT = "SELECT COUNT(*)";
@@ -285,9 +285,9 @@ public class SaleCustomerCustomRepository {
     StringBuilder WHERE =
         new StringBuilder(
             """
-        WHERE sc.status = 1 AND sc.modified_date = (
+        WHERE sc.actaive = true AND sc.modified_date = (
           SELECT MAX(inner_sc.modified_date) FROM sale_customer inner_sc
-          WHERE inner_sc.status = 1 AND inner_sc.sale_id = sc.sale_id AND inner_sc.customer_id = sc.customer_id and inner_sc.relationship_type = sc.relationship_type  and inner_sc.reason_id = sc.reason_id
+          WHERE inner_sc.actaive = true AND inner_sc.sale_id = sc.sale_id AND inner_sc.customer_id = sc.customer_id and inner_sc.relationship_type = sc.relationship_type  and inner_sc.reason_id = sc.reason_id
         )
         """);
     if (saleId != null) {

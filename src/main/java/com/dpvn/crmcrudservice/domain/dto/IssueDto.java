@@ -2,14 +2,13 @@ package com.dpvn.crmcrudservice.domain.dto;
 
 import com.dpvn.crmcrudservice.domain.entity.Issue;
 import com.dpvn.shared.domain.BaseDto;
-import com.dpvn.shared.domain.BeanMapper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class IssueDto extends BaseDto {
+public class IssueDto extends BaseDto<Issue> {
   private Long issueTypeId;
   private String issueCode;
   private String issueTitle;
@@ -20,9 +19,8 @@ public class IssueDto extends BaseDto {
   private Integer statusId;
   private String statusName;
 
-  @Override
-  public Issue toEntity() {
-    return BeanMapper.instance().map(this, Issue.class);
+  public IssueDto() {
+    super(Issue.class);
   }
 
   public Long getIssueTypeId() {

@@ -2,25 +2,16 @@ package com.dpvn.crmcrudservice.domain.entity;
 
 import com.dpvn.crmcrudservice.domain.dto.CampaignTypeDto;
 import com.dpvn.shared.domain.BaseEntity;
-import com.dpvn.shared.domain.BeanMapper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
 
 @Entity
 @Table(name = "campaign_type")
-public class CampaignType extends BaseEntity {
-  @Id
-  @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-
+public class CampaignType extends BaseEntity<CampaignTypeDto> {
   private String campaignTypeName;
 
   @Column(columnDefinition = "TEXT")
@@ -31,17 +22,8 @@ public class CampaignType extends BaseEntity {
   @OneToMany(mappedBy = "campaignType", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<CampaignTypeStep> campaignTypeSteps;
 
-  @Override
-  public CampaignTypeDto toDto() {
-    return BeanMapper.instance().map(this, CampaignTypeDto.class);
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
+  public CampaignType() {
+    super(CampaignTypeDto.class);
   }
 
   public String getCampaignTypeName() {

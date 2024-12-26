@@ -2,14 +2,13 @@ package com.dpvn.crmcrudservice.domain.dto;
 
 import com.dpvn.crmcrudservice.domain.entity.User;
 import com.dpvn.shared.domain.BaseDto;
-import com.dpvn.shared.domain.BeanMapper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserDto extends BaseDto {
+public class UserDto extends BaseDto<User> {
   private String username;
   private String password;
   private String fullName;
@@ -18,15 +17,14 @@ public class UserDto extends BaseDto {
   private Instant dob;
   private String description;
   private Long roleId;
-  private RoleDto roleDto;
   private Long departmentId;
-  private DepartmentDto departmentDto;
   private String addressDetail;
   private Long addressId;
+  private RoleDto role;
+  private DepartmentDto department;
 
-  @Override
-  public User toEntity() {
-    return BeanMapper.instance().map(this, User.class);
+  public UserDto() {
+    super(User.class);
   }
 
   public Instant getDob() {
@@ -117,19 +115,19 @@ public class UserDto extends BaseDto {
     this.addressId = addressId;
   }
 
-  public RoleDto getRoleDto() {
-    return roleDto;
+  public RoleDto getRole() {
+    return role;
   }
 
-  public void setRoleDto(RoleDto roleDto) {
-    this.roleDto = roleDto;
+  public void setRole(RoleDto role) {
+    this.role = role;
   }
 
-  public DepartmentDto getDepartmentDto() {
-    return departmentDto;
+  public DepartmentDto getDepartment() {
+    return department;
   }
 
-  public void setDepartmentDto(DepartmentDto departmentDto) {
-    this.departmentDto = departmentDto;
+  public void setDepartment(DepartmentDto department) {
+    this.department = department;
   }
 }

@@ -2,7 +2,7 @@ package com.dpvn.crmcrudservice.customer;
 
 import com.dpvn.crmcrudservice.domain.dto.SaleCustomerCategoryDto;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomerCategory;
-import com.dpvn.shared.controller.AbstractController;
+import com.dpvn.shared.controller.AbstractCrudController;
 import com.dpvn.shared.util.StringUtil;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/sale-customer-category")
 public class SaleCustomerCategoryController
-    extends AbstractController<SaleCustomerCategory, SaleCustomerCategoryDto> {
+    extends AbstractCrudController<SaleCustomerCategory, SaleCustomerCategoryDto> {
   public SaleCustomerCategoryController(SaleCustomerCategoryService service) {
     super(service);
   }

@@ -1,19 +1,24 @@
 package com.dpvn.crmcrudservice.domain.dto;
 
+import com.dpvn.crmcrudservice.domain.entity.CustomerReference;
+import com.dpvn.shared.domain.BaseDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CustomerReferenceDto {
+public class CustomerReferenceDto extends BaseDto<CustomerReference> {
   private String code; // ZALo, FB...
   private String name;
   private String value;
   private String reference;
 
-  public CustomerReferenceDto() {}
+  public CustomerReferenceDto() {
+    super(CustomerReference.class);
+  }
 
   public CustomerReferenceDto(String code, String value) {
+    super(CustomerReference.class);
     this.code = code;
     this.value = value;
   }

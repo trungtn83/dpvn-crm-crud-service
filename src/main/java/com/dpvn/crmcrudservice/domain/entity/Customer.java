@@ -2,14 +2,10 @@ package com.dpvn.crmcrudservice.domain.entity;
 
 import com.dpvn.crmcrudservice.domain.dto.CustomerDto;
 import com.dpvn.shared.domain.BaseEntity;
-import com.dpvn.shared.domain.BeanMapper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Instant;
@@ -18,13 +14,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "customer")
-public class Customer extends BaseEntity {
-  @Id
-  @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-
-  private String customerId;
+public class Customer extends BaseEntity<CustomerDto> {
   private String customerCode;
 
   @Column(columnDefinition = "TEXT")
@@ -38,10 +28,16 @@ public class Customer extends BaseEntity {
   @Column(columnDefinition = "TEXT")
   private String address;
 
+  @Column(columnDefinition = "TEXT")
+  private String wardName;
+
+  @Column(columnDefinition = "TEXT")
+  private String locationName;
+
   private Long addressId;
   private String taxCode;
   private String pinCode;
-  private Integer levelPoint = 0;
+  private Integer levelPoint;
   private Integer customerTypeId;
   private Integer customerCategoryId;
   private Integer sourceId;
@@ -65,17 +61,24 @@ public class Customer extends BaseEntity {
       fetch = FetchType.LAZY)
   private List<CustomerReference> references = new ArrayList<>();
 
-  @Override
-  public CustomerDto toDto() {
-    return BeanMapper.instance().map(this, CustomerDto.class);
+  public Customer() {
+    super(CustomerDto.class);
   }
 
-  public Long getId() {
-    return id;
+  public String getWardName() {
+    return wardName;
   }
 
-  public void setId(Long id) {
-    this.id = id;
+  public void setWardName(String wardName) {
+    this.wardName = wardName;
+  }
+
+  public String getLocationName() {
+    return locationName;
+  }
+
+  public void setLocationName(String locationName) {
+    this.locationName = locationName;
   }
 
   public String getCustomerCode() {
@@ -220,14 +223,6 @@ public class Customer extends BaseEntity {
 
   public void setSourceId(Integer sourceId) {
     this.sourceId = sourceId;
-  }
-
-  public String getCustomerId() {
-    return customerId;
-  }
-
-  public void setCustomerId(String customerId) {
-    this.customerId = customerId;
   }
 
   public Instant getBirthday() {

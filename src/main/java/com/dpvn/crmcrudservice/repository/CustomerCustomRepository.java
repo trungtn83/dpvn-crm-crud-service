@@ -25,114 +25,6 @@ public class CustomerCustomRepository {
     this.customerRepository = customerRepository;
   }
 
-  public List<Customer> searchCustomers(
-      String name,
-      String code,
-      Integer gender,
-      String mobilePhone,
-      String email,
-      String address,
-      String taxCode,
-      Integer customerType,
-      Integer status,
-      Integer availability,
-      String source,
-      String note,
-      Paginator paginator) {
-    StringBuilder sql = new StringBuilder("SELECT * FROM customer c WHERE 1=1 ");
-
-    if (StringUtil.isNotEmpty(name)) {
-      sql.append(" AND c.customer_name ILIKE '%' || :name || '%'");
-    }
-    if (StringUtil.isNotEmpty(code)) {
-      sql.append(" AND c.customer_code = :code");
-    }
-    if (gender != null) {
-      sql.append(" AND c.gender = :gender ");
-    }
-    if (StringUtil.isNotEmpty(mobilePhone)) {
-      sql.append(" AND c.mobile_phone = :mobilePhone");
-    }
-    if (StringUtil.isNotEmpty(email)) {
-      sql.append(" AND c.email = :email");
-    }
-    if (StringUtil.isNotEmpty(address)) {
-      sql.append(" AND c.address ILIKE '%' || :address || '%'");
-    }
-    if (StringUtil.isNotEmpty(taxCode)) {
-      sql.append(" AND c.tax_code = :taxCode");
-    }
-    if (customerType != null) {
-      sql.append(" AND c.customer_type = :customerType");
-    }
-    if (status != null) {
-      sql.append(" AND c.status = :status");
-    }
-    if (availability != null) {
-      sql.append(" AND c.availability = :availability");
-    }
-    if (StringUtil.isNotEmpty(source)) {
-      sql.append(" AND c.source = :source");
-    }
-    if (StringUtil.isNotEmpty(note)) {
-      sql.append(" AND c.source_note ILIKE '%' || :note || '%'");
-    }
-
-    if (StringUtil.isNotEmpty(paginator.getSortBy())
-        && StringUtil.isNotEmpty(paginator.getSortDirection())) {
-      sql.append(" ORDER BY c.")
-          .append(paginator.getSortBy())
-          .append(" ")
-          .append(paginator.getSortDirection());
-    }
-
-    Query query = entityManager.createNativeQuery(sql.toString(), Customer.class);
-
-    if (StringUtil.isNotEmpty(name)) {
-      query.setParameter("name", name);
-    }
-    if (StringUtil.isNotEmpty(code)) {
-      query.setParameter("code", code);
-    }
-    if (gender != null) {
-      query.setParameter("gender", gender);
-    }
-    if (StringUtil.isNotEmpty(mobilePhone)) {
-      query.setParameter("mobilePhone", mobilePhone);
-    }
-    if (StringUtil.isNotEmpty(email)) {
-      query.setParameter("email", email);
-    }
-    if (StringUtil.isNotEmpty(address)) {
-      query.setParameter("address", address);
-    }
-    if (StringUtil.isNotEmpty(taxCode)) {
-      query.setParameter("tax_code", taxCode);
-    }
-    if (customerType != null) {
-      query.setParameter("customer_type", customerType);
-    }
-    if (status != null) {
-      query.setParameter("status", status);
-    }
-    if (availability != null) {
-      query.setParameter("availability", availability);
-    }
-    if (StringUtil.isNotEmpty(source)) {
-      query.setParameter("source", source);
-    }
-    if (StringUtil.isNotEmpty(note)) {
-      query.setParameter("note", note);
-    }
-
-    if (paginator.getPage() != null && paginator.getSize() != null) {
-      query.setFirstResult((paginator.getPage() - 1) * paginator.getSize());
-      query.setMaxResults(paginator.getSize());
-    }
-
-    return query.getResultList();
-  }
-
   public Page<FastMap> searchInPoolCustomers(
       Long saleId, String filterText, List<String> tags, Pageable pageable) {
     String SELECT =
@@ -161,7 +53,7 @@ public class CustomerCustomRepository {
                 c.special_events,
                 c.status,
                 c.tax_code,
-                c.customer_id,
+                c.idf,
                 c.birthday,
                 CASE WHEN sc_star.id IS NOT NULL THEN true ELSE false END AS is_star,
                 CASE WHEN boom_interaction.id IS NOT NULL THEN true ELSE false END AS is_boom
@@ -199,7 +91,7 @@ public class CustomerCustomRepository {
                 SELECT 1
                 FROM sale_customer sc
                 WHERE sc.customer_id = c.id
-                  AND sc.status = 1
+                  AND sc.active = true
                   AND sc.relationship_type = 1
                   AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP)
             )
@@ -608,7 +500,7 @@ public class CustomerCustomRepository {
            c.special_events,
            c.status,
            c.tax_code,
-           c.customer_id,
+           c.idf,
            c.birthday,
            COUNT(CASE WHEN t.priority = 90 THEN 1 END) AS now_task_count,
            COUNT(CASE WHEN DATE(t.to_date) = CURRENT_DATE THEN 1 END) AS today_task_count,
@@ -649,7 +541,7 @@ public class CustomerCustomRepository {
             c.special_events,
             c.status,
             c.tax_code,
-            c.customer_id,
+            c.idf,
             c.birthday,
             lmt.last_modified_task_id,
             lmt.last_modified_task_name,

@@ -10,7 +10,7 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class InteractionDto extends BaseDto {
+public class InteractionDto extends BaseDto<Interaction> {
   private Integer typeId;
   private String type;
 
@@ -38,6 +38,10 @@ public class InteractionDto extends BaseDto {
     entity.setVideos(StringUtil.join(videos));
     entity.setFiles(StringUtil.join(files));
     return entity;
+  }
+
+  public InteractionDto() {
+    super(Interaction.class);
   }
 
   public Integer getTypeId() {

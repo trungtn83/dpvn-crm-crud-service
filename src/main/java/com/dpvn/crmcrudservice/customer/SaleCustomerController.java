@@ -4,7 +4,7 @@ import com.dpvn.crmcrudservice.domain.dto.SaleCustomerDto;
 import com.dpvn.crmcrudservice.domain.dto.SaleCustomerStateDto;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomerState;
-import com.dpvn.shared.controller.AbstractController;
+import com.dpvn.shared.controller.AbstractCrudController;
 import com.dpvn.shared.util.FastMap;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/sale-customer")
-public class SaleCustomerController extends AbstractController<SaleCustomer, SaleCustomerDto> {
+public class SaleCustomerController extends AbstractCrudController<SaleCustomer, SaleCustomerDto> {
   private final SaleCustomerStateService saleCustomerStateService;
 
   public SaleCustomerController(

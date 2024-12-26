@@ -1,8 +1,12 @@
 package com.dpvn.crmcrudservice.user;
 
 import com.dpvn.crmcrudservice.domain.dto.UserDto;
+import com.dpvn.crmcrudservice.domain.entity.Department;
+import com.dpvn.crmcrudservice.domain.entity.Role;
 import com.dpvn.crmcrudservice.domain.entity.User;
-import com.dpvn.shared.controller.AbstractController;
+import com.dpvn.crmcrudservice.repository.CacheEntityService;
+import com.dpvn.shared.controller.AbstractCrudController;
+import com.dpvn.shared.domain.BeanMapper;
 import com.dpvn.shared.util.FastMap;
 import java.util.List;
 import java.util.Optional;
@@ -16,10 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/user")
-public class UserController extends AbstractController<User, UserDto> {
+public class UserController extends AbstractCrudController<User, UserDto> {
 
-  public UserController(UserService userService) {
+  private final CacheEntityService cacheEntityService;
+
+  public UserController(UserService userService, CacheEntityService cacheEntityService) {
     super(userService);
+    this.cacheEntityService = cacheEntityService;
   }
 
   @GetMapping("/username/{username}")
@@ -67,5 +74,38 @@ public class UserController extends AbstractController<User, UserDto> {
         .add("total", userPage.getTotalElements())
         .add("pageSize", userPage.getSize())
         .add("page", userPage.getNumber());
+  }
+
+  @Override
+  @PostMapping({"/sync-all"})
+  public void syncAll(@RequestBody List<UserDto> dtos) {
+    List<Department> departments = cacheEntityService.getDepartments();
+    Department defaultDepartment =
+        departments.stream()
+            .filter(d -> "SALE".equals(d.getDepartmentName()))
+            .findFirst()
+            .orElse(null);
+    List<Role> roles = cacheEntityService.getRoles();
+    Role defaultRole =
+        roles.stream().filter(r -> "USER".equals(r.getRoleName())).findFirst().orElse(null);
+    this.service.sync(
+        dtos.stream()
+            .map(
+                userDto -> {
+                  User user = BeanMapper.instance().map(userDto, User.class);
+                  user.setDepartment(
+                      departments.stream()
+                          .filter(
+                              department -> department.getId().equals(userDto.getDepartmentId()))
+                          .findFirst()
+                          .orElse(defaultDepartment));
+                  user.setRole(
+                      roles.stream()
+                          .filter(role -> role.getId().equals(userDto.getRoleId()))
+                          .findFirst()
+                          .orElse(defaultRole));
+                  return user;
+                })
+            .toList());
   }
 }

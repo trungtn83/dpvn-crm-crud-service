@@ -1,21 +1,16 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
+import com.dpvn.crmcrudservice.domain.dto.CustomerReferenceDto;
+import com.dpvn.shared.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "customer_reference")
-public class CustomerReference {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-
+public class CustomerReference extends BaseEntity<CustomerReferenceDto> {
   private String code; // ZALo, FB...
 
   @Column(columnDefinition = "TEXT")
@@ -31,12 +26,8 @@ public class CustomerReference {
   @JoinColumn(name = "customer_id", nullable = false, referencedColumnName = "id")
   private Customer customer;
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
+  public CustomerReference() {
+    super(CustomerReferenceDto.class);
   }
 
   public String getCode() {

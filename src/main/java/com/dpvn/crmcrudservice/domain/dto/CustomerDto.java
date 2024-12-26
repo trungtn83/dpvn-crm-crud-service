@@ -2,7 +2,6 @@ package com.dpvn.crmcrudservice.domain.dto;
 
 import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.dpvn.shared.domain.BaseDto;
-import com.dpvn.shared.domain.BeanMapper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
@@ -11,8 +10,7 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CustomerDto extends BaseDto {
-  private String customerId; // prepare String for both Long, String and UUID case
+public class CustomerDto extends BaseDto<Customer> {
   private String customerCode;
   private String customerName;
   private Instant birthday;
@@ -20,6 +18,8 @@ public class CustomerDto extends BaseDto {
   private String mobilePhone;
   private String email;
   private String address;
+  private String wardName;
+  private String locationName;
   private Long addressId;
   private String taxCode;
   private String pinCode;
@@ -34,11 +34,24 @@ public class CustomerDto extends BaseDto {
 
   private List<CustomerReferenceDto> references = new ArrayList<>();
 
-  @Override
-  public Customer toEntity() {
-    Customer entity = BeanMapper.instance().map(this, Customer.class);
-    entity.getReferences().forEach(reference -> reference.setCustomer(entity));
-    return entity;
+  public CustomerDto() {
+    super(Customer.class);
+  }
+
+  public String getWardName() {
+    return wardName;
+  }
+
+  public void setWardName(String wardName) {
+    this.wardName = wardName;
+  }
+
+  public String getLocationName() {
+    return locationName;
+  }
+
+  public void setLocationName(String locationName) {
+    this.locationName = locationName;
   }
 
   public Integer getCustomerCategoryId() {
@@ -183,14 +196,6 @@ public class CustomerDto extends BaseDto {
 
   public void setPinCode(String pinCode) {
     this.pinCode = pinCode;
-  }
-
-  public String getCustomerId() {
-    return customerId;
-  }
-
-  public void setCustomerId(String customerId) {
-    this.customerId = customerId;
   }
 
   public Instant getBirthday() {

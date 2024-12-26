@@ -1,16 +1,10 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
 import com.dpvn.crmcrudservice.domain.dto.CampaignDto;
-import com.dpvn.crmcrudservice.domain.entity.relationship.CampaignCustomer;
-import com.dpvn.crmcrudservice.domain.entity.relationship.CampaignUser;
 import com.dpvn.shared.domain.BaseEntity;
-import com.dpvn.shared.domain.BeanMapper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Instant;
@@ -18,12 +12,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "campaign")
-public class Campaign extends BaseEntity {
-  @Id
-  @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-
+public class Campaign extends BaseEntity<CampaignDto> {
   @Column(nullable = false)
   private String campaignName;
 
@@ -44,23 +33,8 @@ public class Campaign extends BaseEntity {
   @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<CampaignStep> campaignSteps;
 
-  @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<CampaignCustomer> campaignCustomers;
-
-  @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<CampaignUser> campaignUsers;
-
-  @Override
-  public CampaignDto toDto() {
-    return BeanMapper.instance().map(this, CampaignDto.class);
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
+  public Campaign() {
+    super(CampaignDto.class);
   }
 
   public String getCampaignName() {
@@ -117,22 +91,6 @@ public class Campaign extends BaseEntity {
 
   public void setCampaignSteps(Set<CampaignStep> campaignSteps) {
     this.campaignSteps = campaignSteps;
-  }
-
-  public Set<CampaignCustomer> getCampaignCustomers() {
-    return campaignCustomers;
-  }
-
-  public void setCampaignCustomers(Set<CampaignCustomer> campaignCustomers) {
-    this.campaignCustomers = campaignCustomers;
-  }
-
-  public Set<CampaignUser> getCampaignUsers() {
-    return campaignUsers;
-  }
-
-  public void setCampaignUsers(Set<CampaignUser> crmCampaignUsers) {
-    this.campaignUsers = crmCampaignUsers;
   }
 
   public Integer getDispatchTypeId() {

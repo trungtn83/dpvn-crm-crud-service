@@ -2,13 +2,12 @@ package com.dpvn.crmcrudservice.domain.dto;
 
 import com.dpvn.crmcrudservice.domain.entity.CampaignStep;
 import com.dpvn.shared.domain.BaseDto;
-import com.dpvn.shared.domain.BeanMapper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CampaignStepDto extends BaseDto {
+public class CampaignStepDto extends BaseDto<CampaignStep> {
   private Long campaignId;
   private Integer stepOrder;
   private String stepName;
@@ -16,9 +15,8 @@ public class CampaignStepDto extends BaseDto {
   private Integer deadline;
   private Integer completionPercentage;
 
-  @Override
-  public CampaignStep toEntity() {
-    return BeanMapper.instance().map(this, CampaignStep.class);
+  public CampaignStepDto() {
+    super(CampaignStep.class);
   }
 
   public Long getCampaignId() {

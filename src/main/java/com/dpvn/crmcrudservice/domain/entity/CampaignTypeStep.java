@@ -2,24 +2,15 @@ package com.dpvn.crmcrudservice.domain.entity;
 
 import com.dpvn.crmcrudservice.domain.dto.CampaignTypeStepDto;
 import com.dpvn.shared.domain.BaseEntity;
-import com.dpvn.shared.domain.BeanMapper;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "campaign_type_step")
-public class CampaignTypeStep extends BaseEntity {
-  @Id
-  @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-
+public class CampaignTypeStep extends BaseEntity<CampaignTypeStepDto> {
   @ManyToOne
   @JoinColumn(name = "campaign_type_id", referencedColumnName = "id")
   private CampaignType campaignType;
@@ -34,17 +25,8 @@ public class CampaignTypeStep extends BaseEntity {
 
   private Integer completionPercentage;
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  @Override
-  public CampaignTypeStepDto toDto() {
-    return BeanMapper.instance().map(this, CampaignTypeStepDto.class);
+  public CampaignTypeStep() {
+    super(CampaignTypeStepDto.class);
   }
 
   public CampaignType getCampaignType() {

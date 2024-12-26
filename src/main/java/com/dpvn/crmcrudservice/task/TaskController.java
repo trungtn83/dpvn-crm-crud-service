@@ -2,7 +2,7 @@ package com.dpvn.crmcrudservice.task;
 
 import com.dpvn.crmcrudservice.domain.dto.TaskDto;
 import com.dpvn.crmcrudservice.domain.entity.Task;
-import com.dpvn.shared.controller.AbstractController;
+import com.dpvn.shared.controller.AbstractCrudController;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/task")
-public class TaskController extends AbstractController<Task, TaskDto> {
+public class TaskController extends AbstractCrudController<Task, TaskDto> {
 
   public TaskController(TaskService service) {
     super(service);

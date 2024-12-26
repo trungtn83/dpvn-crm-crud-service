@@ -1,14 +1,10 @@
 package com.dpvn.crmcrudservice.user;
 
-import com.dpvn.crmcrudservice.domain.entity.Department;
-import com.dpvn.crmcrudservice.domain.entity.Role;
 import com.dpvn.crmcrudservice.domain.entity.User;
-import com.dpvn.crmcrudservice.repository.DepartmentRepository;
-import com.dpvn.crmcrudservice.repository.RoleRepository;
 import com.dpvn.crmcrudservice.repository.UserCustomRepository;
 import com.dpvn.crmcrudservice.repository.UserRepository;
 import com.dpvn.shared.exception.BadRequestException;
-import com.dpvn.shared.service.AbstractService;
+import com.dpvn.shared.service.AbstractCrudService;
 import com.dpvn.shared.util.FastMap;
 import com.dpvn.shared.util.ObjectUtil;
 import java.util.ArrayList;
@@ -21,28 +17,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class UserService extends AbstractService<User> {
-  private final DepartmentRepository departmentRepository;
-  private final RoleRepository roleRepository;
+public class UserService extends AbstractCrudService<User> {
   private final UserCustomRepository userCustomRepository;
 
-  public UserService(
-      UserRepository repository,
-      DepartmentRepository departmentRepository,
-      RoleRepository roleRepository,
-      UserCustomRepository userCustomRepository) {
+  public UserService(UserRepository repository, UserCustomRepository userCustomRepository) {
     super(repository);
-    this.departmentRepository = departmentRepository;
-    this.roleRepository = roleRepository;
     this.userCustomRepository = userCustomRepository;
   }
 
   @Transactional
   @Override
   public void sync(List<User> entities) {
-    Department department = departmentRepository.findByDepartmentName("SALE");
-    Role role = roleRepository.findByRoleName("USER");
-
     List<User> users = new ArrayList<>();
     entities.forEach(
         entity -> {
@@ -50,11 +35,9 @@ public class UserService extends AbstractService<User> {
           if (dbUser == null) {
             entity.setPassword("123456");
             entity.setActive(false);
-            entity.setDepartment(department);
-            entity.setRole(role);
             users.add(entity);
           } else {
-            ObjectUtil.assign(dbUser, entity, List.of("role", "department", "password", "status"));
+            ObjectUtil.assign(dbUser, entity, List.of("password", "status", "active"));
             users.add(dbUser);
           }
         });
@@ -63,10 +46,6 @@ public class UserService extends AbstractService<User> {
 
   public List<User> findUsersByIds(List<Long> ids) {
     return ((UserRepository) repository).findByIdIn(ids);
-  }
-
-  public void saveAll(List<User> users) {
-    repository.saveAll(users);
   }
 
   public Optional<User> findByUsername(String username) {

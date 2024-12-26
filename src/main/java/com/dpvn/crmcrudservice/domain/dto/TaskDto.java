@@ -12,7 +12,7 @@ import java.util.List;
 
 // @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TaskDto extends BaseDto {
+public class TaskDto extends BaseDto<Task> {
   private Long userId;
   private Long customerId;
   private Long campaignId;
@@ -36,6 +36,10 @@ public class TaskDto extends BaseDto {
     entity.setRelatedPersonIds(
         StringUtil.join(relatedPersonIds.stream().map(String::valueOf).toList()));
     return entity;
+  }
+
+  public TaskDto() {
+    super(Task.class);
   }
 
   public Long getUserId() {

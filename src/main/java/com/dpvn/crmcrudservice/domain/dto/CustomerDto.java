@@ -17,15 +17,15 @@ public class CustomerDto extends BaseDto<Customer> {
   private Integer gender;
   private String mobilePhone;
   private String email;
-  private String address;
-  private String wardName;
-  private String locationName;
-  private Long addressId;
   private String taxCode;
   private String pinCode;
-  private Integer levelPoint = 0;
-  private Integer customerTypeId;
-  private Integer customerCategoryId;
+  private Integer levelPoint;
+  // PHARMACY, PHARMACIST, DOCTOR, HOSPITAL, CLINIC, OTHER...
+  private Long customerTypeId;
+  private String customerType;
+  // for future
+  private Long customerCategoryId;
+  private String customerCategory;
   private Integer sourceId;
   private String sourceNote;
   private String notes;
@@ -33,32 +33,33 @@ public class CustomerDto extends BaseDto<Customer> {
   private String specialEvents;
 
   private List<CustomerReferenceDto> references = new ArrayList<>();
+  private List<CustomerAddressDto> addresses = new ArrayList<>();
 
   public CustomerDto() {
     super(Customer.class);
   }
 
-  public String getWardName() {
-    return wardName;
+  public String getCustomerType() {
+    return customerType;
   }
 
-  public void setWardName(String wardName) {
-    this.wardName = wardName;
+  public void setCustomerType(String customerType) {
+    this.customerType = customerType;
   }
 
-  public String getLocationName() {
-    return locationName;
+  public String getCustomerCategory() {
+    return customerCategory;
   }
 
-  public void setLocationName(String locationName) {
-    this.locationName = locationName;
+  public void setCustomerCategory(String customerCategory) {
+    this.customerCategory = customerCategory;
   }
 
-  public Integer getCustomerCategoryId() {
+  public Long getCustomerCategoryId() {
     return customerCategoryId;
   }
 
-  public void setCustomerCategoryId(Integer customerCategoryId) {
+  public void setCustomerCategoryId(Long customerCategoryId) {
     this.customerCategoryId = customerCategoryId;
   }
 
@@ -126,22 +127,6 @@ public class CustomerDto extends BaseDto<Customer> {
     this.email = email;
   }
 
-  public String getAddress() {
-    return address;
-  }
-
-  public void setAddress(String address) {
-    this.address = address;
-  }
-
-  public Long getAddressId() {
-    return addressId;
-  }
-
-  public void setAddressId(Long addressId) {
-    this.addressId = addressId;
-  }
-
   public String getTaxCode() {
     return taxCode;
   }
@@ -158,11 +143,11 @@ public class CustomerDto extends BaseDto<Customer> {
     this.levelPoint = levelPoint;
   }
 
-  public Integer getCustomerTypeId() {
+  public Long getCustomerTypeId() {
     return customerTypeId;
   }
 
-  public void setCustomerTypeId(Integer customerTypeId) {
+  public void setCustomerTypeId(Long customerTypeId) {
     this.customerTypeId = customerTypeId;
   }
 
@@ -204,5 +189,13 @@ public class CustomerDto extends BaseDto<Customer> {
 
   public void setBirthday(Instant birthday) {
     this.birthday = birthday;
+  }
+
+  public List<CustomerAddressDto> getAddresses() {
+    return addresses;
+  }
+
+  public void setAddresses(List<CustomerAddressDto> addresses) {
+    this.addresses = addresses;
   }
 }

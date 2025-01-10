@@ -49,6 +49,7 @@ public class UserController extends AbstractCrudController<User, UserDto> {
   public List<UserDto> findUsersByOptions(@RequestBody UserDto userDto) {
     return ((UserService) service)
             .findUsersByOptions(
+                userDto.getIdf(),
                 userDto.getUsername(),
                 userDto.getFullName(),
                 userDto.getEmail(),
@@ -67,8 +68,8 @@ public class UserController extends AbstractCrudController<User, UserDto> {
     List<String> roles = condition.getList("roles");
     Integer page = condition.getInt("page");
     Integer pageSize = condition.getInt("pageSize");
-    Page<FastMap> userPage =
-        ((UserService) service).searchUsers(filterText, departments, roles, page, pageSize);
+    Page<UserDto> userPage =
+        ((UserService) service).searchUsers(filterText, departments, roles, page, pageSize).map(User::toDto);
     return FastMap.create()
         .add("rows", userPage.getContent())
         .add("total", userPage.getTotalElements())

@@ -35,15 +35,12 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
     return ((CustomerService) service).findByIds(ids).stream().map(Customer::toDto).toList();
   }
 
-  /**
-   * @param status can be null and return correct only null value
-   */
-  @GetMapping("/find-by-status")
-  public List<CustomerDto> findByStatus(
-      @RequestParam(value = "status", required = false) String status,
+  @GetMapping("/find-by-status-for-init")
+  public List<CustomerDto> findByStatusForInitRelationship(
       @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
       @RequestParam(value = "pageSize", required = false, defaultValue = "100") Integer pageSize) {
-    List<Customer> customers = ((CustomerService) service).findByStatus(status, page, pageSize);
+    List<Customer> customers =
+        ((CustomerService) service).findByStatusForInitRelationship(page, pageSize);
     return customers.stream().map(Customer::toDto).toList();
   }
 
@@ -119,6 +116,26 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
         .add("page", customerPage.getNumber());
   }
 
+  @PostMapping("/in-ocean")
+  public FastMap findInOceanCustomers(@RequestBody FastMap body) {
+    String filterText = body.getString("filterText");
+    List<Long> typeIds = body.getList("typeIds");
+    List<String> locationCodes = body.getList("locationCodes");
+    List<Integer> sourceIds = body.getList("sourceIds");
+    Integer page = body.getInt("page");
+    Integer pageSize = body.getInt("pageSize");
+
+    Page<Customer> customerPage =
+        ((CustomerService) service)
+            .findInOceanCustomers(
+                filterText, typeIds, locationCodes, sourceIds, page, pageSize);
+    return FastMap.create()
+        .add("rows", customerPage.stream().map(Customer::toDto).toList())
+        .add("total", customerPage.getTotalElements())
+        .add("pageSize", customerPage.getSize())
+        .add("page", customerPage.getNumber());
+  }
+
   @PostMapping("/task-based")
   public FastMap findTaskBasedCustomers(@RequestBody FastMap body) {
     Long saleId = body.getLong("saleId");
@@ -145,12 +162,29 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
     ((CustomerService) service).updateLastTransaction(id, lastTransaction, isSuccessful);
   }
 
+  // sourceId = 1, KIOTVIET, = 2, CRAFTONLINE...
+  // sourceId = null, find last created customer from all sources
   @GetMapping("/find-last-created")
-  public CustomerDto findLastCreatedCustomer() {
-    Customer customer = ((CustomerService) service).findLastCreatedCustomer();
+  public CustomerDto findLastCreatedCustomer(
+      @RequestParam(value = "sourceId", required = false) Integer sourceId) {
+    Customer customer = ((CustomerService) service).findLastCreatedCustomerBySource(sourceId);
     if (customer == null) {
       return null;
     }
     return customer.toDto();
+  }
+
+  @Override
+  @PostMapping({"/upsert"})
+  public CustomerDto upsert(@RequestBody CustomerDto dto) {
+    return service.upsert(dto.toEntity()).toDto();
+  }
+
+  @PostMapping("/{id}/approve")
+  public void approveCustomerFromSandToGold(@PathVariable Long id, @RequestBody FastMap body) {
+    Boolean approved = body.getBoolean("approved");
+    Integer dispatchTypeId = body.getInt("dispatchTypeId");
+    Long saleId = body.getLong("saleId");
+    ((CustomerService) service).approveCustomerFromSandToGold(id, approved, dispatchTypeId, saleId);
   }
 }

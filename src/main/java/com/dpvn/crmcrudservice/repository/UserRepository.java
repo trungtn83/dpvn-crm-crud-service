@@ -18,6 +18,7 @@ public interface UserRepository extends AbstractRepository<User> {
       """
       SELECT u FROM User u
       WHERE (:username IS NULL OR u.username = :username)
+          AND (:idf IS NULL OR u.idf  = :idf)
           AND (:fullName IS NULL OR u.fullName  = :fullName)
           AND (:email IS NULL OR u.email = :email)
           AND (:mobilePhone IS NULL OR u.mobilePhone = :mobilePhone)
@@ -27,6 +28,7 @@ public interface UserRepository extends AbstractRepository<User> {
 
   @Query(FIND_USERS_BY_OPTIONS)
   List<User> findUsersByOptions(
+      @Param("idf") Long idf,
       @Param("username") String username,
       @Param("fullName") String fullName,
       @Param("email") String email,

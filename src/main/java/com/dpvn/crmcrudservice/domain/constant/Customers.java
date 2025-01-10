@@ -18,30 +18,6 @@ public class Customers {
     public static final int OTHER = 99;
   }
 
-  public static class Type {
-    private Type() {}
-
-    public static final int PHARMACY = 1;
-    public static final int PHARMACIST = 2;
-    public static final int PATIENT = 3;
-    public static final int HOSPITAL = 4;
-    public static final int HEALTHCARE_CENTER = 5; // BEAUTY_SALON
-    public static final int DRUGSTORE = 6;
-    public static final int CLINIC = 7;
-    public static final int DENTISTRY = 8;
-    public static final int COMPANY = 9;
-    public static final int OTHER = 99;
-  }
-
-  public static class Category {
-    private Category() {}
-
-    public static final int WHOLE_SALE = 1;
-    public static final int RETAIL_SALE = 2;
-    public static final int COMPANY = 3;
-    public static final int OTHER = 99;
-  }
-
   public static class References {
     private References() {}
 
@@ -77,6 +53,11 @@ public class Customers {
   public static class Status {
     private Status() {}
 
+    //  Đã chạy init xong cho khách hàng này
     public static final String ASSIGNED = "ASSIGNED";
+    // Đã duyệt xong bởi leader/mkt
+    public static final String VERIFIED = "VERIFIED";
+    // Mới được GOD assign theo campaign để duyệt, chưa duyêt
+    public static final String VERIFYING = "VERIFYING";
   }
 }

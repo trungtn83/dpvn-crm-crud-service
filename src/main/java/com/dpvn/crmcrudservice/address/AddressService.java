@@ -23,21 +23,17 @@ public class AddressService extends AbstractCrudService<Address> {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
-  public Address findAddressByWardNameAndLocationName(String wardNameInput, String locationName) {
-    if (StringUtil.isEmpty(wardNameInput) || StringUtil.isEmpty(locationName)) {
-      return null;
-    }
-    List<String> locations = StringUtil.split(locationName, "-");
-    if (ListUtil.isEmpty(locations)
-        || locations.size() != 2
-        || StringUtil.isEmpty(locations.get(0))
-        || StringUtil.isEmpty(locations.get(1))) {
+  public Address findAddressByLocationNames(
+      String wardNameInput, String districtNameInput, String provinceNameInput) {
+    if (StringUtil.isEmpty(wardNameInput)
+        || StringUtil.isEmpty(districtNameInput)
+        || StringUtil.isEmpty(provinceNameInput)) {
       return null;
     }
     String wardName = wardNameInput.trim().toLowerCase().replaceAll("phường|xã", "");
     String districtName =
-        locations.get(0).trim().toLowerCase().replaceAll("quận|huyện|thị trấn", "");
-    String provinceName = locations.get(1).trim().toLowerCase().replaceAll("tỉnh|thành phố", "");
+        districtNameInput.trim().toLowerCase().replaceAll("quận|huyện|thị trấn", "");
+    String provinceName = provinceNameInput.trim().toLowerCase().replaceAll("tỉnh|thành phố", "");
 
     List<Address> addresses = cacheEntityService.getAddresses();
     List<Address> results =
@@ -45,12 +41,23 @@ public class AddressService extends AbstractCrudService<Address> {
             .filter(
                 address ->
                     address.getWardName().toLowerCase().contains(wardName)
-                        || address.getDistrictName().toLowerCase().contains(districtName)
-                        || address.getProvinceName().toLowerCase().contains(provinceName))
+                        && address.getDistrictName().toLowerCase().contains(districtName)
+                        && address.getProvinceName().toLowerCase().contains(provinceName))
             .toList();
     if (ListUtil.isEmpty(results)) {
       return null;
     }
     return results.get(0);
+  }
+
+  public Address findAddressById(Long id) {
+    if (id == null) {
+      return null;
+    }
+    List<Address> addresses = cacheEntityService.getAddresses();
+    return addresses.stream()
+        .filter(address -> id.equals(address.getId()))
+        .findFirst()
+        .orElse(null);
   }
 }

@@ -28,7 +28,7 @@ public class SaleCustomerCustomRepository {
         new StringBuilder(
             """
             SELECT * FROM sale_customer sc
-            WHERE sc.active = true AND sc.modified_date = (
+            WHERE sc.active = true AND sc.deleted is not true AND sc.modified_date = (
               SELECT MAX(inner_sc.modified_date) FROM sale_customer inner_sc
               WHERE inner_sc.active = true AND inner_sc.sale_id = sc.sale_id AND inner_sc.customer_id = sc.customer_id and inner_sc.relationship_type = sc.relationship_type  and inner_sc.reason_id = sc.reason_id
             )
@@ -133,11 +133,8 @@ public class SaleCustomerCustomRepository {
             customerIds,
             relationshipType,
             reasonIds,
-            reasonRef,
-            customerCategoryId,
-            filterText);
-    String ORDER =
-        pageable == null || pageable.getSort().isEmpty()
+            reasonRef);
+    String ORDER = pageable.getSort().isEmpty()
             ? ""
             : pageable.getSort().stream()
                 .map(order -> String.format("%s %s", order.getProperty(), order.getDirection()))
@@ -279,15 +276,13 @@ public class SaleCustomerCustomRepository {
       List<Long> customerIds,
       Integer relationshipType,
       List<Integer> reasonIds,
-      String reasonRef,
-      Long customerCategoryId,
-      String filterText) {
+      String reasonRef) {
     StringBuilder WHERE =
         new StringBuilder(
             """
-        WHERE sc.actaive = true AND sc.modified_date = (
+        WHERE sc.active = true and sc.deleted is not true AND sc.modified_date = (
           SELECT MAX(inner_sc.modified_date) FROM sale_customer inner_sc
-          WHERE inner_sc.actaive = true AND inner_sc.sale_id = sc.sale_id AND inner_sc.customer_id = sc.customer_id and inner_sc.relationship_type = sc.relationship_type  and inner_sc.reason_id = sc.reason_id
+          WHERE inner_sc.active = true and inner_sc.deleted is not true AND inner_sc.sale_id = sc.sale_id AND inner_sc.customer_id = sc.customer_id and inner_sc.relationship_type = sc.relationship_type  and inner_sc.reason_id = sc.reason_id
         )
         """);
     if (saleId != null) {

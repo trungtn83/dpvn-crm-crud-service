@@ -8,12 +8,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "customer")
+@Table(name = "customer", uniqueConstraints = @UniqueConstraint(columnNames = "idf"))
 public class Customer extends BaseEntity<CustomerDto> {
   private String customerCode;
 
@@ -22,23 +24,18 @@ public class Customer extends BaseEntity<CustomerDto> {
 
   private Instant birthday;
   private Integer gender;
+
+  @Column(unique = true)
   private String mobilePhone;
+
   private String email;
-
-  @Column(columnDefinition = "TEXT")
-  private String address;
-
-  @Column(columnDefinition = "TEXT")
-  private String wardName;
-
-  @Column(columnDefinition = "TEXT")
-  private String locationName;
-
-  private Long addressId;
   private String taxCode;
   private String pinCode;
   private Integer levelPoint;
-  private Integer customerTypeId;
+  // PHARMACY, PHARMACIST, DOCTOR, HOSPITAL, CLINIC, OTHER...
+  private Long customerTypeId;
+  @Transient private String customerType;
+  // still available for future
   private Integer customerCategoryId;
   private Integer sourceId;
 
@@ -61,24 +58,15 @@ public class Customer extends BaseEntity<CustomerDto> {
       fetch = FetchType.LAZY)
   private List<CustomerReference> references = new ArrayList<>();
 
+  @OneToMany(
+      mappedBy = "customer",
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      fetch = FetchType.LAZY)
+  private List<CustomerAddress> addresses = new ArrayList<>();
+
   public Customer() {
     super(CustomerDto.class);
-  }
-
-  public String getWardName() {
-    return wardName;
-  }
-
-  public void setWardName(String wardName) {
-    this.wardName = wardName;
-  }
-
-  public String getLocationName() {
-    return locationName;
-  }
-
-  public void setLocationName(String locationName) {
-    this.locationName = locationName;
   }
 
   public String getCustomerCode() {
@@ -119,22 +107,6 @@ public class Customer extends BaseEntity<CustomerDto> {
 
   public void setEmail(String email) {
     this.email = email;
-  }
-
-  public String getAddress() {
-    return address;
-  }
-
-  public void setAddress(String address) {
-    this.address = address;
-  }
-
-  public Long getAddressId() {
-    return addressId;
-  }
-
-  public void setAddressId(Long addressCode) {
-    this.addressId = addressCode;
   }
 
   public String getTaxCode() {
@@ -201,11 +173,11 @@ public class Customer extends BaseEntity<CustomerDto> {
     this.levelPoint = levelPoint;
   }
 
-  public Integer getCustomerTypeId() {
+  public Long getCustomerTypeId() {
     return customerTypeId;
   }
 
-  public void setCustomerTypeId(Integer customerTypeId) {
+  public void setCustomerTypeId(Long customerTypeId) {
     this.customerTypeId = customerTypeId;
   }
 
@@ -231,5 +203,21 @@ public class Customer extends BaseEntity<CustomerDto> {
 
   public void setBirthday(Instant birthday) {
     this.birthday = birthday;
+  }
+
+  public List<CustomerAddress> getAddresses() {
+    return addresses;
+  }
+
+  public void setAddresses(List<CustomerAddress> addresses) {
+    this.addresses = addresses;
+  }
+
+  public String getCustomerType() {
+    return customerType;
+  }
+
+  public void setCustomerType(String customerType) {
+    this.customerType = customerType;
   }
 }

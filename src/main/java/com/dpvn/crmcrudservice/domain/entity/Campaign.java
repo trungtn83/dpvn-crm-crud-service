@@ -5,9 +5,13 @@ import com.dpvn.shared.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -32,6 +36,22 @@ public class Campaign extends BaseEntity<CampaignDto> {
 
   @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<CampaignStep> campaignSteps;
+
+  @ManyToMany
+  @JoinTable(
+      name = "campaign_sale",
+      joinColumns = @JoinColumn(name = "campaign_id"),
+      inverseJoinColumns = @JoinColumn(name = "sale_id")
+  )
+  private Set<User> users;
+
+  @ManyToMany
+  @JoinTable(
+      name = "campaign_customer",
+      joinColumns = @JoinColumn(name = "campaign_id"),
+      inverseJoinColumns = @JoinColumn(name = "customer_id")
+  )
+  private Set<Customer> customers;
 
   public Campaign() {
     super(CampaignDto.class);
@@ -95,5 +115,25 @@ public class Campaign extends BaseEntity<CampaignDto> {
 
   public Integer getDispatchTypeId() {
     return dispatchTypeId;
+  }
+
+  public void setDispatchTypeId(Integer dispatchTypeId) {
+    this.dispatchTypeId = dispatchTypeId;
+  }
+
+  public Set<User> getUsers() {
+    return users;
+  }
+
+  public void setUsers(Set<User> users) {
+    this.users = users;
+  }
+
+  public Set<Customer> getCustomers() {
+    return customers;
+  }
+
+  public void setCustomers(Set<Customer> customers) {
+    this.customers = customers;
   }
 }

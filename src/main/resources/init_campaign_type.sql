@@ -5,7 +5,7 @@ VALUES
     ('Các bước để thu hút và giữ chân khách hàng bằng nội dung', 'Chiến dịch Tiếp thị Nội dung', 1, 3),
     ('Các bước để tăng lưu lượng truy cập vào trang web của bạn thông qua quảng cáo trả phí', 'PPC Campaign', 1, 3),
     ('Các bước để cải thiện sự hiển thị của trang web của bạn trong kết quả tìm kiếm', 'SEO Campaign', 1, 3),
-    ('Các bước để khuyến khích khách hàng hiện tại giới thiệu khá ch hàng mới', 'Referral Campaign', 1, 3),
+    ('Các bước để khuyến khích khách hàng hiện tại giới thiệu khách hàng mới', 'Referral Campaign', 1, 3),
     ('Các bước để tạo sự phấn khích và nhận thức về sản phẩm mới', 'Product Launch Campaign', 1, 3),
     ('Các bước để kết nối lại với khách hàng không hoạt động hoặc bị mất', 'Re-engagement Campaign', 1, 3),
     ('Các bước để tăng sự nhận diện và ghi nhớ thương hiệu của bạn', 'Brand Awareness Campaign', 1, 3),

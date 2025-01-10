@@ -3,10 +3,14 @@ package com.dpvn.crmcrudservice.customer;
 import com.dpvn.crmcrudservice.address.AddressService;
 import com.dpvn.crmcrudservice.domain.constant.Customers;
 import com.dpvn.crmcrudservice.domain.constant.RelationshipType;
+import com.dpvn.crmcrudservice.domain.constant.SaleCustomers;
 import com.dpvn.crmcrudservice.domain.entity.Customer;
+import com.dpvn.crmcrudservice.domain.entity.CustomerAddress;
 import com.dpvn.crmcrudservice.domain.entity.CustomerReference;
+import com.dpvn.crmcrudservice.domain.entity.CustomerType;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
 import com.dpvn.crmcrudservice.domain.entity.User;
+import com.dpvn.crmcrudservice.repository.CacheEntityService;
 import com.dpvn.crmcrudservice.repository.CustomerCustomRepository;
 import com.dpvn.crmcrudservice.repository.CustomerRepository;
 import com.dpvn.crmcrudservice.repository.SaleCustomerRepository;
@@ -21,12 +25,15 @@ import com.dpvn.shared.util.StringUtil;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +44,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
   private final UserService userService;
   private final SaleCustomerService saleCustomerService;
   private final AddressService addressService;
+  private final CacheEntityService cacheEntityService;
 
   public CustomerService(
       CustomerRepository repository,
@@ -44,13 +52,15 @@ public class CustomerService extends AbstractCrudService<Customer> {
       SaleCustomerRepository saleCustomerRepository,
       UserService userService,
       SaleCustomerService saleCustomerService,
-      AddressService addressService) {
+      AddressService addressService,
+      CacheEntityService cacheEntityService) {
     super(repository);
     this.customerCustomRepository = customerCustomRepository;
     this.saleCustomerRepository = saleCustomerRepository;
     this.userService = userService;
     this.saleCustomerService = saleCustomerService;
     this.addressService = addressService;
+    this.cacheEntityService = cacheEntityService;
   }
 
   @Transactional
@@ -64,64 +74,140 @@ public class CustomerService extends AbstractCrudService<Customer> {
       entities.forEach(
           entity -> {
             injectAddressId(entity);
-            if (entity.getId() == null && entity.getIdf() == null) {
-              entity.getReferences().forEach(ref -> ref.setCustomer(entity));
-              customers.add(entity);
-              inserted.getAndIncrement();
-            } else {
-              Customer dbCustomer = findByIdOrIdf(entity.getId(), entity.getIdf()).orElse(null);
-              if (dbCustomer == null) {
-                entity.getReferences().forEach(ref -> ref.setCustomer(entity));
-                customers.add(entity);
-                inserted.getAndIncrement();
-              } else {
-                ObjectUtil.assign(dbCustomer, entity, List.of("references"));
-
-                dbCustomer.getReferences().clear();
-                List<CustomerReference> references = entity.getReferences();
-                references.forEach(ref -> ref.setCustomer(dbCustomer));
-                dbCustomer.getReferences().addAll(references);
-
-                customers.add(dbCustomer);
-                updated.getAndIncrement();
-              }
-            }
+            injectCustomerType(entity);
+            standardizeMobilePhone(entity);
           });
+
+      // unique input data
+      Set<String> mobiles = new HashSet<>();
+      List<Customer> uniqueCustomers =
+          entities.stream()
+              .filter(customer -> StringUtil.isNotEmpty(customer.getMobilePhone()))
+              .filter(customer -> mobiles.add(customer.getMobilePhone()))
+              .toList();
+
+      uniqueCustomers.stream()
+          .filter(entity -> StringUtil.isNotEmpty(entity.getMobilePhone()))
+          .forEach(
+              entity -> {
+                Customer dbCustomer =
+                    ((CustomerRepository) repository)
+                        .findByMobilePhone(entity.getMobilePhone())
+                        .orElse(null);
+                if (dbCustomer == null) {
+                  entity.getReferences().forEach(ref -> ref.setCustomer(entity));
+                  entity.getAddresses().forEach(address -> address.setCustomer(entity));
+                  customers.add(entity);
+                  inserted.getAndIncrement();
+                } else {
+                  ObjectUtil.assign(dbCustomer, entity, List.of("references", "addresses"));
+
+                  if (ListUtil.isNotEmpty(entity.getReferences())) {
+                    dbCustomer.getReferences().clear();
+                    List<CustomerReference> references = entity.getReferences();
+                    references.forEach(ref -> ref.setCustomer(dbCustomer));
+                    dbCustomer.getReferences().addAll(references);
+                  }
+                  if (ListUtil.isNotEmpty(entity.getAddresses())) {
+                    dbCustomer.getAddresses().clear();
+                    List<CustomerAddress> addresses = entity.getAddresses();
+                    addresses.forEach(address -> address.setCustomer(dbCustomer));
+                    dbCustomer.getAddresses().addAll(addresses);
+                  }
+                  customers.add(dbCustomer);
+                  updated.getAndIncrement();
+                }
+              });
       saveAll(customers);
       LOGGER.info(
-          ListUtil.toString(customers.stream().map(Customer::getIdf).toList()),
+          ListUtil.toString(customers.stream().map(Customer::getMobilePhone).toList()),
           String.format(
-              "Received %d kiotviet customers, stored=%d, inserted=%d, updated=%d",
-              entities.size(), customers.size(), updated.get(), inserted.get()));
+              "Received %d customers, stored=%d, inserted=%d, updated=%d",
+              entities.size(), customers.size(), inserted.get(), updated.get()));
     } catch (Exception e) {
       LOGGER.error(
           ListUtil.toString(Arrays.asList(e.getStackTrace())), "Failed to sync customers: %s", e);
     }
   }
 
-  public List<Customer> findByStatus(String status, Integer page, Integer pageSize) {
-    Pageable pageable = PageRequest.of(page, pageSize);
-    return ((CustomerRepository) repository).findByStatus(status, pageable).stream().toList();
-  }
-
-  private void injectAddressId(Customer customer) {
-    Address address =
-        addressService.findAddressByWardNameAndLocationName(
-            customer.getWardName(), customer.getLocationName());
-    if (address != null) {
-      customer.setAddressId(address.getId());
+  private void standardizeMobilePhone(Customer customer) {
+    String customerMobilePhone = customer.getMobilePhone();
+    if (StringUtil.isNotEmpty(customerMobilePhone)) {
+      List<String> phones = StringUtil.split(customerMobilePhone, "[/-]");
+      String mobilePhone = phones.get(0);
+      customer.setMobilePhone(StringUtil.standardizePhoneNumber(mobilePhone));
+      for (int i = 1; i < phones.size(); i++) {
+        String referencePhone = phones.get(i);
+        CustomerReference reference = new CustomerReference();
+        reference.setCustomer(customer);
+        reference.setCode(Customers.References.MOBILE_PHONE);
+        reference.setValue(StringUtil.standardizePhoneNumber(referencePhone));
+        customer.getReferences().add(reference);
+      }
     }
   }
 
-  //  public Customer update(Long id, Customer entity) {
-  //    Customer dbEntity = findById(id).orElseThrow();
-  //    ObjectUtil.assign(dbEntity, entity, List.of("references"));
-  //    dbEntity.getReferences().clear();
-  //    List<CustomerReference> references = entity.getReferences();
-  //    references.forEach(ref -> ref.setCustomer(dbEntity));
-  //    dbEntity.getReferences().addAll(references);
-  //    return save(dbEntity);
-  //  }
+  public List<Customer> findByStatusForInitRelationship(Integer page, Integer pageSize) {
+    Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id"));
+    return ((CustomerRepository) repository)
+        .findByStatusForInitRelationship(pageable).stream().toList();
+  }
+
+  private void injectAddressId(Customer customer) {
+    customer
+        .getAddresses()
+        .forEach(
+            customerAddress -> {
+              Address address =
+                  addressService.findAddressByLocationNames(
+                      customerAddress.getWardName(),
+                      customerAddress.getDistrictName(),
+                      customerAddress.getProvinceName());
+              if (address != null) {
+                customerAddress.setIdf(address.getId());
+                customerAddress.setWardName(address.getWardName());
+                customerAddress.setWardCode(address.getWardCode());
+                customerAddress.setDistrictName(address.getDistrictName());
+                customerAddress.setDistrictCode(address.getDistrictCode());
+                customerAddress.setProvinceName(address.getProvinceName());
+                customerAddress.setProvinceCode(address.getProvinceCode());
+                customerAddress.setRegionName(address.getRegionName());
+                customerAddress.setRegionCode(address.getRegionCode());
+              }
+            });
+  }
+
+  private void injectCustomerType(Customer customer) {
+    List<CustomerType> customerTypes = cacheEntityService.getCustomerTypes();
+    CustomerType customerType =
+        customerTypes.stream()
+            .filter(
+                ct -> {
+                  List<String> types = StringUtil.split(ct.getTypeReferences().toLowerCase());
+                  types.add(ct.getTypeCode().toLowerCase());
+                  String type =
+                      customer.getCustomerType() == null
+                          ? ""
+                          : customer.getCustomerType().toLowerCase();
+                  return types.contains(type);
+                })
+            .findFirst()
+            .orElse(
+                customerTypes.stream()
+                    .filter(ct -> ct.getTypeCode().equals("OTHER"))
+                    .findFirst()
+                    .orElseThrow(
+                        () -> {
+                          LOGGER.error(
+                              String.format(
+                                  "Customer type %s not found", customer.getCustomerType()),
+                              customer.getCustomerType());
+                          return new BadRequestException(
+                              String.format(
+                                  "Customer type %s not found", customer.getCustomerType()));
+                        }));
+    customer.setCustomerTypeId(customerType.getId());
+  }
 
   public List<Customer> findByIds(List<Long> ids) {
     return ((CustomerRepository) repository).findByIdIn(ids);
@@ -150,8 +236,8 @@ public class CustomerService extends AbstractCrudService<Customer> {
   @Transactional
   public String revoke(User sale, Customer customer) {
     SaleCustomer dbActiveSaleCustomer =
-        saleCustomerRepository.findBySaleIdAndCustomerIdAndActive(
-            sale.getId(), customer.getId(), Boolean.TRUE);
+        saleCustomerRepository.findBySaleIdAndCustomerIdAndActiveAndDeleted(
+            sale.getId(), customer.getId(), true, false);
     if (dbActiveSaleCustomer != null) {
       if (dbActiveSaleCustomer.getRelationshipType() == RelationshipType.PIC) {
         String errorMessage =
@@ -162,12 +248,12 @@ public class CustomerService extends AbstractCrudService<Customer> {
         return errorMessage;
       }
 
-      dbActiveSaleCustomer.setActive(Boolean.FALSE);
-      saleCustomerService.upsert(dbActiveSaleCustomer);
+      SaleCustomer updateOne = new SaleCustomer();
+      updateOne.setId(dbActiveSaleCustomer.getId());
+      updateOne.setActive(Boolean.FALSE);
+      updateOne.setDeleted(Boolean.TRUE);
+      saleCustomerService.upsert(updateOne);
     }
-
-    // update last modified field (and by in the future)
-    upsert(customer);
 
     return null;
   }
@@ -271,6 +357,18 @@ public class CustomerService extends AbstractCrudService<Customer> {
     return customerCustomRepository.searchInPoolCustomers(userId, filterText, tags, pageable);
   }
 
+  public Page<Customer> findInOceanCustomers(
+      String filterText,
+      List<Long> typeIds,
+      List<String> locationCodes,
+      List<Integer> sourceIds,
+      int page,
+      int pageSize) {
+    Pageable pageable = PageRequest.of(page, pageSize);
+    return customerCustomRepository.searchInOceanCustomers(
+        filterText, typeIds, locationCodes, sourceIds, pageable);
+  }
+
   public Page<FastMap> findMyCustomers(
       Long saleId,
       Long customerCategoryId,
@@ -319,7 +417,111 @@ public class CustomerService extends AbstractCrudService<Customer> {
     upsert(customer);
   }
 
-  public Customer findLastCreatedCustomer() {
-    return ((CustomerRepository) repository).findFirstByOrderByCreatedDateDesc();
+  public Customer findLastCreatedCustomerBySource(Integer sourceId) {
+    return ((CustomerRepository) repository).findFirstBySourceIdOrderByCreatedDateDesc(sourceId);
   }
+
+  @Override
+  @Transactional
+  public Customer upsert(Customer entity) {
+    injectAddress(entity);
+
+    if (entity.getId() == null) {
+      if (ListUtil.isEmpty(entity.getAddresses())) {
+        throw new BadRequestException("Customer must have at least one address");
+      }
+      entity.getAddresses().forEach(ca -> ca.setCustomer(entity));
+      return create(entity);
+    } else {
+      Customer dbCustomer = findById(entity.getId()).orElseThrow();
+      ObjectUtil.assign(dbCustomer, entity, List.of("references", "addresses"), true);
+
+      if (ListUtil.isNotEmpty(entity.getReferences())) {
+        dbCustomer.getReferences().clear();
+        List<CustomerReference> references = entity.getReferences();
+        references.forEach(ref -> ref.setCustomer(dbCustomer));
+        dbCustomer.getReferences().addAll(references);
+      }
+
+      if (ListUtil.isNotEmpty(entity.getAddresses())) {
+        dbCustomer.getAddresses().clear();
+        List<CustomerAddress> addresses = entity.getAddresses();
+        addresses.forEach(ca -> ca.setCustomer(dbCustomer));
+        dbCustomer.getAddresses().addAll(addresses);
+      }
+
+      return save(dbCustomer);
+    }
+  }
+
+  private void injectAddress(Customer customer) {
+    customer
+        .getAddresses()
+        .forEach(
+            customerAddress -> {
+              Address address = addressService.findAddressById(customerAddress.getIdf());
+              if (address != null) {
+                customerAddress.setWardCode(address.getWardCode());
+                customerAddress.setWardName(address.getWardName());
+                customerAddress.setDistrictCode(address.getDistrictCode());
+                customerAddress.setDistrictName(address.getDistrictName());
+                customerAddress.setProvinceCode(address.getProvinceCode());
+                customerAddress.setProvinceName(address.getProvinceName());
+                customerAddress.setRegionCode(address.getRegionCode());
+                customerAddress.setRegionName(address.getRegionName());
+              }
+            });
+  }
+
+  @Transactional
+  public void approveCustomerFromSandToGold(
+      Long customerId, Boolean approved, Integer dispatchTypeId, Long saleId) {
+    Customer updateOne = new Customer();
+    updateOne.setId(customerId);
+    updateOne.setStatus(Customers.Status.VERIFIED);
+    if (!approved) {
+      updateOne.setActive(false);
+    }
+    Customer customer = upsert(updateOne);
+
+    if (approved) {
+      // move to in-pool first
+      approveAndAssignToPool(customerId);
+
+      if (saleId != null) {
+        User sale = userService.findById(saleId).orElseThrow();
+        approveAndAssignToSale(customer, sale);
+      } else if (dispatchTypeId != null) {
+        //      approveAndAutoAssign(customer, dispatchTypeId);
+        LOGGER.info("approveAndAutoAssign is not implemented yet");
+      }
+    }
+
+  }
+
+  private void approveAndAssignToPool(Long customerId) {
+    List<SaleCustomer> saleCustomers =
+        saleCustomerService.findSaleCustomersByOptions(
+            null,
+            List.of(customerId),
+            RelationshipType.PIC,
+            List.of(SaleCustomers.Reason.CAMPAIGN),
+            null);
+    saleCustomers.forEach(sc -> saleCustomerService.delete(sc.getId()));
+  }
+
+  private void approveAndAssignToSale(Customer customer, User sale) {
+    approveAndAssignToPool(customer.getId());
+    SaleCustomer saleCustomer = SaleCustomerUtil.generateSaleCustomer(customer, sale);
+    saleCustomerService.upsert(saleCustomer);
+  }
+
+  //  private void approveAndAutoAssign(Customer customer, Integer dispatchTypeId) {
+  //    User sale = findSaleByDispatchType(dispatchTypeId);
+  //    approveAndAssignToSale(customer, sale);
+  //  }
+  //
+  //  private User findSaleByDispatchType(Integer dispatchTypeId) {
+  //    return null;
+  //  }
 }

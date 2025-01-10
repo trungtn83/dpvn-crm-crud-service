@@ -1,5 +1,6 @@
 package com.dpvn.crmcrudservice.user;
 
+import com.dpvn.crmcrudservice.domain.dto.UserDto;
 import com.dpvn.crmcrudservice.domain.entity.User;
 import com.dpvn.crmcrudservice.repository.UserCustomRepository;
 import com.dpvn.crmcrudservice.repository.UserRepository;
@@ -20,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService extends AbstractCrudService<User> {
   private final UserCustomRepository userCustomRepository;
 
-  public UserService(UserRepository repository, UserCustomRepository userCustomRepository) {
+  public UserService(UserRepository repository, UserCustomRepository userCustomRepository, UserRepository userRepository) {
     super(repository);
     this.userCustomRepository = userCustomRepository;
   }
@@ -60,10 +61,11 @@ public class UserService extends AbstractCrudService<User> {
     User user = userOpt.get();
     user.setPassword(password);
     user.setActive(Boolean.TRUE);
-    repository.save(user);
+    save(user);
   }
 
   public List<User> findUsersByOptions(
+      Long idf,
       String username,
       String fullName,
       String email,
@@ -71,10 +73,10 @@ public class UserService extends AbstractCrudService<User> {
       String description,
       String address) {
     return ((UserRepository) repository)
-        .findUsersByOptions(username, fullName, email, mobilePhone, description, address);
+        .findUsersByOptions(idf, username, fullName, email, mobilePhone, description, address);
   }
 
-  public Page<FastMap> searchUsers(
+  public Page<User> searchUsers(
       String filterText,
       List<String> departments,
       List<String> roles,
@@ -85,5 +87,8 @@ public class UserService extends AbstractCrudService<User> {
             ? PageRequest.of(0, Integer.MAX_VALUE)
             : PageRequest.of(page, pageSize);
     return userCustomRepository.searchUsers(filterText, departments, roles, pageable);
+  }
+  public List<User> findByIds(List<Long> userIds) {
+    return ((UserRepository) repository).findByIdIn(userIds);
   }
 }

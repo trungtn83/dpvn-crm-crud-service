@@ -13,7 +13,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "sale_customer")
-public class SaleCustomer extends BaseEntity<SaleCustomerDto> {
+public class  SaleCustomer extends BaseEntity<SaleCustomerDto> {
   private Long saleId;
 
   @ManyToOne(fetch = FetchType.LAZY)

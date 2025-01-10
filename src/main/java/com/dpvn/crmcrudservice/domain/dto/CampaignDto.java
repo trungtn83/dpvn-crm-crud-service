@@ -21,9 +21,27 @@ public class CampaignDto extends BaseDto<Campaign> {
   private Integer dispatchTypeId = DispatchType.ROUND_ROBIN;
 
   private List<CampaignStepDto> campaignSteps;
+  private List<Long> saleIds;
+  private List<Long> customerIds;
 
   public CampaignDto() {
     super(Campaign.class);
+  }
+
+  public List<Long> getSaleIds() {
+    return saleIds;
+  }
+
+  public void setSaleIds(List<Long> saleIds) {
+    this.saleIds = saleIds;
+  }
+
+  public List<Long> getCustomerIds() {
+    return customerIds;
+  }
+
+  public void setCustomerIds(List<Long> customerIds) {
+    this.customerIds = customerIds;
   }
 
   public String getCampaignName() {

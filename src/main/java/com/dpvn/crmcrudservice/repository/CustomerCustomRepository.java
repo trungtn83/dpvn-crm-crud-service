@@ -4,6 +4,7 @@ import com.dpvn.crmcrudservice.domain.constant.Customers;
 import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.dpvn.shared.util.FastMap;
 import com.dpvn.shared.util.ListUtil;
+import com.dpvn.shared.util.ObjectUtil;
 import com.dpvn.shared.util.StringUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -25,40 +26,203 @@ public class CustomerCustomRepository {
     this.customerRepository = customerRepository;
   }
 
+  public Page<Customer> searchInOceanCustomers(
+      String filterText,
+      List<Long> typeIds,
+      List<String> locationCodes,
+      List<Integer> sourceIds,
+      Pageable pageable) {
+    String SELECT = "SELECT DISTINCT ON (c.modified_date, c.id) c.id";
+    String SELECT_COUNT = "SELECT count(*)";
+    String FROM = generateInOceanFrom(filterText, locationCodes);
+    String WHERE = generateInOceanWhere(filterText, typeIds, locationCodes, sourceIds);
+    String ORDER_BY = " ORDER BY c.modified_date DESC, c.id";
+
+    List<Customer> results =
+        getInOceanResults(
+            String.format("%s %s %s %s", SELECT, FROM, WHERE, ORDER_BY),
+            filterText,
+            typeIds,
+            locationCodes,
+            sourceIds,
+            pageable);
+    Long total =
+        getInOceanTotal(
+            String.format("%s %s %s", SELECT_COUNT, FROM, WHERE),
+            filterText,
+            typeIds,
+            locationCodes,
+            sourceIds);
+
+    return new PageImpl<>(results, pageable, total);
+  }
+
+  private String generateInOceanWhere(
+      String filterText, List<Long> typeIds, List<String> locationCodes, List<Integer> sourceIds) {
+    StringBuilder WHERE = new StringBuilder(" WHERE (c.active = false)");
+
+    if (StringUtil.isNotEmpty(filterText)) {
+      WHERE.append(
+          """
+               AND (
+                  (c.customer_code ILIKE '%' || :filterText || '%' OR c.customer_name ILIKE '%' || :filterText || '%' OR c.mobile_phone ILIKE '%' || :filterText || '%')
+                  OR (ca.address ILIKE '%' || :filterText || '%' OR ca.ward_name ILIKE '%' || :filterText || '%' OR ca.district_name ILIKE '%' || :filterText || '%' OR ca.province_name ILIKE '%' || :filterText || '%')
+                  OR ((cr.code = 'ZALO' OR cr.code = 'MOBILE_PHONE') AND cr.value ILIKE '%' || :filterText || '%')
+               )
+          """);
+    }
+    if (ListUtil.isNotEmpty(typeIds)) {
+      WHERE.append(" AND c.customer_type_id IN (:typeIds)");
+    }
+    if (ListUtil.isNotEmpty(sourceIds)) {
+      WHERE.append(" AND c.source_id IN (:sourceIds)");
+    }
+
+    if (ListUtil.isNotEmpty(locationCodes) && locationCodes.size() == 3) {
+      String provinceCode = locationCodes.get(0);
+      if (StringUtil.isNotEmpty(provinceCode)) {
+        WHERE.append(" AND ca.province_code = :provinceCode");
+      }
+      String districtCode = locationCodes.get(1);
+      if (StringUtil.isNotEmpty(districtCode)) {
+        WHERE.append(" AND ca.district_code = :districtCode");
+      }
+      String wardCode = locationCodes.get(2);
+      if (StringUtil.isNotEmpty(wardCode)) {
+        WHERE.append(" AND ca.ward_code = :wardCode");
+      }
+    }
+
+    return WHERE.toString();
+  }
+
+  private String generateInOceanFrom(String filterText, List<String> locationCodes) {
+    StringBuilder FROM =
+        new StringBuilder(
+            """
+            FROM customer c
+        """);
+    if (StringUtil.isNotEmpty(filterText)) {
+      FROM.append(
+          """
+          LEFT JOIN customer_reference cr ON c.id = cr.customer_id
+        """);
+    }
+    if (ListUtil.isNotEmpty(locationCodes) && locationCodes.size() == 3) {
+      FROM.append(
+          """
+          LEFT JOIN customer_address ca ON c.id = ca.customer_id
+        """);
+    }
+    return FROM.toString();
+  }
+
+  private List<Customer> getInOceanResults(
+      String sql,
+      String filterText,
+      List<Long> typeIds,
+      List<String> locationCodes,
+      List<Integer> sourceIds,
+      Pageable pageable) {
+    Query query = entityManager.createNativeQuery(sql, Object.class);
+
+    if (StringUtil.isNotEmpty(filterText)) {
+      query.setParameter("filterText", filterText);
+    }
+    if (ListUtil.isNotEmpty(typeIds)) {
+      query.setParameter("typeIds", typeIds);
+    }
+    if (ListUtil.isNotEmpty(sourceIds)) {
+      query.setParameter("sourceIds", sourceIds);
+    }
+    if (ListUtil.isNotEmpty(locationCodes) && locationCodes.size() == 3) {
+      String provinceCode = locationCodes.get(0);
+      if (StringUtil.isNotEmpty(provinceCode)) {
+        query.setParameter("provinceCode", provinceCode);
+      }
+      String districtCode = locationCodes.get(1);
+      if (StringUtil.isNotEmpty(districtCode)) {
+        query.setParameter("districtCode", districtCode);
+      }
+      String wardCode = locationCodes.get(2);
+      if (StringUtil.isNotEmpty(wardCode)) {
+        query.setParameter("wardCode", wardCode);
+      }
+    }
+
+    query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
+    query.setMaxResults(pageable.getPageSize());
+    // return only id, so, List<Object[]> -> List<Long>
+    List<Long> os = query.getResultList();
+
+    // inject CustomerDto here to have references, addresses automatically
+    return customerRepository.findByIdIn(os);
+  }
+
+  private Long getInOceanTotal(
+      String sql,
+      String filterText,
+      List<Long> typeIds,
+      List<String> locationCodes,
+      List<Integer> sourceIds) {
+    Query query = entityManager.createNativeQuery(sql);
+    if (StringUtil.isNotEmpty(filterText)) {
+      query.setParameter("filterText", filterText);
+    }
+    if (ListUtil.isNotEmpty(typeIds)) {
+      query.setParameter("typeIds", typeIds);
+    }
+    if (ListUtil.isNotEmpty(sourceIds)) {
+      query.setParameter("sourceIds", sourceIds);
+    }
+    if (ListUtil.isNotEmpty(locationCodes)) {
+      String provinceCode = locationCodes.get(0);
+      if (StringUtil.isNotEmpty(provinceCode)) {
+        query.setParameter("provinceCode", provinceCode);
+      }
+      if (locationCodes.size() > 1) {
+        String districtCode = locationCodes.get(1);
+        if (StringUtil.isNotEmpty(districtCode)) {
+          query.setParameter("districtCode", districtCode);
+        }
+        if (locationCodes.size() > 2) {
+          String wardCode = locationCodes.get(2);
+          if (StringUtil.isNotEmpty(wardCode)) {
+            query.setParameter("wardCode", wardCode);
+          }
+        }
+      }
+    }
+    return ((Number) query.getSingleResult()).longValue();
+  }
+
   public Page<FastMap> searchInPoolCustomers(
       Long saleId, String filterText, List<String> tags, Pageable pageable) {
     String SELECT =
         """
-            SELECT DISTINCT ON (is_star, c.id)
+            SELECT DISTINCT ON (is_star, c.modified_date, c.id)
                 c.id,
-                c.created_by,
-                c.created_date,
-                c.modified_by,
-                c.modified_date,
-                c.address,
-                c.address_id,
-                c.customer_category_id,
-                c.customer_code,
-                c.customer_name,
-                c.customer_type_id,
-                c.email,
-                c.gender,
-                c.level_point,
-                c.mobile_phone,
-                c.notes,
-                c.pin_code,
-                c.relationships,
-                c.source_id,
-                c.source_note,
-                c.special_events,
-                c.status,
-                c.tax_code,
-                c.idf,
-                c.birthday,
                 CASE WHEN sc_star.id IS NOT NULL THEN true ELSE false END AS is_star,
                 CASE WHEN boom_interaction.id IS NOT NULL THEN true ELSE false END AS is_boom
       """;
     String SELECT_COUNT = "SELECT count(*)";
+    String FROM = generateInPoolFrom(filterText);
+    String WHERE = generateInPoolWhere(filterText, tags);
+    String ORDER_BY = " ORDER BY is_star DESC, c.modified_date DESC, c.id";
+
+    List<FastMap> results =
+        getInPoolResults(
+            String.format("%s %s %s %s", SELECT, FROM, WHERE, ORDER_BY),
+            saleId,
+            filterText,
+            pageable);
+    Long total =
+        getInPoolTotal(String.format("%s %s %s", SELECT_COUNT, FROM, WHERE), saleId, filterText);
+
+    return new PageImpl<>(results, pageable, total);
+  }
+
+  private String generateInPoolFrom(String filterText) {
     StringBuilder FROM =
         new StringBuilder(
             """
@@ -81,28 +245,40 @@ public class CustomerCustomRepository {
                 ON boom_interaction.customer_id = c.id
         """);
     if (StringUtil.isNotEmpty(filterText)) {
-      FROM.append(" LEFT JOIN customer_reference cr ON c.id = cr.customer_id ");
+      FROM.append(
+          """
+          LEFT JOIN customer_reference cr ON c.id = cr.customer_id
+          LEFT JOIN customer_address ca ON c.id = ca.customer_id
+        """);
     }
+    return FROM.toString();
+  }
 
+  private String generateInPoolWhere(String filterText, List<String> tags) {
     StringBuilder WHERE =
         new StringBuilder(
-            """
-        WHERE NOT EXISTS (
+            "WHERE (c.active = true AND c.status = '" + Customers.Status.VERIFIED + "')");
+
+    // sure that customer is not in old and assgined list now
+    WHERE.append(
+        """
+        AND NOT EXISTS (
                 SELECT 1
                 FROM sale_customer sc
                 WHERE sc.customer_id = c.id
-                  AND sc.active = true
+                  AND sc.active = TRUE
+                  AND sc.deleted IS NOT TRUE
                   AND sc.relationship_type = 1
-                  AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP)
+                  AND (sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP))
             )
         """);
     if (StringUtil.isNotEmpty(filterText)) {
       WHERE.append(
           """
                AND (
-                  (c.customer_code ILIKE '%' || :filterText || '%' OR c.customer_name ILIKE '%' || :filterText || '%' OR c.mobile_phone ILIKE '%' || :filterText || '%' OR c.address ILIKE '%' || :filterText || '%')
-                  OR
-                  ((cr.code = 'ZALO' OR cr.code = 'MOBILE_PHONE') AND cr.value ILIKE '%' || :filterText || '%')
+                  (c.customer_code ILIKE '%' || :filterText || '%' OR c.customer_name ILIKE '%' || :filterText || '%' OR c.mobile_phone ILIKE '%' || :filterText || '%')
+                  OR (ca.address ILIKE '%' || :filterText || '%' OR ca.ward_name ILIKE '%' || :filterText || '%' OR ca.district_name ILIKE '%' || :filterText || '%' OR ca.province_name ILIKE '%' || :filterText || '%')
+                  OR ((cr.code = 'ZALO' OR cr.code = 'MOBILE_PHONE') AND cr.value ILIKE '%' || :filterText || '%')
                )
           """);
     }
@@ -116,24 +292,7 @@ public class CustomerCustomRepository {
             " AND (EXISTS (SELECT 1 FROM interaction i WHERE i.customer_id = c.id AND i.created_date >= CURRENT_DATE - INTERVAL '7 days'))");
       }
     }
-
-    String ORDER_BY =
-        """
-        ORDER BY
-                is_star DESC,
-                c.id ASC
-        """;
-
-    List<FastMap> results =
-        getInPoolResults(
-            String.format("%s %s %s %s", SELECT, FROM, WHERE, ORDER_BY),
-            saleId,
-            filterText,
-            pageable);
-    Long total =
-        getInPoolTotal(String.format("%s %s %s", SELECT_COUNT, FROM, WHERE), saleId, filterText);
-
-    return new PageImpl<>(results, pageable, total);
+    return WHERE.toString();
   }
 
   private List<FastMap> getInPoolResults(
@@ -148,37 +307,29 @@ public class CustomerCustomRepository {
     query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
     query.setMaxResults(pageable.getPageSize());
     List<Object[]> os = query.getResultList();
-    return os.stream().map(this::toFastMapFromInPoolCustomerObjects).toList();
+
+    // inject CustomerDto here to have references, addresses automatically
+    List<Long> customerIds = os.stream().map(o -> Long.parseLong(o[0].toString())).toList();
+    Map<Long, Customer> customers =
+        customerRepository.findByIdIn(customerIds).stream()
+            .collect(Collectors.toMap(Customer::getId, o -> o));
+
+    return os.stream()
+        .map(
+            o -> {
+              FastMap ro = toFastMapFromInPoolCustomerObjects(o);
+              ro.putAll(
+                  ObjectUtil.readValue(
+                      customers.get(Long.parseLong(o[0].toString())).toDto(), FastMap.class));
+              return ro;
+            })
+        .toList();
   }
 
   private FastMap toFastMapFromInPoolCustomerObjects(Object[] o) {
     return FastMap.create()
         .add("id", o[0])
-        .add("createdBy", o[1])
-        .add("createdDate", o[2])
-        .add("updatedBy", o[3])
-        .add("updatedDate", o[4])
-        .add("address", o[5])
-        .add("addressCode", o[6])
-        .add("customerCategoryId", o[7])
-        .add("customerCode", o[8])
-        .add("customerName", o[9])
-        .add("customerTypeId", o[10])
-        .add("email", o[11])
-        .add("gender", o[12])
-        .add("levelPoint", o[13])
-        .add("mobilePhone", o[14])
-        .add("notes", o[15])
-        .add("pinCode", o[16])
-        .add("relationships", o[17])
-        .add("sourceId", o[18])
-        .add("sourceNote", o[19])
-        .add("specialEvents", o[20])
-        .add("status", o[21])
-        .add("taxCode", o[22])
-        .add("customerId", o[23])
-        .add("birthday", o[24])
-        .add("action", FastMap.create().add("star", o[25]).add("boom", o[26]));
+        .add("action", FastMap.create().add("star", o[1]).add("boom", o[2]));
   }
 
   private Long getInPoolTotal(String sql, Long saleId, String filterText) {
@@ -200,7 +351,7 @@ public class CustomerCustomRepository {
 
     String SELECT =
         """
-            SELECT DISTINCT ON (c.id, latest_sc.modified_date, latest_i.modified_date)
+            SELECT DISTINCT ON (latest_sc.modified_date, latest_i.modified_date, latest_sc.available_to, c.modified_date, c.id)
                 c.id AS customer_id,
                 latest_sc.id AS sale_customer_id,
                 latest_sc.created_by AS sale_customer_created_by,
@@ -254,7 +405,7 @@ public class CustomerCustomRepository {
     String FROM = generateMyCustomerFrom(customerCategoryId, filterText);
     String WHERE = generateMyCustomersWhere(filterText, reasonIds);
     String ORDER =
-        " ORDER BY latest_i.modified_date NULLS FIRST,latest_sc.modified_date NULLS FIRST,c.id";
+        " ORDER BY latest_sc.modified_date DESC, latest_i.modified_date DESC, latest_sc.available_to ASC, c.modified_date desc, c.id";
     List<FastMap> results =
         getMyCustomerResults(
             String.format("%s %s %s %s", SELECT, FROM, WHERE, ORDER),
@@ -297,7 +448,7 @@ public class CustomerCustomRepository {
     }
     List<Object[]> os = query.getResultList();
 
-    // inject CustomerDto here to have references automatically
+    // inject CustomerDto here to have references, addresses automatically
     List<Long> customerIds = os.stream().map(o -> Long.parseLong(o[0].toString())).toList();
     Map<Long, Customer> customers =
         customerRepository.findByIdIn(customerIds).stream()
@@ -400,7 +551,7 @@ public class CustomerCustomRepository {
             SELECT DISTINCT ON (sc.customer_id)
                    sc.*
             FROM sale_customer sc
-            WHERE sc.sale_id = :saleId AND sc.relationship_type = 1 AND sc.available_to >= NOW()
+            WHERE sc.active = true AND sc.deleted is not true AND sc.sale_id = :saleId AND sc.relationship_type = 1 AND sc.available_to >= NOW()
             ORDER BY sc.customer_id, sc.created_date DESC
         ) latest_sc ON latest_sc.customer_id = c.id
         """);
@@ -418,7 +569,11 @@ public class CustomerCustomRepository {
           """);
     }
     if (StringUtil.isNotEmpty(filterText)) {
-      FROM.append(" LEFT JOIN customer_reference cr ON c.id = cr.customer_id ");
+      FROM.append(
+          """
+          LEFT JOIN customer_reference cr ON c.id = cr.customer_id
+          LEFT JOIN customer_address ca ON c.id = ca.customer_id
+        """);
     }
     FROM.append(
         """
@@ -440,14 +595,14 @@ public class CustomerCustomRepository {
   }
 
   private String generateMyCustomersWhere(String filterText, List<Integer> reasonIds) {
-    StringBuilder WHERE = new StringBuilder("WHERE 1=1");
+    StringBuilder WHERE = new StringBuilder("WHERE (c.active = true)");
     if (StringUtil.isNotEmpty(filterText)) {
       WHERE.append(
           """
                AND (
-                  (c.customer_code ILIKE '%' || :filterText || '%' OR c.customer_name ILIKE '%' || :filterText || '%' OR c.mobile_phone ILIKE '%' || :filterText || '%' OR c.address ILIKE '%' || :filterText || '%')
-                  OR
-                  ((cr.code = 'ZALO' OR cr.code = 'MOBILE_PHONE') AND cr.value ILIKE '%' || :filterText || '%')
+                  (c.customer_code ILIKE '%' || :filterText || '%' OR c.customer_name ILIKE '%' || :filterText || '%' OR c.mobile_phone ILIKE '%' || :filterText || '%')
+                  OR (ca.address ILIKE '%' || :filterText || '%' OR ca.ward_name ILIKE '%' || :filterText || '%' OR ca.district_name ILIKE '%' || :filterText || '%' OR ca.province_name ILIKE '%' || :filterText || '%')
+                  OR ((cr.code = 'ZALO' OR cr.code = 'MOBILE_PHONE') AND cr.value ILIKE '%' || :filterText || '%')
                )
           """);
     }
@@ -478,30 +633,6 @@ public class CustomerCustomRepository {
         """
         SELECT
            c.id,
-           c.created_by,
-           c.created_date,
-           c.modified_by,
-           c.modified_date,
-           c.address,
-           c.address_id,
-           c.customer_category_id,
-           c.customer_code,
-           c.customer_name,
-           c.customer_type_id,
-           c.email,
-           c.gender,
-           c.level_point,
-           c.mobile_phone,
-           c.notes,
-           c.pin_code,
-           c.relationships,
-           c.source_id,
-           c.source_note,
-           c.special_events,
-           c.status,
-           c.tax_code,
-           c.idf,
-           c.birthday,
            COUNT(CASE WHEN t.priority = 90 THEN 1 END) AS now_task_count,
            COUNT(CASE WHEN DATE(t.to_date) = CURRENT_DATE THEN 1 END) AS today_task_count,
            COUNT(CASE WHEN DATE(t.to_date) < CURRENT_DATE THEN 1 END) AS overdue_task_count,
@@ -519,30 +650,6 @@ public class CustomerCustomRepository {
         """
         GROUP BY
             c.id,
-            c.created_by,
-            c.created_date,
-            c.modified_by,
-            c.modified_date,
-            c.address,
-            c.address_id,
-            c.customer_category_id,
-            c.customer_code,
-            c.customer_name,
-            c.customer_type_id,
-            c.email,
-            c.gender,
-            c.level_point,
-            c.mobile_phone,
-            c.notes,
-            c.pin_code,
-            c.relationships,
-            c.source_id,
-            c.source_note,
-            c.special_events,
-            c.status,
-            c.tax_code,
-            c.idf,
-            c.birthday,
             lmt.last_modified_task_id,
             lmt.last_modified_task_name,
             lmt.last_modified_task_date,
@@ -578,43 +685,31 @@ public class CustomerCustomRepository {
     query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
     query.setMaxResults(pageable.getPageSize());
     List<Object[]> os = query.getResultList();
-    return os.stream().map(this::toFastMapFromTaskBasedCustomerObjects).toList();
+
+    // inject CustomerDto here to have references, addresses automatically
+    List<Long> customerIds = os.stream().map(o -> Long.parseLong(o[0].toString())).toList();
+    Map<Long, Customer> customers =
+        customerRepository.findByIdIn(customerIds).stream()
+            .collect(Collectors.toMap(Customer::getId, o -> o));
+
+    return os.stream()
+        .map(
+            o ->
+                toFastMapFromTaskBasedCustomerObjects(o)
+                    .add("customer", customers.get(Long.parseLong(o[0].toString())).toDto()))
+        .toList();
   }
 
   private FastMap toFastMapFromTaskBasedCustomerObjects(Object[] o) {
     return FastMap.create()
         .add("id", o[0])
-        .add("createdBy", o[1])
-        .add("createdDate", o[2])
-        .add("updatedBy", o[3])
-        .add("updatedDate", o[4])
-        .add("address", o[5])
-        .add("addressCode", o[6])
-        .add("customerCategoryId", o[7])
-        .add("customerCode", o[8])
-        .add("customerName", o[9])
-        .add("customerTypeId", o[10])
-        .add("email", o[11])
-        .add("gender", o[12])
-        .add("levelPoint", o[13])
-        .add("mobilePhone", o[14])
-        .add("notes", o[15])
-        .add("pinCode", o[16])
-        .add("relationships", o[17])
-        .add("sourceId", o[18])
-        .add("sourceNote", o[19])
-        .add("specialEvents", o[20])
-        .add("status", o[21])
-        .add("taxCode", o[22])
-        .add("customerId", o[23])
-        .add("birthday", o[24])
-        .add("tags", FastMap.create().add("now", o[25]).add("today", o[26]).add("overdue", o[27]))
-        .add("lastTaskId", o[28])
-        .add("lastTaskName", o[29])
-        .add("lastTaskDate", o[30])
-        .add("oldestTaskId", o[31])
-        .add("oldestTaskName", o[32])
-        .add("oldestTaskDate", o[33]);
+        .add("tags", FastMap.create().add("now", o[1]).add("today", o[2]).add("overdue", o[3]))
+        .add("lastTaskId", o[4])
+        .add("lastTaskName", o[5])
+        .add("lastTaskDate", o[6])
+        .add("oldestTaskId", o[7])
+        .add("oldestTaskName", o[8])
+        .add("oldestTaskDate", o[9]);
   }
 
   private Long getTaskBasedTotal(String sql, Long saleId, String filterText, List<String> tags) {
@@ -636,22 +731,41 @@ public class CustomerCustomRepository {
         LEFT JOIN OldestCreatedTasks oct ON c.id = oct.customer_id
         """);
     if (StringUtil.isNotEmpty(filterText)) {
-      FROM.append(" LEFT JOIN customer_reference cr ON c.id = cr.customer_id ");
+      FROM.append(
+          """
+          LEFT JOIN customer_reference cr ON c.id = cr.customer_id
+          LEFT JOIN customer_address ca ON c.id = ca.customer_id
+        """);
     }
     return FROM.toString();
   }
 
   private String generateTaskBasedWhere(String filterText, List<String> tags) {
-    StringBuilder WHERE = new StringBuilder("WHERE 1=1");
+    StringBuilder WHERE =
+        new StringBuilder(
+            "WHERE (c.active = true AND c.status = '" + Customers.Status.VERIFIED + "')");
+    // sure that customer is belongs anyway to sale
+    WHERE.append(
+        """
+        AND EXISTS (
+                SELECT 1
+                FROM sale_customer sc
+                WHERE sc.customer_id = c.id
+                  AND sc.sale_id = :saleId
+                  AND sc.active = TRUE
+                  AND sc.deleted IS NOT TRUE
+                  AND sc.relationship_type = 1
+                  AND (sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP))
+            )
+        """);
     if (StringUtil.isNotEmpty(filterText)) {
       WHERE.append(
           """
                AND (
-                  (c.customer_code ILIKE '%' || :filterText || '%' OR c.customer_name ILIKE '%' || :filterText || '%' OR c.mobile_phone ILIKE '%' || :filterText || '%' OR c.address ILIKE '%' || :filterText || '%')
-                  OR
-                  ((cr.code = 'ZALO' OR cr.code = 'MOBILE_PHONE') AND cr.value ILIKE '%' || :filterText || '%')
-                  OR
-                  (t.title ILIKE '%' || :filterText || '%' OR t.name ILIKE '%' || :filterText || '%' OR t.content ILIKE '%' || :filterText || '%')
+                  (c.customer_code ILIKE '%' || :filterText || '%' OR c.customer_name ILIKE '%' || :filterText || '%' OR c.mobile_phone ILIKE '%' || :filterText || '%')
+                  OR (ca.address ILIKE '%' || :filterText || '%' OR ca.ward_name ILIKE '%' || :filterText || '%' OR ca.district_name ILIKE '%' || :filterText || '%' OR ca.province_name ILIKE '%' || :filterText || '%')
+                  OR ((cr.code = 'ZALO' OR cr.code = 'MOBILE_PHONE') AND cr.value ILIKE '%' || :filterText || '%')
+                  OR (t.title ILIKE '%' || :filterText || '%' OR t.name ILIKE '%' || :filterText || '%' OR t.content ILIKE '%' || :filterText || '%')
                )
           """);
     }

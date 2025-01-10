@@ -7,7 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SaleCustomerRepository extends AbstractRepository<SaleCustomer> {
-  List<SaleCustomer> findBySaleIdAndCustomerId(Long saleId, Long customerId);
-
-  SaleCustomer findBySaleIdAndCustomerIdAndActive(Long saleId, Long customerId, Boolean status);
+  SaleCustomer findBySaleIdAndCustomerIdAndActiveAndDeleted(Long saleId, Long customerId, Boolean status, Boolean deleted);
 }

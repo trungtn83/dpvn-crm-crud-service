@@ -1,12 +1,10 @@
 package com.dpvn.crmcrudservice.user;
 
-import com.dpvn.crmcrudservice.domain.dto.UserDto;
 import com.dpvn.crmcrudservice.domain.entity.User;
 import com.dpvn.crmcrudservice.repository.UserCustomRepository;
 import com.dpvn.crmcrudservice.repository.UserRepository;
 import com.dpvn.shared.exception.BadRequestException;
 import com.dpvn.shared.service.AbstractCrudService;
-import com.dpvn.shared.util.FastMap;
 import com.dpvn.shared.util.ObjectUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService extends AbstractCrudService<User> {
   private final UserCustomRepository userCustomRepository;
 
-  public UserService(UserRepository repository, UserCustomRepository userCustomRepository, UserRepository userRepository) {
+  public UserService(
+      UserRepository repository,
+      UserCustomRepository userCustomRepository,
+      UserRepository userRepository) {
     super(repository);
     this.userCustomRepository = userCustomRepository;
   }
@@ -88,6 +89,7 @@ public class UserService extends AbstractCrudService<User> {
             : PageRequest.of(page, pageSize);
     return userCustomRepository.searchUsers(filterText, departments, roles, pageable);
   }
+
   public List<User> findByIds(List<Long> userIds) {
     return ((UserRepository) repository).findByIdIn(userIds);
   }

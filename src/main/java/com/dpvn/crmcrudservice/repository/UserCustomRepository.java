@@ -1,8 +1,6 @@
 package com.dpvn.crmcrudservice.repository;
 
-import com.dpvn.crmcrudservice.domain.dto.UserDto;
 import com.dpvn.crmcrudservice.domain.entity.User;
-import com.dpvn.shared.util.FastMap;
 import com.dpvn.shared.util.ListUtil;
 import com.dpvn.shared.util.StringUtil;
 import jakarta.persistence.EntityManager;
@@ -56,14 +54,13 @@ public class UserCustomRepository {
   }
 
   private String generateWhere(String filterText, List<String> departments, List<String> roles) {
-    StringBuilder WHERE =
-        new StringBuilder(" WHERE (u.active = TRUE AND u.deleted is not true)");
+    StringBuilder WHERE = new StringBuilder(" WHERE (u.active = TRUE AND u.deleted is not true)");
     if (StringUtil.isNotEmpty(filterText)) {
-      WHERE.append(" AND (u.username ILIKE '%' || :filterText || '%' OR u.full_name ILIKE '%' || :filterText || '%' OR u.email ILIKE '%' || :filterText || '%' OR u.address_detail ILIKE '%' || :filterText || '%' OR u.description ILIKE '%' || :filterText || '%')");
+      WHERE.append(
+          " AND (u.username ILIKE '%' || :filterText || '%' OR u.full_name ILIKE '%' || :filterText || '%' OR u.email ILIKE '%' || :filterText || '%' OR u.address_detail ILIKE '%' || :filterText || '%' OR u.description ILIKE '%' || :filterText || '%')");
     }
     if (ListUtil.isNotEmpty(departments)) {
-      WHERE.append(
-          " AND (d.department_name IN :departments)");
+      WHERE.append(" AND (d.department_name IN :departments)");
     }
     if (ListUtil.isNotEmpty(roles)) {
       WHERE.append(" AND (r.role_name IN :roles)");

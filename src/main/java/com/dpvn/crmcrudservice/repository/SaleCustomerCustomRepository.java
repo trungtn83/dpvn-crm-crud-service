@@ -127,14 +127,9 @@ public class SaleCustomerCustomRepository {
         """;
     String SELECT_COUNT = "SELECT COUNT(*)";
     String FROM = generateFrom(customerCategoryId, filterText);
-    String WHERE =
-        generateWhere(
-            saleId,
-            customerIds,
-            relationshipType,
-            reasonIds,
-            reasonRef);
-    String ORDER = pageable.getSort().isEmpty()
+    String WHERE = generateWhere(saleId, customerIds, relationshipType, reasonIds, reasonRef);
+    String ORDER =
+        pageable.getSort().isEmpty()
             ? ""
             : pageable.getSort().stream()
                 .map(order -> String.format("%s %s", order.getProperty(), order.getDirection()))

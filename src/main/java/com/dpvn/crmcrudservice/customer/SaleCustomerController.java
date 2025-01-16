@@ -59,7 +59,11 @@ public class SaleCustomerController extends AbstractCrudController<SaleCustomer,
 
   @PostMapping("/state")
   public void upsertSaleCustomerState(@RequestBody SaleCustomerStateDto body) {
-    saleCustomerStateService.upsert(body.toEntity());
+    if (body.getId() == null) {
+      saleCustomerStateService.create(body.toEntity());
+    } else {
+      saleCustomerStateService.save(body.toEntity());
+    }
   }
 
   @PostMapping("/state/find-latest")

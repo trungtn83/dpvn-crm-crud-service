@@ -7,7 +7,6 @@ import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
 import com.dpvn.crmcrudservice.domain.entity.User;
 import com.dpvn.shared.util.DateUtil;
-
 import java.time.temporal.ChronoUnit;
 
 public class SaleCustomerUtil {
@@ -18,11 +17,11 @@ public class SaleCustomerUtil {
     saleCustomer.setSaleId(sale.getId());
     saleCustomer.setCustomer(customer);
     saleCustomer.setRelationshipType(RelationshipType.PIC);
-      saleCustomer.setReasonId(SaleCustomers.Reason.CAMPAIGN);
-      saleCustomer.setReasonRef(campaign.getId().toString());
-      saleCustomer.setReasonNote("Tạo ra khi dispatch campaign " + campaign.getCampaignName());
-      saleCustomer.setAvailableFrom(campaign.getStartDate());
-      saleCustomer.setAvailableTo(campaign.getEndDate());
+    saleCustomer.setReasonId(SaleCustomers.Reason.CAMPAIGN);
+    saleCustomer.setReasonRef(campaign.getId().toString());
+    saleCustomer.setReasonNote("Tạo ra khi dispatch campaign " + campaign.getCampaignName());
+    saleCustomer.setAvailableFrom(campaign.getStartDate());
+    saleCustomer.setAvailableTo(campaign.getEndDate());
     saleCustomer.setNote("");
     saleCustomer.setActive(true);
     saleCustomer.setDeleted(false);

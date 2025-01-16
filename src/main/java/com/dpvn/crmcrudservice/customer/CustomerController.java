@@ -127,8 +127,7 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
 
     Page<Customer> customerPage =
         ((CustomerService) service)
-            .findInOceanCustomers(
-                filterText, typeIds, locationCodes, sourceIds, page, pageSize);
+            .findInOceanCustomers(filterText, typeIds, locationCodes, sourceIds, page, pageSize);
     return FastMap.create()
         .add("rows", customerPage.stream().map(Customer::toDto).toList())
         .add("total", customerPage.getTotalElements())
@@ -174,11 +173,11 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
     return customer.toDto();
   }
 
-  @Override
-  @PostMapping({"/upsert"})
-  public CustomerDto upsert(@RequestBody CustomerDto dto) {
-    return service.upsert(dto.toEntity()).toDto();
-  }
+  //  @Override
+  //  @PostMapping({"/upsert"})
+  //  public CustomerDto upsert(@RequestBody CustomerDto dto) {
+  //    return service.upsert(dto.toEntity()).toDto();
+  //  }
 
   @PostMapping("/{id}/approve")
   public void approveCustomerFromSandToGold(@PathVariable Long id, @RequestBody FastMap body) {

@@ -15,10 +15,10 @@ import com.dpvn.crmcrudservice.repository.CampaignRepository;
 import com.dpvn.crmcrudservice.repository.CustomerRepository;
 import com.dpvn.crmcrudservice.user.UserService;
 import com.dpvn.shared.service.AbstractCrudService;
+import com.dpvn.shared.util.FastMap;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
-
 import org.springframework.stereotype.Service;
 
 @Service
@@ -99,11 +99,9 @@ public class CampaignService extends AbstractCrudService<Campaign> {
     // update sale status to VERIFY
     customerIds.forEach(
         customerId -> {
-          Customer customer = new Customer();
-          customer.setId(customerId);
-          customer.setActive(true);
-          customer.setStatus(Customers.Status.VERIFYING);
-          customerService.upsert(customer);
+          customerService.update(
+              customerId,
+              FastMap.create().add("active", true).add("status", Customers.Status.VERIFYING));
         });
 
     // dispatch only customer into only sales, does not affect to existed ones in current campaign
@@ -187,7 +185,6 @@ public class CampaignService extends AbstractCrudService<Campaign> {
             campaign.getId().toString());
     return saleCustomers.isEmpty();
   }
-
 
   //
   //  public void updateCustomerProgress(Long campaignId, Long customerId, Integer progressId) {

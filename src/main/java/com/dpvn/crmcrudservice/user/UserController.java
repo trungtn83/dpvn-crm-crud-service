@@ -69,7 +69,9 @@ public class UserController extends AbstractCrudController<User, UserDto> {
     Integer page = condition.getInt("page");
     Integer pageSize = condition.getInt("pageSize");
     Page<UserDto> userPage =
-        ((UserService) service).searchUsers(filterText, departments, roles, page, pageSize).map(User::toDto);
+        ((UserService) service)
+            .searchUsers(filterText, departments, roles, page, pageSize)
+            .map(User::toDto);
     return FastMap.create()
         .add("rows", userPage.getContent())
         .add("total", userPage.getTotalElements())

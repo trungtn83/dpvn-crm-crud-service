@@ -227,7 +227,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
 
     String revoke = revoke(sale, customer);
     if (revoke == null) {
-      saleCustomerService.upsert(info);
+      saleCustomerService.create(info);
     }
 
     return revoke;
@@ -248,11 +248,8 @@ public class CustomerService extends AbstractCrudService<Customer> {
         return errorMessage;
       }
 
-      SaleCustomer updateOne = new SaleCustomer();
-      updateOne.setId(dbActiveSaleCustomer.getId());
-      updateOne.setActive(Boolean.FALSE);
-      updateOne.setDeleted(Boolean.TRUE);
-      saleCustomerService.upsert(updateOne);
+      saleCustomerService.update(
+          dbActiveSaleCustomer.getId(), FastMap.create().add("active", false).add("deleted", true));
     }
 
     return null;
@@ -414,7 +411,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
     lastTransactionReference.setName("Giao dịch cuối cùng");
     customer.getReferences().add(lastTransactionReference);
 
-    upsert(customer);
+    save(customer);
   }
 
   public Customer findLastCreatedCustomerBySource(Integer sourceId) {
@@ -423,36 +420,70 @@ public class CustomerService extends AbstractCrudService<Customer> {
 
   @Override
   @Transactional
-  public Customer upsert(Customer entity) {
+  public Customer create(Customer entity) {
     injectAddress(entity);
-
-    if (entity.getId() == null) {
-      if (ListUtil.isEmpty(entity.getAddresses())) {
-        throw new BadRequestException("Customer must have at least one address");
-      }
-      entity.getAddresses().forEach(ca -> ca.setCustomer(entity));
-      return create(entity);
-    } else {
-      Customer dbCustomer = findById(entity.getId()).orElseThrow();
-      ObjectUtil.assign(dbCustomer, entity, List.of("references", "addresses"), true);
-
-      if (ListUtil.isNotEmpty(entity.getReferences())) {
-        dbCustomer.getReferences().clear();
-        List<CustomerReference> references = entity.getReferences();
-        references.forEach(ref -> ref.setCustomer(dbCustomer));
-        dbCustomer.getReferences().addAll(references);
-      }
-
-      if (ListUtil.isNotEmpty(entity.getAddresses())) {
-        dbCustomer.getAddresses().clear();
-        List<CustomerAddress> addresses = entity.getAddresses();
-        addresses.forEach(ca -> ca.setCustomer(dbCustomer));
-        dbCustomer.getAddresses().addAll(addresses);
-      }
-
-      return save(dbCustomer);
-    }
+    injectCustomerType(entity);
+    entity.getAddresses().forEach(ca -> ca.setCustomer(entity));
+    return super.create(entity);
   }
+
+  @Override
+  @Transactional
+  public Customer update(Long id, FastMap data) {
+    Customer dbEntity = findById(id).orElseThrow();
+    ObjectUtil.assign(dbEntity, data);
+
+    List<CustomerReference> references = data.getListClass("references", CustomerReference.class);
+    if (ListUtil.isNotEmpty(references)) {
+      dbEntity.getReferences().clear();
+      references.forEach(ref -> ref.setCustomer(dbEntity));
+      dbEntity.getReferences().addAll(references);
+    }
+
+    List<CustomerAddress> addresses = data.getListClass("addresses", CustomerAddress.class);
+    if (ListUtil.isNotEmpty(addresses)) {
+      dbEntity.getAddresses().clear();
+      addresses.forEach(ca -> ca.setCustomer(dbEntity));
+      dbEntity.getAddresses().addAll(addresses);
+    }
+
+    injectAddress(dbEntity);
+    injectCustomerType(dbEntity);
+    return save(dbEntity);
+  }
+
+  //  @Override
+  //  @Transactional
+  //  public Customer upsert(Customer entity) {
+  //    injectAddress(entity);
+  //
+  //    if (entity.getId() == null) {
+  //      if (ListUtil.isEmpty(entity.getAddresses())) {
+  //        throw new BadRequestException("Customer must have at least one address");
+  //      }
+  //      entity.getAddresses().forEach(ca -> ca.setCustomer(entity));
+  //      return create(entity);
+  //    } else {
+  //      Customer dbCustomer = findById(entity.getId()).orElseThrow();
+  //      ObjectUtil.assign(dbCustomer, entity, List.of("references", "addresses"), true);
+  //
+  //      if (ListUtil.isNotEmpty(entity.getReferences())) {
+  //        dbCustomer.getReferences().clear();
+  //        List<CustomerReference> references = entity.getReferences();
+  //        references.forEach(ref -> ref.setCustomer(dbCustomer));
+  //        dbCustomer.getReferences().addAll(references);
+  //      }
+  //
+  //      if (ListUtil.isNotEmpty(entity.getAddresses())) {
+  //        dbCustomer.getAddresses().clear();
+  //        List<CustomerAddress> addresses = entity.getAddresses();
+  //        addresses.forEach(ca -> ca.setCustomer(dbCustomer));
+  //        dbCustomer.getAddresses().addAll(addresses);
+  //      }
+  //
+  //      return save(dbCustomer);
+  //    }
+  //  }
 
   private void injectAddress(Customer customer) {
     customer
@@ -476,13 +507,10 @@ public class CustomerService extends AbstractCrudService<Customer> {
   @Transactional
   public void approveCustomerFromSandToGold(
       Long customerId, Boolean approved, Integer dispatchTypeId, Long saleId) {
-    Customer updateOne = new Customer();
-    updateOne.setId(customerId);
-    updateOne.setStatus(Customers.Status.VERIFIED);
-    if (!approved) {
-      updateOne.setActive(false);
-    }
-    Customer customer = upsert(updateOne);
+    Customer customer =
+        update(
+            customerId,
+            FastMap.create().add("status", Customers.Status.VERIFIED).add("active", false));
 
     if (approved) {
       // move to in-pool first
@@ -496,7 +524,6 @@ public class CustomerService extends AbstractCrudService<Customer> {
         LOGGER.info("approveAndAutoAssign is not implemented yet");
       }
     }
-
   }
 
   private void approveAndAssignToPool(Long customerId) {
@@ -513,7 +540,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
   private void approveAndAssignToSale(Customer customer, User sale) {
     approveAndAssignToPool(customer.getId());
     SaleCustomer saleCustomer = SaleCustomerUtil.generateSaleCustomer(customer, sale);
-    saleCustomerService.upsert(saleCustomer);
+    saleCustomerService.create(saleCustomer);
   }
 
   //  private void approveAndAutoAssign(Customer customer, Integer dispatchTypeId) {

@@ -3,9 +3,8 @@ package com.dpvn.crmcrudservice.customer;
 import com.dpvn.crmcrudservice.domain.entity.CustomerType;
 import com.dpvn.crmcrudservice.repository.CustomerTypeRepository;
 import com.dpvn.shared.service.AbstractCrudService;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class CustomerTypeService extends AbstractCrudService<CustomerType> {

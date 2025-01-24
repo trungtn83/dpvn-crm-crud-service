@@ -32,15 +32,18 @@ public class CustomerCustomRepository {
       List<String> locationCodes,
       List<Integer> sourceIds,
       Pageable pageable) {
-    String SELECT = "SELECT DISTINCT ON (c.modified_date, c.id) c.id";
-    String SELECT_COUNT = "SELECT count(*)";
+    String SELECT = "SELECT DISTINCT ON (c.id) c.id, c.status, c.modified_date";
     String FROM = generateInOceanFrom(filterText, locationCodes);
     String WHERE = generateInOceanWhere(filterText, typeIds, locationCodes, sourceIds);
-    String ORDER_BY = " ORDER BY c.modified_date DESC, c.id";
+    String ORDER_BY =
+        " ORDER BY (CASE WHEN status = 'VERIFIED' THEN 1 ELSE 0 END) ASC, modified_date DESC";
 
     List<Customer> results =
         getInOceanResults(
-            String.format("%s %s %s %s", SELECT, FROM, WHERE, ORDER_BY),
+            String.format(
+                "%s %s %s ORDER BY c.id, c.modified_date DESC",
+                SELECT, FROM, WHERE), // improve performance by ORDER BY c.id
+            ORDER_BY,
             filterText,
             typeIds,
             locationCodes,
@@ -48,7 +51,7 @@ public class CustomerCustomRepository {
             pageable);
     Long total =
         getInOceanTotal(
-            String.format("%s %s %s", SELECT_COUNT, FROM, WHERE),
+            String.format("%s %s %s", SELECT, FROM, WHERE),
             filterText,
             typeIds,
             locationCodes,
@@ -57,9 +60,30 @@ public class CustomerCustomRepository {
     return new PageImpl<>(results, pageable, total);
   }
 
+  private String generateInOceanFrom(String filterText, List<String> locationCodes) {
+    StringBuilder FROM =
+        new StringBuilder(
+            """
+            FROM customer c
+        """);
+    if (StringUtil.isNotEmpty(filterText)) {
+      FROM.append(
+          """
+          LEFT JOIN customer_reference cr ON c.id = cr.customer_id
+        """);
+    }
+    if (ListUtil.isNotEmpty(locationCodes) && locationCodes.size() == 3) {
+      FROM.append(
+          """
+          LEFT JOIN customer_address ca ON c.id = ca.customer_id
+        """);
+    }
+    return FROM.toString();
+  }
+
   private String generateInOceanWhere(
       String filterText, List<Long> typeIds, List<String> locationCodes, List<Integer> sourceIds) {
-    StringBuilder WHERE = new StringBuilder(" WHERE (c.active = false)");
+    StringBuilder WHERE = new StringBuilder(" WHERE c.active = false AND c.deleted IS NOT TRUE");
 
     if (StringUtil.isNotEmpty(filterText)) {
       WHERE.append(
@@ -96,35 +120,17 @@ public class CustomerCustomRepository {
     return WHERE.toString();
   }
 
-  private String generateInOceanFrom(String filterText, List<String> locationCodes) {
-    StringBuilder FROM =
-        new StringBuilder(
-            """
-            FROM customer c
-        """);
-    if (StringUtil.isNotEmpty(filterText)) {
-      FROM.append(
-          """
-          LEFT JOIN customer_reference cr ON c.id = cr.customer_id
-        """);
-    }
-    if (ListUtil.isNotEmpty(locationCodes) && locationCodes.size() == 3) {
-      FROM.append(
-          """
-          LEFT JOIN customer_address ca ON c.id = ca.customer_id
-        """);
-    }
-    return FROM.toString();
-  }
-
   private List<Customer> getInOceanResults(
       String sql,
+      String ORDER_BY,
       String filterText,
       List<Long> typeIds,
       List<String> locationCodes,
       List<Integer> sourceIds,
       Pageable pageable) {
-    Query query = entityManager.createNativeQuery(sql, Object.class);
+    Query query =
+        entityManager.createNativeQuery(
+            String.format("SELECT id from (%s) temp %s", sql, ORDER_BY), Object.class);
 
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);
@@ -165,7 +171,8 @@ public class CustomerCustomRepository {
       List<Long> typeIds,
       List<String> locationCodes,
       List<Integer> sourceIds) {
-    Query query = entityManager.createNativeQuery(sql);
+    Query query =
+        entityManager.createNativeQuery(String.format("SELECT count(*) from (%s) temp", sql));
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);
     }
@@ -257,9 +264,13 @@ public class CustomerCustomRepository {
   private String generateInPoolWhere(String filterText, List<String> tags) {
     StringBuilder WHERE =
         new StringBuilder(
-            "WHERE (c.active = true AND c.status = '" + Customers.Status.VERIFIED + "')");
+            "WHERE (c.active = TRUE AND c.deleted IS NOT TRUE AND c.status = '"
+                + Customers.Status.VERIFIED
+                + "')");
 
     // sure that customer is not in old and assgined list now
+    // nếu là dạng tự tìm thì cho phép nhiều người cùng thấy, fix cho case reason = 7
+    // nếu tự tạo thì ko thấy trong kho vàng, nhưng người khác vẫn tạo mới vói số đt đó được
     WHERE.append(
         """
         AND NOT EXISTS (
@@ -269,7 +280,8 @@ public class CustomerCustomRepository {
                   AND sc.active = TRUE
                   AND sc.deleted IS NOT TRUE
                   AND sc.relationship_type = 1
-                  AND (sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP))
+                  AND sc.reason_id IN (1, 2, 3, 4, 70, 71, 72)
+                  AND ((sc.available_from IS NULL OR sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP)))
             )
         """);
     if (StringUtil.isNotEmpty(filterText)) {
@@ -551,7 +563,11 @@ public class CustomerCustomRepository {
             SELECT DISTINCT ON (sc.customer_id)
                    sc.*
             FROM sale_customer sc
-            WHERE sc.active = true AND sc.deleted is not true AND sc.sale_id = :saleId AND sc.relationship_type = 1 AND sc.available_to >= NOW()
+            WHERE sc.active = true
+              AND sc.deleted is not true
+              AND sc.sale_id = :saleId
+              AND sc.relationship_type = 1
+              AND ((sc.available_from IS NULL OR sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP)))
             ORDER BY sc.customer_id, sc.created_date DESC
         ) latest_sc ON latest_sc.customer_id = c.id
         """);

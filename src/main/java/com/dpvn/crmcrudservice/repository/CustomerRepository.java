@@ -17,11 +17,9 @@ public interface CustomerRepository extends AbstractRepository<Customer> {
   String FIND_CUSTOMER_BY_MOBILE_PHONE =
       """
        SELECT DISTINCT c.*
-       FROM public.customer c
-       LEFT JOIN public.customer_reference cr
-           ON c.id = cr.customer_id
-       WHERE (c.active = true)
-        AND (c.mobile_phone = :mobilePhone OR ((cr.code = 'MOBILE_PHONE' AND cr.value = :mobilePhone) OR (cr.code = 'ZALO' AND cr.value = :mobilePhone)));
+       FROM customer c
+       LEFT JOIN customer_reference cr ON c.id = cr.customer_id
+       WHERE (c.mobile_phone = :mobilePhone OR ((cr.code = 'MOBILE_PHONE' AND cr.value = :mobilePhone) OR (cr.code = 'ZALO' AND cr.value = :mobilePhone)));
       """;
 
   @Query(value = FIND_CUSTOMER_BY_MOBILE_PHONE, nativeQuery = true)

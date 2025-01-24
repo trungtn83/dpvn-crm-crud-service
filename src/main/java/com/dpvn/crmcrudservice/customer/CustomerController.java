@@ -173,12 +173,6 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
     return customer.toDto();
   }
 
-  //  @Override
-  //  @PostMapping({"/upsert"})
-  //  public CustomerDto upsert(@RequestBody CustomerDto dto) {
-  //    return service.upsert(dto.toEntity()).toDto();
-  //  }
-
   @PostMapping("/{id}/approve")
   public void approveCustomerFromSandToGold(@PathVariable Long id, @RequestBody FastMap body) {
     Boolean approved = body.getBoolean("approved");

@@ -54,7 +54,7 @@ public class UserCustomRepository {
   }
 
   private String generateWhere(String filterText, List<String> departments, List<String> roles) {
-    StringBuilder WHERE = new StringBuilder(" WHERE (u.active = TRUE AND u.deleted is not true)");
+    StringBuilder WHERE = new StringBuilder(" WHERE (u.active = TRUE AND u.deleted IS NOT TRUE)");
     if (StringUtil.isNotEmpty(filterText)) {
       WHERE.append(
           " AND (u.username ILIKE '%' || :filterText || '%' OR u.full_name ILIKE '%' || :filterText || '%' OR u.email ILIKE '%' || :filterText || '%' OR u.address_detail ILIKE '%' || :filterText || '%' OR u.description ILIKE '%' || :filterText || '%')");

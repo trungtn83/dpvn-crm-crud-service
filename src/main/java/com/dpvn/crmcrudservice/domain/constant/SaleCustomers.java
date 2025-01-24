@@ -1,5 +1,6 @@
 package com.dpvn.crmcrudservice.domain.constant;
 
+import java.util.List;
 import java.util.Map;
 
 public class SaleCustomers {
@@ -40,6 +41,18 @@ public class SaleCustomers {
      * có tiềm năng hoặc đang chăm dở
      */
     public static final int REQUESTING = 6;
+
+    /**
+     * TYPE = PIC tự tìm ra khách này, tự tạo mới khách, coi là bụi vàng, có thời gian chăm sóc vĩnh
+     * viễn, có thể có hoặc ko có só điện thoại, người khác có thể chăm trùng nhau
+     */
+    public static final int BY_MY_HAND = 70;
+
+    public static final int BY_MY_HAND_FROM_POOL = 71;
+    public static final int BY_MY_HAND_FROM_OCEAN = 72;
+
+    public static final List<Integer> BY_MY_HANDS =
+        List.of(BY_MY_HAND, BY_MY_HAND_FROM_POOL, BY_MY_HAND_FROM_OCEAN);
 
     /** TYPE = PIC or EVOLVE */
     public static final int OTHER = 99;

@@ -39,9 +39,9 @@ public class SaleCustomerService extends AbstractCrudService<SaleCustomer> {
     List<SaleCustomer> saleCustomers =
         saleCustomerCustomRepository.findSaleCustomersByOptions(
             dto.getSaleId(),
-            List.of(dto.getCustomerId()),
+            dto.getCustomerId() == null ? List.of() : List.of(dto.getCustomerId()),
             dto.getRelationshipType(),
-            List.of(dto.getReasonId()),
+            dto.getReasonId() == null ? List.of() : List.of(dto.getReasonId()),
             dto.getReasonRef());
     if (ListUtil.isNotEmpty(saleCustomers)) {
       saleCustomers.forEach(saleCustomer -> delete(saleCustomer.getId()));

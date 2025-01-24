@@ -96,7 +96,7 @@ public class CampaignService extends AbstractCrudService<Campaign> {
         });
     save(campaign);
 
-    // update sale status to VERIFY
+    // update customer status to VERIFY
     customerIds.forEach(
         customerId -> {
           customerService.update(

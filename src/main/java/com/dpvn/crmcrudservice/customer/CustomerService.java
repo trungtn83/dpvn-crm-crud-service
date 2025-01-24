@@ -178,35 +178,37 @@ public class CustomerService extends AbstractCrudService<Customer> {
   }
 
   private void injectCustomerType(Customer customer) {
-    List<CustomerType> customerTypes = cacheEntityService.getCustomerTypes();
-    CustomerType customerType =
-        customerTypes.stream()
-            .filter(
-                ct -> {
-                  List<String> types = StringUtil.split(ct.getTypeReferences().toLowerCase());
-                  types.add(ct.getTypeCode().toLowerCase());
-                  String type =
-                      customer.getCustomerType() == null
-                          ? ""
-                          : customer.getCustomerType().toLowerCase();
-                  return types.contains(type);
-                })
-            .findFirst()
-            .orElse(
-                customerTypes.stream()
-                    .filter(ct -> ct.getTypeCode().equals("OTHER"))
-                    .findFirst()
-                    .orElseThrow(
-                        () -> {
-                          LOGGER.error(
-                              String.format(
-                                  "Customer type %s not found", customer.getCustomerType()),
-                              customer.getCustomerType());
-                          return new BadRequestException(
-                              String.format(
-                                  "Customer type %s not found", customer.getCustomerType()));
-                        }));
-    customer.setCustomerTypeId(customerType.getId());
+    if (customer.getCustomerTypeId() == null) {
+      List<CustomerType> customerTypes = cacheEntityService.getCustomerTypes();
+      CustomerType customerType =
+          customerTypes.stream()
+              .filter(
+                  ct -> {
+                    List<String> types = StringUtil.split(ct.getTypeReferences().toLowerCase());
+                    types.add(ct.getTypeCode().toLowerCase());
+                    String type =
+                        customer.getCustomerType() == null
+                            ? ""
+                            : customer.getCustomerType().toLowerCase();
+                    return types.contains(type);
+                  })
+              .findFirst()
+              .orElse(
+                  customerTypes.stream()
+                      .filter(ct -> ct.getTypeCode().equals("OTHER"))
+                      .findFirst()
+                      .orElseThrow(
+                          () -> {
+                            LOGGER.error(
+                                String.format(
+                                    "Customer type %s not found", customer.getCustomerType()),
+                                customer.getCustomerType());
+                            return new BadRequestException(
+                                String.format(
+                                    "Customer type %s not found", customer.getCustomerType()));
+                          }));
+      customer.setCustomerTypeId(customerType.getId());
+    }
   }
 
   public List<Customer> findByIds(List<Long> ids) {
@@ -424,6 +426,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
     injectAddress(entity);
     injectCustomerType(entity);
     entity.getAddresses().forEach(ca -> ca.setCustomer(entity));
+    entity.getReferences().forEach(ref -> ref.setCustomer(entity));
     return super.create(entity);
   }
 
@@ -452,39 +455,6 @@ public class CustomerService extends AbstractCrudService<Customer> {
     return save(dbEntity);
   }
 
-  //  @Override
-  //  @Transactional
-  //  public Customer upsert(Customer entity) {
-  //    injectAddress(entity);
-  //
-  //    if (entity.getId() == null) {
-  //      if (ListUtil.isEmpty(entity.getAddresses())) {
-  //        throw new BadRequestException("Customer must have at least one address");
-  //      }
-  //      entity.getAddresses().forEach(ca -> ca.setCustomer(entity));
-  //      return create(entity);
-  //    } else {
-  //      Customer dbCustomer = findById(entity.getId()).orElseThrow();
-  //      ObjectUtil.assign(dbCustomer, entity, List.of("references", "addresses"), true);
-  //
-  //      if (ListUtil.isNotEmpty(entity.getReferences())) {
-  //        dbCustomer.getReferences().clear();
-  //        List<CustomerReference> references = entity.getReferences();
-  //        references.forEach(ref -> ref.setCustomer(dbCustomer));
-  //        dbCustomer.getReferences().addAll(references);
-  //      }
-  //
-  //      if (ListUtil.isNotEmpty(entity.getAddresses())) {
-  //        dbCustomer.getAddresses().clear();
-  //        List<CustomerAddress> addresses = entity.getAddresses();
-  //        addresses.forEach(ca -> ca.setCustomer(dbCustomer));
-  //        dbCustomer.getAddresses().addAll(addresses);
-  //      }
-  //
-  //      return save(dbCustomer);
-  //    }
-  //  }
-
   private void injectAddress(Customer customer) {
     customer
         .getAddresses()
@@ -510,17 +480,15 @@ public class CustomerService extends AbstractCrudService<Customer> {
     Customer customer =
         update(
             customerId,
-            FastMap.create().add("status", Customers.Status.VERIFIED).add("active", false));
+            FastMap.create().add("status", Customers.Status.VERIFIED).add("active", approved));
 
     if (approved) {
-      // move to in-pool first
       approveAndAssignToPool(customerId);
 
       if (saleId != null) {
         User sale = userService.findById(saleId).orElseThrow();
         approveAndAssignToSale(customer, sale);
       } else if (dispatchTypeId != null) {
-        //      approveAndAutoAssign(customer, dispatchTypeId);
         LOGGER.info("approveAndAutoAssign is not implemented yet");
       }
     }
@@ -542,13 +510,4 @@ public class CustomerService extends AbstractCrudService<Customer> {
     SaleCustomer saleCustomer = SaleCustomerUtil.generateSaleCustomer(customer, sale);
     saleCustomerService.create(saleCustomer);
   }
-
-  //  private void approveAndAutoAssign(Customer customer, Integer dispatchTypeId) {
-  //    User sale = findSaleByDispatchType(dispatchTypeId);
-  //    approveAndAssignToSale(customer, sale);
-  //  }
-  //
-  //  private User findSaleByDispatchType(Integer dispatchTypeId) {
-  //    return null;
-  //  }
 }

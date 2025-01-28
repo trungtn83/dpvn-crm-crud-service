@@ -5,6 +5,7 @@ import com.dpvn.crmcrudservice.domain.dto.SaleCustomerDto;
 import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
 import com.dpvn.shared.controller.AbstractCrudController;
+import com.dpvn.shared.domain.dto.PagingResponse;
 import com.dpvn.shared.util.FastMap;
 import java.time.Instant;
 import java.util.List;
@@ -81,6 +82,7 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
   @PostMapping("/my")
   public FastMap findMyCustomers(@RequestBody FastMap body) {
     Long saleId = body.getLong("saleId");
+    Long customerTypeId = body.getLong("customerTypeId");
     Long customerCategoryId = body.getLong("customerCategoryId");
     String filterText = body.getString("filterText");
     List<Integer> reasonIds = body.getList("reasonIds");
@@ -90,7 +92,7 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
 
     Page<FastMap> customerPage =
         ((CustomerService) service)
-            .findMyCustomers(saleId, customerCategoryId, filterText, reasonIds, page, pageSize);
+            .findMyCustomers(saleId, customerTypeId, customerCategoryId, filterText, reasonIds, page, pageSize);
     return FastMap.create()
         .add("rows", customerPage.getContent())
         .add("total", customerPage.getTotalElements())
@@ -175,9 +177,10 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
 
   @PostMapping("/{id}/approve")
   public void approveCustomerFromSandToGold(@PathVariable Long id, @RequestBody FastMap body) {
+    Long userId = body.getLong("userId");
     Boolean approved = body.getBoolean("approved");
     Integer dispatchTypeId = body.getInt("dispatchTypeId");
     Long saleId = body.getLong("saleId");
-    ((CustomerService) service).approveCustomerFromSandToGold(id, approved, dispatchTypeId, saleId);
+    ((CustomerService) service).approveCustomerFromSandToGold(userId, id, approved, dispatchTypeId, saleId);
   }
 }

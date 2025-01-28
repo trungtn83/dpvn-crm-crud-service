@@ -10,6 +10,8 @@ import com.dpvn.crmcrudservice.domain.entity.Campaign;
 import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
 import com.dpvn.crmcrudservice.domain.entity.User;
+import com.dpvn.crmcrudservice.interaction.InteractionService;
+import com.dpvn.crmcrudservice.interaction.InteractionUtil;
 import com.dpvn.crmcrudservice.repository.CampaignCustomRepository;
 import com.dpvn.crmcrudservice.repository.CampaignRepository;
 import com.dpvn.crmcrudservice.repository.CustomerRepository;
@@ -19,6 +21,8 @@ import com.dpvn.shared.util.FastMap;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,6 +32,7 @@ public class CampaignService extends AbstractCrudService<Campaign> {
   private final CampaignCustomRepository customRepository;
   private final SaleCustomerService saleCustomerService;
   private final CustomerRepository customerRepository;
+  private final InteractionService interactionService;
 
   public CampaignService(
       CampaignRepository repository,
@@ -35,13 +40,15 @@ public class CampaignService extends AbstractCrudService<Campaign> {
       CustomerService customerService,
       CampaignCustomRepository customRepository,
       SaleCustomerService saleCustomerService,
-      CustomerRepository customerRepository) {
+      CustomerRepository customerRepository,
+      InteractionService interactionService) {
     super(repository);
     this.userService = userService;
     this.customerService = customerService;
     this.customRepository = customRepository;
     this.saleCustomerService = saleCustomerService;
     this.customerRepository = customerRepository;
+    this.interactionService = interactionService;
   }
 
   @Override
@@ -76,7 +83,7 @@ public class CampaignService extends AbstractCrudService<Campaign> {
   }
 
   public void assignCustomersToCampaign(
-      Long campaignId, List<Long> saleIds, List<Long> customerIds) {
+      Long userId, Long campaignId, List<Long> saleIds, List<Long> customerIds) {
     Campaign campaign = findById(campaignId).orElseThrow();
     List<User> sales = userService.findByIds(saleIds);
     List<Customer> customers = customerService.findByIds(customerIds);
@@ -105,7 +112,7 @@ public class CampaignService extends AbstractCrudService<Campaign> {
         });
 
     // dispatch only customer into only sales, does not affect to existed ones in current campaign
-    dispatchCampaignWithSpecificCustomersToSales(campaign, customers, sales);
+    dispatchCampaignWithSpecificCustomersToSales(userId, campaign, customers, sales);
   }
 
   private void validateInPoolCustomers(List<Customer> customers) {
@@ -158,11 +165,11 @@ public class CampaignService extends AbstractCrudService<Campaign> {
   public void dispatchCampaign(Campaign campaign) {
     List<User> sales = campaign.getUsers().stream().toList();
     List<Customer> customers = campaign.getCustomers().stream().toList();
-    dispatchCampaignWithSpecificCustomersToSales(campaign, customers, sales);
+    dispatchCampaignWithSpecificCustomersToSales(null, campaign, customers, sales);
   }
 
   private void dispatchCampaignWithSpecificCustomersToSales(
-      Campaign campaign, List<Customer> customers, List<User> sales) {
+      Long userId, Campaign campaign, List<Customer> customers, List<User> sales) {
     // hardcode for Round-Robin
     int saleTotal = sales.size();
     for (int i = 0; i < customers.size(); i++) {
@@ -170,7 +177,16 @@ public class CampaignService extends AbstractCrudService<Campaign> {
       Customer customer = customers.get(i);
       if (isNotDispatchCustomer(campaign, customer)) {
         SaleCustomer saleCustomer = SaleCustomerUtil.generateSaleCustomer(customer, sale, campaign);
-        customerService.assign(sale, customer, saleCustomer);
+        String result = customerService.assign(sale, customer, saleCustomer);
+        if (result == null && userId != null) {
+          String title = "Phân công khách hàng";
+          String content = "Phân công khách hàng cho " + sale.getFullName() + " trong chiến dịch " + campaign.getCampaignName();
+          interactionService.create(
+              InteractionUtil.generateSystemInteraction(
+                  userId,
+                  customer.getId(),
+                  campaign.getId(), title, content));
+        }
       }
     }
   }

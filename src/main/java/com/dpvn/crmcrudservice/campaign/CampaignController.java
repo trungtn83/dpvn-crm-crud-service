@@ -54,8 +54,9 @@ public class CampaignController extends AbstractCrudController<Campaign, Campaig
 
   @PostMapping("/{id}/assign-customers-to-sales")
   public void assignToSaleInCampaign(@PathVariable Long id, @RequestBody FastMap body) {
+    Long userId = body.getLong("userId");
     List<Long> saleIds = body.getListClass("saleIds", Long.class);
     List<Long> customerIds = body.getListClass("customerIds", Long.class);
-    ((CampaignService) service).assignCustomersToCampaign(id, saleIds, customerIds);
+    ((CampaignService) service).assignCustomersToCampaign(userId, id, saleIds, customerIds);
   }
 }

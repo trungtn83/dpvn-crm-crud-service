@@ -355,6 +355,7 @@ public class CustomerCustomRepository {
 
   public Page<FastMap> searchMyCustomers(
       Long saleId,
+      Long customerTypeId,
       Long customerCategoryId,
       String filterText,
       List<Integer> reasonIds,
@@ -415,13 +416,14 @@ public class CustomerCustomRepository {
       """;
     String SELECT_COUNT = "SELECT COUNT(*)";
     String FROM = generateMyCustomerFrom(customerCategoryId, filterText);
-    String WHERE = generateMyCustomersWhere(filterText, reasonIds);
+    String WHERE = generateMyCustomersWhere(filterText, customerTypeId, reasonIds);
     String ORDER =
         " ORDER BY latest_sc.modified_date DESC, latest_i.modified_date DESC, latest_sc.available_to ASC, c.modified_date desc, c.id";
     List<FastMap> results =
         getMyCustomerResults(
             String.format("%s %s %s %s", SELECT, FROM, WHERE, ORDER),
             saleId,
+            customerTypeId,
             customerCategoryId,
             filterText,
             reasonIds,
@@ -430,6 +432,7 @@ public class CustomerCustomRepository {
         getMyCustomerTotal(
             String.format("%s %s %s", SELECT_COUNT, FROM, WHERE),
             saleId,
+            customerTypeId,
             customerCategoryId,
             filterText,
             reasonIds);
@@ -439,6 +442,7 @@ public class CustomerCustomRepository {
   private List<FastMap> getMyCustomerResults(
       String sql,
       Long saleId,
+      Long customerTypeId,
       Long customerCategoryId,
       String filterText,
       List<Integer> reasonIds,
@@ -447,6 +451,9 @@ public class CustomerCustomRepository {
     query.setParameter("saleId", saleId);
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);
+    }
+    if (customerTypeId != null) {
+      query.setParameter("customerTypeId", customerTypeId);
     }
     if (customerCategoryId != null) {
       query.setParameter("customerCategoryId", customerCategoryId);
@@ -477,6 +484,7 @@ public class CustomerCustomRepository {
   private Long getMyCustomerTotal(
       String sql,
       Long saleId,
+      Long customerTypeId,
       Long customerCategoryId,
       String filterText,
       List<Integer> reasonIds) {
@@ -484,6 +492,9 @@ public class CustomerCustomRepository {
     query.setParameter("saleId", saleId);
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);
+    }
+    if (customerTypeId != null) {
+      query.setParameter("customerTypeId", customerTypeId);
     }
     if (customerCategoryId != null) {
       query.setParameter("customerCategoryId", customerCategoryId);
@@ -610,8 +621,11 @@ public class CustomerCustomRepository {
     return FROM.toString();
   }
 
-  private String generateMyCustomersWhere(String filterText, List<Integer> reasonIds) {
-    StringBuilder WHERE = new StringBuilder("WHERE (c.active = true)");
+  private String generateMyCustomersWhere(String filterText, Long customerTypeId, List<Integer> reasonIds) {
+    StringBuilder WHERE = new StringBuilder("WHERE (c.active = true AND c.deleted IS NOT TRUE)");
+    if (customerTypeId != null) {
+      WHERE.append(" AND c.customer_type_id = :customerTypeId");
+    }
     if (StringUtil.isNotEmpty(filterText)) {
       WHERE.append(
           """

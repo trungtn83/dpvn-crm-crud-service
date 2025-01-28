@@ -2,6 +2,7 @@ package com.dpvn.crmcrudservice.domain.constant;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class SaleCustomers {
   private SaleCustomers() {}
@@ -30,6 +31,8 @@ public class SaleCustomers {
      */
     public static final int LEADER = 4;
 
+    public static final List<Integer> MY_OWNS = List.of(INVOICE, ORDER, CAMPAIGN, LEADER);
+
     /**
      * TYPE = EVOLVE Tự gán/ được gán vào khách hàng để chú ý chăm sóc, có thể là khách tiềm năng
      * nên tag để tập trung hơn
@@ -51,8 +54,11 @@ public class SaleCustomers {
     public static final int BY_MY_HAND_FROM_POOL = 71;
     public static final int BY_MY_HAND_FROM_OCEAN = 72;
 
-    public static final List<Integer> BY_MY_HANDS =
+    public static final List<Integer> MY_HANDS =
         List.of(BY_MY_HAND, BY_MY_HAND_FROM_POOL, BY_MY_HAND_FROM_OCEAN);
+
+    public static final List<Integer> MY_OWN_HANDS =
+        Stream.concat(MY_HANDS.stream(), MY_OWNS.stream()).toList();
 
     /** TYPE = PIC or EVOLVE */
     public static final int OTHER = 99;

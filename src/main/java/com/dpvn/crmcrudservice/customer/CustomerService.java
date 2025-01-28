@@ -10,6 +10,8 @@ import com.dpvn.crmcrudservice.domain.entity.CustomerReference;
 import com.dpvn.crmcrudservice.domain.entity.CustomerType;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
 import com.dpvn.crmcrudservice.domain.entity.User;
+import com.dpvn.crmcrudservice.interaction.InteractionService;
+import com.dpvn.crmcrudservice.interaction.InteractionUtil;
 import com.dpvn.crmcrudservice.repository.CacheEntityService;
 import com.dpvn.crmcrudservice.repository.CustomerCustomRepository;
 import com.dpvn.crmcrudservice.repository.CustomerRepository;
@@ -45,6 +47,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
   private final SaleCustomerService saleCustomerService;
   private final AddressService addressService;
   private final CacheEntityService cacheEntityService;
+  private final InteractionService interactionService;
 
   public CustomerService(
       CustomerRepository repository,
@@ -53,7 +56,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
       UserService userService,
       SaleCustomerService saleCustomerService,
       AddressService addressService,
-      CacheEntityService cacheEntityService) {
+      CacheEntityService cacheEntityService, InteractionService interactionService) {
     super(repository);
     this.customerCustomRepository = customerCustomRepository;
     this.saleCustomerRepository = saleCustomerRepository;
@@ -61,6 +64,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
     this.saleCustomerService = saleCustomerService;
     this.addressService = addressService;
     this.cacheEntityService = cacheEntityService;
+    this.interactionService = interactionService;
   }
 
   @Transactional
@@ -370,6 +374,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
 
   public Page<FastMap> findMyCustomers(
       Long saleId,
+      Long customerTypeId,
       Long customerCategoryId,
       String filterText,
       List<Integer> reasonIds,
@@ -377,7 +382,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
       int pageSize) {
     Pageable pageable = PageRequest.of(page, pageSize);
     return customerCustomRepository.searchMyCustomers(
-        saleId, customerCategoryId, filterText, reasonIds, pageable);
+        saleId, customerTypeId, customerCategoryId, filterText, reasonIds, pageable);
   }
 
   @Transactional
@@ -476,21 +481,33 @@ public class CustomerService extends AbstractCrudService<Customer> {
 
   @Transactional
   public void approveCustomerFromSandToGold(
-      Long customerId, Boolean approved, Integer dispatchTypeId, Long saleId) {
+      Long userId, Long customerId, Boolean approved, Integer dispatchTypeId, Long saleId) {
     Customer customer =
         update(
             customerId,
             FastMap.create().add("status", Customers.Status.VERIFIED).add("active", approved));
-
+    String title = "Duyệt khách hàng";
     if (approved) {
       approveAndAssignToPool(customerId);
-
       if (saleId != null) {
         User sale = userService.findById(saleId).orElseThrow();
         approveAndAssignToSale(customer, sale);
+        String saleName = userId.equals(saleId) ? "bản thân" : sale.getFullName();
+        String content = String.format("Tìm ra vàng, phân công cho %s", saleName);
+        interactionService.create(
+            InteractionUtil.generateSystemInteraction(
+                userId, customerId, null, title,content));
       } else if (dispatchTypeId != null) {
         LOGGER.info("approveAndAutoAssign is not implemented yet");
+      } else {
+        interactionService.create(
+            InteractionUtil.generateSystemInteraction(
+                userId, customerId, null, title,"Tìm ra vàng, không phân công cho ai và đưa về Kho vàng"));
       }
+    } else {
+      interactionService.create(
+          InteractionUtil.generateSystemInteraction(
+              userId, customerId, null, title,"Khách hàng không đồng ý chuyển từ cát lên vàng, đưa về trạng thái bị đóng băng"));
     }
   }
 

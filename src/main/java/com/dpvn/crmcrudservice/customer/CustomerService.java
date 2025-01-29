@@ -56,7 +56,8 @@ public class CustomerService extends AbstractCrudService<Customer> {
       UserService userService,
       SaleCustomerService saleCustomerService,
       AddressService addressService,
-      CacheEntityService cacheEntityService, InteractionService interactionService) {
+      CacheEntityService cacheEntityService,
+      InteractionService interactionService) {
     super(repository);
     this.customerCustomRepository = customerCustomRepository;
     this.saleCustomerRepository = saleCustomerRepository;
@@ -495,19 +496,26 @@ public class CustomerService extends AbstractCrudService<Customer> {
         String saleName = userId.equals(saleId) ? "bản thân" : sale.getFullName();
         String content = String.format("Tìm ra vàng, phân công cho %s", saleName);
         interactionService.create(
-            InteractionUtil.generateSystemInteraction(
-                userId, customerId, null, title,content));
+            InteractionUtil.generateSystemInteraction(userId, customerId, null, title, content));
       } else if (dispatchTypeId != null) {
         LOGGER.info("approveAndAutoAssign is not implemented yet");
       } else {
         interactionService.create(
             InteractionUtil.generateSystemInteraction(
-                userId, customerId, null, title,"Tìm ra vàng, không phân công cho ai và đưa về Kho vàng"));
+                userId,
+                customerId,
+                null,
+                title,
+                "Tìm ra vàng, không phân công cho ai và đưa về Kho vàng"));
       }
     } else {
       interactionService.create(
           InteractionUtil.generateSystemInteraction(
-              userId, customerId, null, title,"Khách hàng không đồng ý chuyển từ cát lên vàng, đưa về trạng thái bị đóng băng"));
+              userId,
+              customerId,
+              null,
+              title,
+              "Khách hàng không đồng ý chuyển từ cát lên vàng, đưa về trạng thái bị đóng băng"));
     }
   }
 

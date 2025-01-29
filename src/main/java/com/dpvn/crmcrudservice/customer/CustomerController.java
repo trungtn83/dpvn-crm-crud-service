@@ -5,7 +5,6 @@ import com.dpvn.crmcrudservice.domain.dto.SaleCustomerDto;
 import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
 import com.dpvn.shared.controller.AbstractCrudController;
-import com.dpvn.shared.domain.dto.PagingResponse;
 import com.dpvn.shared.util.FastMap;
 import java.time.Instant;
 import java.util.List;
@@ -92,7 +91,8 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
 
     Page<FastMap> customerPage =
         ((CustomerService) service)
-            .findMyCustomers(saleId, customerTypeId, customerCategoryId, filterText, reasonIds, page, pageSize);
+            .findMyCustomers(
+                saleId, customerTypeId, customerCategoryId, filterText, reasonIds, page, pageSize);
     return FastMap.create()
         .add("rows", customerPage.getContent())
         .add("total", customerPage.getTotalElements())
@@ -181,6 +181,7 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
     Boolean approved = body.getBoolean("approved");
     Integer dispatchTypeId = body.getInt("dispatchTypeId");
     Long saleId = body.getLong("saleId");
-    ((CustomerService) service).approveCustomerFromSandToGold(userId, id, approved, dispatchTypeId, saleId);
+    ((CustomerService) service)
+        .approveCustomerFromSandToGold(userId, id, approved, dispatchTypeId, saleId);
   }
 }

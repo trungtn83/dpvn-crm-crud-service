@@ -415,7 +415,7 @@ public class CustomerCustomRepository {
                 latest_i.visibility AS interaction_visibility
       """;
     String SELECT_COUNT = "SELECT COUNT(*)";
-    String FROM = generateMyCustomerFrom(customerCategoryId, filterText);
+    String FROM = generateMyCustomerFrom(saleId, customerCategoryId, filterText);
     String WHERE = generateMyCustomersWhere(filterText, customerTypeId, reasonIds);
     String ORDER =
         " ORDER BY latest_sc.modified_date DESC, latest_i.modified_date DESC, latest_sc.available_to ASC, c.modified_date desc, c.id";
@@ -448,7 +448,9 @@ public class CustomerCustomRepository {
       List<Integer> reasonIds,
       Pageable pageable) {
     Query query = entityManager.createNativeQuery(sql, Object.class);
-    query.setParameter("saleId", saleId);
+    if (saleId != null) {
+      query.setParameter("saleId", saleId);
+    }
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);
     }
@@ -489,7 +491,9 @@ public class CustomerCustomRepository {
       String filterText,
       List<Integer> reasonIds) {
     Query query = entityManager.createNativeQuery(sql, Object.class);
-    query.setParameter("saleId", saleId);
+    if (saleId != null) {
+      query.setParameter("saleId", saleId);
+    }
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);
     }
@@ -565,9 +569,9 @@ public class CustomerCustomRepository {
                 .add("visibility", o[47]));
   }
 
-  private String generateMyCustomerFrom(Long customerCategoryId, String filterText) {
-    StringBuilder FROM =
-        new StringBuilder(
+  private String generateMyCustomerFrom(Long saleId, Long customerCategoryId, String filterText) {
+    String FROM =
+        String.format(
             """
         FROM customer c
         JOIN (
@@ -576,52 +580,58 @@ public class CustomerCustomRepository {
             FROM sale_customer sc
             WHERE sc.active = true
               AND sc.deleted is not true
-              AND sc.sale_id = :saleId
+              %s
               AND sc.relationship_type = 1
               AND ((sc.available_from IS NULL OR sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP)))
             ORDER BY sc.customer_id, sc.created_date DESC
         ) latest_sc ON latest_sc.customer_id = c.id
-        """);
-
+        """,
+            saleId == null ? "" : "AND sc.sale_id = :saleId");
     if (customerCategoryId != null) {
-      FROM.append(
-          """
+      FROM +=
+          String.format(
+              """
           JOIN (
               SELECT DISTINCT ON (scs_inner.customer_id, scs_inner.sale_id)
                      scs_inner.id, scs_inner.customer_id, scs_inner.sale_id, scs_inner.created_date, scs_inner.customer_category_id
               FROM sale_customer_state scs_inner
-              where scs_inner.sale_id = :saleId
+              WHERE %s
               ORDER BY scs_inner.customer_id, scs_inner.sale_id, scs_inner.created_date DESC
-          ) AS scs ON scs.customer_id = c.id AND scs.sale_id = :saleId and scs.customer_category_id = :customerCategoryId
-          """);
+          ) AS scs ON scs.customer_id = c.id AND scs.customer_category_id = :customerCategoryId
+          """,
+              saleId == null ? "1 = 1" : "AND scs_inner.sale_id = :saleId");
     }
     if (StringUtil.isNotEmpty(filterText)) {
-      FROM.append(
+      FROM +=
           """
           LEFT JOIN customer_reference cr ON c.id = cr.customer_id
           LEFT JOIN customer_address ca ON c.id = ca.customer_id
-        """);
+        """;
     }
-    FROM.append(
-        """
+    FROM +=
+        String.format(
+            """
         LEFT JOIN (
             SELECT DISTINCT ON (scs.customer_id)
                    scs.*
             FROM sale_customer_state scs
             ORDER BY scs.customer_id, scs.modified_date DESC
-        ) latest_scs ON latest_scs.customer_id = c.id and latest_scs.sale_id = :saleId
+        ) latest_scs ON latest_scs.customer_id = c.id %s
         LEFT JOIN (
             SELECT DISTINCT ON (i.customer_id)
                    i.*
             FROM interaction i
-            WHERE i.created_by = :saleId OR i.visibility = 0
+            WHERE i.visibility = 0 %s
             ORDER BY i.customer_id, i.created_date DESC
         ) latest_i ON latest_i.customer_id = c.id
-        """);
-    return FROM.toString();
+        """,
+            saleId == null ? "" : "AND latest_scs.sale_id = :saleId",
+            saleId == null ? "" : "OR i.created_by = :saleId");
+    return FROM;
   }
 
-  private String generateMyCustomersWhere(String filterText, Long customerTypeId, List<Integer> reasonIds) {
+  private String generateMyCustomersWhere(
+      String filterText, Long customerTypeId, List<Integer> reasonIds) {
     StringBuilder WHERE = new StringBuilder("WHERE (c.active = true AND c.deleted IS NOT TRUE)");
     if (customerTypeId != null) {
       WHERE.append(" AND c.customer_type_id = :customerTypeId");
@@ -645,24 +655,28 @@ public class CustomerCustomRepository {
   public Page<FastMap> searchTaskBasedCustomers(
       Long saleId, String filterText, List<String> tags, Pageable pageable) {
     String WITH =
-        """
+        String.format(
+            """
         WITH LastModifiedTasks AS (
             SELECT DISTINCT ON (customer_id) customer_id, id AS last_modified_task_id, "name" AS last_modified_task_name, modified_date AS last_modified_task_date
             FROM task
-            WHERE progress <> 100 AND user_id = :saleId
+            WHERE progress <> 100 %s
             ORDER BY customer_id, modified_date DESC
         ),
         OldestCreatedTasks AS (
             SELECT DISTINCT ON (customer_id) customer_id, id AS oldest_modified_task_id, "name" AS oldest_modified_task_name, modified_date AS oldest_modified_task_date
             FROM task
-            WHERE progress <> 100 AND user_id = :saleId
+            WHERE progress <> 100 %s
             ORDER BY customer_id, modified_date ASC
         )
-        """;
+        """,
+            saleId == null ? "" : "AND user_id = :saleId",
+            saleId == null ? "" : "AND user_id = :saleId");
     String SELECT =
         """
         SELECT
            c.id,
+           XXX.sale_id,
            COUNT(CASE WHEN t.priority = 90 THEN 1 END) AS now_task_count,
            COUNT(CASE WHEN DATE(t.to_date) = CURRENT_DATE THEN 1 END) AS today_task_count,
            COUNT(CASE WHEN DATE(t.to_date) < CURRENT_DATE THEN 1 END) AS overdue_task_count,
@@ -674,12 +688,13 @@ public class CustomerCustomRepository {
            oct.oldest_modified_task_date
         """;
     String SELECT_COUNT = "SELECT COUNT(DISTINCT c.id)";
-    String FROM = generateTaskBasedFrom(filterText);
+    String FROM = generateTaskBasedFrom(saleId, filterText);
     String WHERE = generateTaskBasedWhere(filterText, tags);
     String GROUP_BY =
         """
         GROUP BY
             c.id,
+            XXX.sale_id,
             lmt.last_modified_task_id,
             lmt.last_modified_task_name,
             lmt.last_modified_task_date,
@@ -694,7 +709,6 @@ public class CustomerCustomRepository {
             String.format("%s%s %s %s %s %s", WITH, SELECT, FROM, WHERE, GROUP_BY, ORDER_BY),
             saleId,
             filterText,
-            tags,
             pageable);
     Long total =
         getTaskBasedTotal(
@@ -704,10 +718,12 @@ public class CustomerCustomRepository {
   }
 
   private List<FastMap> getTaskBasedResult(
-      String sql, Long saleId, String filterText, List<String> tags, Pageable pageable) {
+      String sql, Long saleId, String filterText, Pageable pageable) {
     Query query = entityManager.createNativeQuery(sql, Object.class);
 
-    query.setParameter("saleId", saleId);
+    if (saleId != null) {
+      query.setParameter("saleId", saleId);
+    }
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);
     }
@@ -726,70 +742,73 @@ public class CustomerCustomRepository {
         .map(
             o ->
                 toFastMapFromTaskBasedCustomerObjects(o)
-                    .add("customer", customers.get(Long.parseLong(o[0].toString())).toDto()))
+                    .add("customer", customers.get(Long.parseLong(o[0].toString())).toDto())
+                    .add("saleId", o[1]))
         .toList();
   }
 
   private FastMap toFastMapFromTaskBasedCustomerObjects(Object[] o) {
     return FastMap.create()
         .add("id", o[0])
-        .add("tags", FastMap.create().add("now", o[1]).add("today", o[2]).add("overdue", o[3]))
-        .add("lastTaskId", o[4])
-        .add("lastTaskName", o[5])
-        .add("lastTaskDate", o[6])
-        .add("oldestTaskId", o[7])
-        .add("oldestTaskName", o[8])
-        .add("oldestTaskDate", o[9]);
+        .add("saleId", o[1])
+        .add("tags", FastMap.create().add("now", o[2]).add("today", o[3]).add("overdue", o[4]))
+        .add("lastTaskId", o[5])
+        .add("lastTaskName", o[6])
+        .add("lastTaskDate", o[7])
+        .add("oldestTaskId", o[8])
+        .add("oldestTaskName", o[9])
+        .add("oldestTaskDate", o[10]);
   }
 
   private Long getTaskBasedTotal(String sql, Long saleId, String filterText, List<String> tags) {
     Query query = entityManager.createNativeQuery(sql);
-    query.setParameter("saleId", saleId);
+    if (saleId != null) {
+      query.setParameter("saleId", saleId);
+    }
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);
     }
     return ((Number) query.getSingleResult()).longValue();
   }
 
-  private String generateTaskBasedFrom(String filterText) {
-    StringBuilder FROM =
-        new StringBuilder(
+  private String generateTaskBasedFrom(Long saleId, String filterText) {
+    String FROM =
+        String.format(
             """
-        FROM customer c
-        JOIN task t ON c.id = t.customer_id  AND t.user_id = :saleId AND t.progress <> 100
-        LEFT JOIN LastModifiedTasks lmt ON c.id = lmt.customer_id
-        LEFT JOIN OldestCreatedTasks oct ON c.id = oct.customer_id
-        """);
+            FROM customer c
+            INNER JOIN (
+              SELECT sale_id, customer_id
+              FROM sale_customer sc
+              WHERE sc.active = TRUE %s
+                AND sc.deleted IS NOT TRUE
+                AND sc.relationship_type = 1
+                AND (sc.available_from IS NULL OR sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP))
+            ) AS XXX on XXX.customer_id = c.id
+            JOIN task t ON c.id = t.customer_id AND t.progress <> 100 %s
+            LEFT JOIN LastModifiedTasks lmt ON c.id = lmt.customer_id
+            LEFT JOIN OldestCreatedTasks oct ON c.id = oct.customer_id
+        """, saleId == null ? "" : "AND sc.sale_id = :saleId",
+            saleId == null ? "" : "AND t.user_id = :saleId");
+
     if (StringUtil.isNotEmpty(filterText)) {
-      FROM.append(
+      FROM +=
           """
           LEFT JOIN customer_reference cr ON c.id = cr.customer_id
           LEFT JOIN customer_address ca ON c.id = ca.customer_id
-        """);
+        """;
     }
-    return FROM.toString();
+    return FROM;
   }
 
   private String generateTaskBasedWhere(String filterText, List<String> tags) {
-    StringBuilder WHERE =
-        new StringBuilder(
-            "WHERE (c.active = true AND c.status = '" + Customers.Status.VERIFIED + "')");
-    // sure that customer is belongs anyway to sale
-    WHERE.append(
-        """
-        AND EXISTS (
-                SELECT 1
-                FROM sale_customer sc
-                WHERE sc.customer_id = c.id
-                  AND sc.sale_id = :saleId
-                  AND sc.active = TRUE
-                  AND sc.deleted IS NOT TRUE
-                  AND sc.relationship_type = 1
-                  AND (sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP))
-            )
-        """);
+    String WHERE =
+        "WHERE (c.active = true AND (c.status = '"
+            + Customers.Status.VERIFIED
+            + "' OR c.status = '"
+            + Customers.Status.VERIFYING
+            + "'))";
     if (StringUtil.isNotEmpty(filterText)) {
-      WHERE.append(
+      WHERE +=
           """
                AND (
                   (c.customer_code ILIKE '%' || :filterText || '%' OR c.customer_name ILIKE '%' || :filterText || '%' OR c.mobile_phone ILIKE '%' || :filterText || '%')
@@ -797,22 +816,22 @@ public class CustomerCustomRepository {
                   OR ((cr.code = 'ZALO' OR cr.code = 'MOBILE_PHONE') AND cr.value ILIKE '%' || :filterText || '%')
                   OR (t.title ILIKE '%' || :filterText || '%' OR t.name ILIKE '%' || :filterText || '%' OR t.content ILIKE '%' || :filterText || '%')
                )
-          """);
+          """;
     }
     if (ListUtil.isNotEmpty(tags)) {
       if (tags.contains(Customers.Tag.TASK_NOW)) {
-        WHERE.append(" AND t.priority = 90");
+        WHERE += " AND t.priority = 90";
       }
       if (tags.contains(Customers.Tag.TASK_TODAY)) {
-        WHERE.append(" AND DATE(t.to_date) = CURRENT_DATE");
+        WHERE += " AND DATE(t.to_date) = CURRENT_DATE";
       }
       if (tags.contains(Customers.Tag.TASK_OVERDUE)) {
-        WHERE.append(" AND DATE(t.to_date) < CURRENT_DATE");
+        WHERE += " AND DATE(t.to_date) < CURRENT_DATE";
       }
       if (tags.contains(Customers.Tag.TASK_NO_DEADLINE)) {
-        WHERE.append(" AND t.to_date IS NULL");
+        WHERE += " AND t.to_date IS NULL";
       }
     }
-    return WHERE.toString();
+    return WHERE;
   }
 }

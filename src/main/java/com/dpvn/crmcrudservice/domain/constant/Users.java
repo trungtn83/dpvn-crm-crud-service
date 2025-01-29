@@ -16,8 +16,9 @@ public class Users {
   public static class Role {
     private Role() {}
 
-    public static final String USER = "USER";
-    public static final String ADMIN = "ADMIN";
+    public static final String HUMAN = "HUMAN";
+    public static final String SUPERMAN = "SUPERMAN";
+    public static final String DEMIGOD = "DEMIGOD";
     public static final String GOD = "GOD";
   }
 }

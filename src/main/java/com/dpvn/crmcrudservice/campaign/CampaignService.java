@@ -21,8 +21,6 @@ import com.dpvn.shared.util.FastMap;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -180,12 +178,14 @@ public class CampaignService extends AbstractCrudService<Campaign> {
         String result = customerService.assign(sale, customer, saleCustomer);
         if (result == null && userId != null) {
           String title = "Phân công khách hàng";
-          String content = "Phân công khách hàng cho " + sale.getFullName() + " trong chiến dịch " + campaign.getCampaignName();
+          String content =
+              "Phân công khách hàng cho "
+                  + sale.getFullName()
+                  + " trong chiến dịch "
+                  + campaign.getCampaignName();
           interactionService.create(
               InteractionUtil.generateSystemInteraction(
-                  userId,
-                  customer.getId(),
-                  campaign.getId(), title, content));
+                  userId, customer.getId(), campaign.getId(), title, content));
         }
       }
     }

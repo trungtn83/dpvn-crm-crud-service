@@ -105,12 +105,17 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
     Long saleId = body.getLong("saleId");
     String filterText = body.getString("filterText");
     List<String> tags = body.getList("tags");
+    List<Long> typeIds = body.getList("typeIds");
+    List<String> locationCodes = body.getList("locationCodes");
+    List<Integer> sourceIds = body.getList("sourceIds");
 
     Integer page = body.getInt("page");
     Integer pageSize = body.getInt("pageSize");
 
     Page<FastMap> customerPage =
-        ((CustomerService) service).findInPoolCustomers(saleId, filterText, tags, page, pageSize);
+        ((CustomerService) service)
+            .findInPoolCustomers(
+                saleId, filterText, tags, typeIds, locationCodes, sourceIds, page, pageSize);
     return FastMap.create()
         .add("rows", customerPage.getContent())
         .add("total", customerPage.getTotalElements())

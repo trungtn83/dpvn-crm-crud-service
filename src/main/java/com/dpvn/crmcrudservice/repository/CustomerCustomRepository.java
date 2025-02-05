@@ -204,7 +204,13 @@ public class CustomerCustomRepository {
   }
 
   public Page<FastMap> searchInPoolCustomers(
-      Long saleId, String filterText, List<String> tags, Pageable pageable) {
+      Long saleId,
+      String filterText,
+      List<String> tags,
+      List<Long> typeIds,
+      List<String> locationCodes,
+      List<Integer> sourceIds,
+      Pageable pageable) {
     String SELECT =
         """
             SELECT DISTINCT ON (is_star, c.modified_date, c.id)
@@ -213,8 +219,8 @@ public class CustomerCustomRepository {
                 CASE WHEN boom_interaction.id IS NOT NULL THEN true ELSE false END AS is_boom
       """;
     String SELECT_COUNT = "SELECT count(*)";
-    String FROM = generateInPoolFrom(filterText);
-    String WHERE = generateInPoolWhere(filterText, tags);
+    String FROM = generateInPoolFrom(filterText, locationCodes);
+    String WHERE = generateInPoolWhere(filterText, tags, typeIds, locationCodes, sourceIds);
     String ORDER_BY = " ORDER BY is_star DESC, c.modified_date DESC, c.id";
 
     List<FastMap> results =
@@ -229,7 +235,7 @@ public class CustomerCustomRepository {
     return new PageImpl<>(results, pageable, total);
   }
 
-  private String generateInPoolFrom(String filterText) {
+  private String generateInPoolFrom(String filterText, List<String> locationCodes) {
     StringBuilder FROM =
         new StringBuilder(
             """
@@ -258,10 +264,23 @@ public class CustomerCustomRepository {
           LEFT JOIN customer_address ca ON c.id = ca.customer_id
         """);
     }
+    if (StringUtil.isEmpty(filterText)
+        && ListUtil.isNotEmpty(locationCodes)
+        && locationCodes.size() == 3) {
+      FROM.append(
+          """
+          LEFT JOIN customer_address ca ON c.id = ca.customer_id
+        """);
+    }
     return FROM.toString();
   }
 
-  private String generateInPoolWhere(String filterText, List<String> tags) {
+  private String generateInPoolWhere(
+      String filterText,
+      List<String> tags,
+      List<Long> typeIds,
+      List<String> locationCodes,
+      List<Integer> sourceIds) {
     StringBuilder WHERE =
         new StringBuilder(
             "WHERE (c.active = TRUE AND c.deleted IS NOT TRUE AND c.status = '"
@@ -302,6 +321,26 @@ public class CustomerCustomRepository {
       if (tags.contains(Customers.Tag.TAKING_CARE)) {
         WHERE.append(
             " AND (EXISTS (SELECT 1 FROM interaction i WHERE i.customer_id = c.id AND i.created_date >= CURRENT_DATE - INTERVAL '7 days'))");
+      }
+    }
+    if (ListUtil.isNotEmpty(typeIds)) {
+      WHERE.append(" AND c.customer_type_id IN (:typeIds)");
+    }
+    if (ListUtil.isNotEmpty(sourceIds)) {
+      WHERE.append(" AND c.source_id IN (:sourceIds)");
+    }
+    if (ListUtil.isNotEmpty(locationCodes) && locationCodes.size() == 3) {
+      String provinceCode = locationCodes.get(0);
+      if (StringUtil.isNotEmpty(provinceCode)) {
+        WHERE.append(" AND ca.province_code = :provinceCode");
+      }
+      String districtCode = locationCodes.get(1);
+      if (StringUtil.isNotEmpty(districtCode)) {
+        WHERE.append(" AND ca.district_code = :districtCode");
+      }
+      String wardCode = locationCodes.get(2);
+      if (StringUtil.isNotEmpty(wardCode)) {
+        WHERE.append(" AND ca.ward_code = :wardCode");
       }
     }
     return WHERE.toString();
@@ -364,7 +403,7 @@ public class CustomerCustomRepository {
 
     String SELECT =
         """
-            SELECT DISTINCT ON (latest_sc.modified_date, latest_i.modified_date, latest_sc.available_to, c.modified_date, c.id)
+            SELECT DISTINCT ON (latest_sc.available_to, c.id)
                 c.id AS customer_id,
                 latest_sc.id AS sale_customer_id,
                 latest_sc.created_by AS sale_customer_created_by,
@@ -417,8 +456,7 @@ public class CustomerCustomRepository {
     String SELECT_COUNT = "SELECT COUNT(*)";
     String FROM = generateMyCustomerFrom(saleId, customerCategoryId, filterText);
     String WHERE = generateMyCustomersWhere(filterText, customerTypeId, reasonIds);
-    String ORDER =
-        " ORDER BY latest_sc.modified_date DESC, latest_i.modified_date DESC, latest_sc.available_to ASC, c.modified_date desc, c.id";
+    String ORDER = " ORDER BY latest_sc.available_to ASC, c.id";
     List<FastMap> results =
         getMyCustomerResults(
             String.format("%s %s %s %s", SELECT, FROM, WHERE, ORDER),
@@ -583,7 +621,7 @@ public class CustomerCustomRepository {
               %s
               AND sc.relationship_type = 1
               AND ((sc.available_from IS NULL OR sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP)))
-            ORDER BY sc.customer_id, sc.created_date DESC
+            ORDER BY sc.customer_id, sc.available_to DESC NULLS FIRST
         ) latest_sc ON latest_sc.customer_id = c.id
         """,
             saleId == null ? "" : "AND sc.sale_id = :saleId");
@@ -787,7 +825,8 @@ public class CustomerCustomRepository {
             JOIN task t ON c.id = t.customer_id AND t.progress <> 100 %s
             LEFT JOIN LastModifiedTasks lmt ON c.id = lmt.customer_id
             LEFT JOIN OldestCreatedTasks oct ON c.id = oct.customer_id
-        """, saleId == null ? "" : "AND sc.sale_id = :saleId",
+        """,
+            saleId == null ? "" : "AND sc.sale_id = :saleId",
             saleId == null ? "" : "AND t.user_id = :saleId");
 
     if (StringUtil.isNotEmpty(filterText)) {

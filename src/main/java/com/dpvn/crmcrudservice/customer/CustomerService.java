@@ -356,9 +356,17 @@ public class CustomerService extends AbstractCrudService<Customer> {
   }
 
   public Page<FastMap> findInPoolCustomers(
-      Long userId, String filterText, List<String> tags, int page, int pageSize) {
+      Long userId,
+      String filterText,
+      List<String> tags,
+      List<Long> typeIds,
+      List<String> locationCodes,
+      List<Integer> sourceIds,
+      int page,
+      int pageSize) {
     Pageable pageable = PageRequest.of(page, pageSize);
-    return customerCustomRepository.searchInPoolCustomers(userId, filterText, tags, pageable);
+    return customerCustomRepository.searchInPoolCustomers(
+        userId, filterText, tags, typeIds, locationCodes, sourceIds, pageable);
   }
 
   public Page<Customer> findInOceanCustomers(

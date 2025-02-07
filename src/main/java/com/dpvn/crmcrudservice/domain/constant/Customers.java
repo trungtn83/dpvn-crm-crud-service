@@ -1,5 +1,7 @@
 package com.dpvn.crmcrudservice.domain.constant;
 
+import java.util.Map;
+
 public class Customers {
   private Customers() {}
 
@@ -60,4 +62,20 @@ public class Customers {
     // Mới được GOD assign theo campaign để duyệt, chưa duyêt
     public static final String VERIFYING = "VERIFYING";
   }
+
+  public static class Owner {
+    private Owner() {}
+
+    public static final String TREASURE = "TREASURE";
+    public static final String GOLD = "GOLD";
+    public static final String GOLDMINE = "GOLDMINE";
+    public static final String SANDBANK = "SANDBANK";
+  }
+
+  public static Map<String, String> Owners =
+      Map.of(
+          Owner.TREASURE, "Trang sức",
+          Owner.GOLD, "Vàng",
+          Owner.GOLDMINE, "Kho vàng",
+          Owner.SANDBANK, "Bãi cát");
 }

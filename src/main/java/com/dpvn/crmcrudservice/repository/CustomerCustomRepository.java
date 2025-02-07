@@ -229,9 +229,18 @@ public class CustomerCustomRepository {
             String.format("%s %s %s %s", SELECT, FROM, WHERE, ORDER_BY),
             saleId,
             filterText,
+            typeIds,
+            locationCodes,
+            sourceIds,
             pageable);
     Long total =
-        getInPoolTotal(String.format("%s %s %s", SELECT_COUNT, FROM, WHERE), saleId, filterText);
+        getInPoolTotal(
+            String.format("%s %s %s", SELECT_COUNT, FROM, WHERE),
+            saleId,
+            filterText,
+            typeIds,
+            locationCodes,
+            sourceIds);
 
     return new PageImpl<>(results, pageable, total);
   }
@@ -348,12 +357,38 @@ public class CustomerCustomRepository {
   }
 
   private List<FastMap> getInPoolResults(
-      String sql, Long saleId, String filterText, Pageable pageable) {
+      String sql,
+      Long saleId,
+      String filterText,
+      List<Long> typeIds,
+      List<String> locationCodes,
+      List<Integer> sourceIds,
+      Pageable pageable) {
     Query query = entityManager.createNativeQuery(sql, Object.class);
 
     query.setParameter("saleId", saleId);
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);
+    }
+    if (ListUtil.isNotEmpty(typeIds)) {
+      query.setParameter("typeIds", typeIds);
+    }
+    if (ListUtil.isNotEmpty(sourceIds)) {
+      query.setParameter("sourceIds", sourceIds);
+    }
+    if (ListUtil.isNotEmpty(locationCodes) && locationCodes.size() == 3) {
+      String provinceCode = locationCodes.get(0);
+      if (StringUtil.isNotEmpty(provinceCode)) {
+        query.setParameter("provinceCode", provinceCode);
+      }
+      String districtCode = locationCodes.get(1);
+      if (StringUtil.isNotEmpty(districtCode)) {
+        query.setParameter("districtCode", districtCode);
+      }
+      String wardCode = locationCodes.get(2);
+      if (StringUtil.isNotEmpty(wardCode)) {
+        query.setParameter("wardCode", wardCode);
+      }
     }
 
     query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
@@ -384,11 +419,37 @@ public class CustomerCustomRepository {
         .add("action", FastMap.create().add("star", o[1]).add("boom", o[2]));
   }
 
-  private Long getInPoolTotal(String sql, Long saleId, String filterText) {
+  private Long getInPoolTotal(
+      String sql,
+      Long saleId,
+      String filterText,
+      List<Long> typeIds,
+      List<String> locationCodes,
+      List<Integer> sourceIds) {
     Query query = entityManager.createNativeQuery(sql);
     query.setParameter("saleId", saleId);
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);
+    }
+    if (ListUtil.isNotEmpty(typeIds)) {
+      query.setParameter("typeIds", typeIds);
+    }
+    if (ListUtil.isNotEmpty(sourceIds)) {
+      query.setParameter("sourceIds", sourceIds);
+    }
+    if (ListUtil.isNotEmpty(locationCodes) && locationCodes.size() == 3) {
+      String provinceCode = locationCodes.get(0);
+      if (StringUtil.isNotEmpty(provinceCode)) {
+        query.setParameter("provinceCode", provinceCode);
+      }
+      String districtCode = locationCodes.get(1);
+      if (StringUtil.isNotEmpty(districtCode)) {
+        query.setParameter("districtCode", districtCode);
+      }
+      String wardCode = locationCodes.get(2);
+      if (StringUtil.isNotEmpty(wardCode)) {
+        query.setParameter("wardCode", wardCode);
+      }
     }
     return ((Number) query.getSingleResult()).longValue();
   }

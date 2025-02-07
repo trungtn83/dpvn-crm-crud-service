@@ -51,11 +51,11 @@ public class SaleCustomers {
      */
     public static final int BY_MY_HAND = 70;
 
-    public static final int BY_MY_HAND_FROM_POOL = 71;
-    public static final int BY_MY_HAND_FROM_OCEAN = 72;
+    public static final int BY_MY_HAND_FROM_GOLDMINE = 71;
+    public static final int BY_MY_HAND_FROM_SANDBANK = 72;
 
     public static final List<Integer> MY_HANDS =
-        List.of(BY_MY_HAND, BY_MY_HAND_FROM_POOL, BY_MY_HAND_FROM_OCEAN);
+        List.of(BY_MY_HAND, BY_MY_HAND_FROM_GOLDMINE, BY_MY_HAND_FROM_SANDBANK);
 
     public static final List<Integer> MY_OWN_HANDS =
         Stream.concat(MY_HANDS.stream(), MY_OWNS.stream()).toList();

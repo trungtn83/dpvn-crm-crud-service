@@ -1,6 +1,7 @@
 package com.dpvn.crmcrudservice.repository;
 
 import com.dpvn.crmcrudservice.domain.constant.Customers;
+import com.dpvn.crmcrudservice.domain.constant.SaleCustomers;
 import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.dpvn.shared.util.FastMap;
 import com.dpvn.shared.util.ListUtil;
@@ -454,7 +455,7 @@ public class CustomerCustomRepository {
                 latest_i.visibility AS interaction_visibility
       """;
     String SELECT_COUNT = "SELECT COUNT(*)";
-    String FROM = generateMyCustomerFrom(saleId, customerCategoryId, filterText);
+    String FROM = generateMyCustomerFrom(saleId, customerCategoryId, filterText, reasonIds);
     String WHERE = generateMyCustomersWhere(filterText, customerTypeId, reasonIds);
     String ORDER = " ORDER BY latest_sc.available_to ASC, c.id";
     List<FastMap> results =
@@ -607,7 +608,8 @@ public class CustomerCustomRepository {
                 .add("visibility", o[47]));
   }
 
-  private String generateMyCustomerFrom(Long saleId, Long customerCategoryId, String filterText) {
+  private String generateMyCustomerFrom(
+      Long saleId, Long customerCategoryId, String filterText, List<Integer> reasonIds) {
     String FROM =
         String.format(
             """
@@ -620,11 +622,13 @@ public class CustomerCustomRepository {
               AND sc.deleted is not true
               %s
               AND sc.relationship_type = 1
+              %s
               AND ((sc.available_from IS NULL OR sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP)))
             ORDER BY sc.customer_id, sc.available_to DESC NULLS FIRST
         ) latest_sc ON latest_sc.customer_id = c.id
         """,
-            saleId == null ? "" : "AND sc.sale_id = :saleId");
+            saleId == null ? "" : "AND sc.sale_id = :saleId",
+            ListUtil.isEmpty(reasonIds) ? "" : "AND sc.reason_id IN (:reasonIds)");
     if (customerCategoryId != null) {
       FROM +=
           String.format(
@@ -684,8 +688,21 @@ public class CustomerCustomRepository {
                )
           """);
     }
-    if (ListUtil.isNotEmpty(reasonIds)) {
-      WHERE.append(" AND latest_sc.reason_id IN (:reasonIds)");
+    // TODO: hardcode to make sure that Gold is not contains any Treasure here
+    if (ListUtil.isNotEmpty(reasonIds) && !reasonIds.contains(SaleCustomers.Reason.INVOICE)) {
+      WHERE.append(
+          """
+           AND NOT EXISTS (
+                SELECT 1
+                FROM sale_customer sc
+                WHERE sc.customer_id = c.id
+                  AND sc.active = TRUE
+                  AND sc.deleted IS NOT TRUE
+                  AND sc.relationship_type = 1
+                  AND sc.reason_id = 1
+                  AND ((sc.available_from IS NULL OR sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP)))
+            )
+          """);
     }
     return WHERE.toString();
   }

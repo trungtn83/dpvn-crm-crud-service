@@ -298,7 +298,7 @@ public class CustomerCustomRepository {
                 + "')");
 
     // sure that customer is not in old and assgined list now
-    // nếu là dạng tự tìm thì cho phép nhiều người cùng thấy, fix cho case reason = 7
+    // TODO: nếu là dạng tự tìm thì cho phép nhiều người cùng thấy, fix cho case reason = 7 ??? why old code add not exist for 7x here
     // nếu tự tạo thì ko thấy trong kho vàng, nhưng người khác vẫn tạo mới vói số đt đó được
     WHERE.append(
         """
@@ -309,7 +309,7 @@ public class CustomerCustomRepository {
                   AND sc.active = TRUE
                   AND sc.deleted IS NOT TRUE
                   AND sc.relationship_type = 1
-                  AND sc.reason_id IN (1, 2, 3, 4, 70, 71, 72)
+                  AND sc.reason_id IN (1, 2, 3, 4)
                   AND ((sc.available_from IS NULL OR sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP)))
             )
         """);
@@ -686,7 +686,7 @@ public class CustomerCustomRepository {
               %s
               AND ((sc.available_from IS NULL OR sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP)))
             ORDER BY sc.customer_id, sc.available_to DESC NULLS FIRST
-        ) latest_sc ON latest_sc.customer_id = c.id
+        ) latest_sc ON latest_sc.customer_id = c.id AND (c.active = true OR latest_sc.reason_id = 72)
         """,
             saleId == null ? "" : "AND sc.sale_id = :saleId",
             ListUtil.isEmpty(reasonIds) ? "" : "AND sc.reason_id IN (:reasonIds)");
@@ -735,7 +735,7 @@ public class CustomerCustomRepository {
 
   private String generateMyCustomersWhere(
       String filterText, Long customerTypeId, List<Integer> reasonIds) {
-    StringBuilder WHERE = new StringBuilder("WHERE (c.active = true AND c.deleted IS NOT TRUE)");
+    StringBuilder WHERE = new StringBuilder("WHERE c.deleted IS NOT TRUE");
     if (customerTypeId != null) {
       WHERE.append(" AND c.customer_type_id = :customerTypeId");
     }

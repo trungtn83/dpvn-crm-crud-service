@@ -298,7 +298,8 @@ public class CustomerCustomRepository {
                 + "')");
 
     // sure that customer is not in old and assgined list now
-    // TODO: nếu là dạng tự tìm thì cho phép nhiều người cùng thấy, fix cho case reason = 7 ??? why old code add not exist for 7x here
+    // TODO: nếu là dạng tự tìm thì cho phép nhiều người cùng thấy, fix cho case reason = 7 ??? why
+    // old code add not exist for 7x here
     // nếu tự tạo thì ko thấy trong kho vàng, nhưng người khác vẫn tạo mới vói số đt đó được
     WHERE.append(
         """
@@ -309,7 +310,7 @@ public class CustomerCustomRepository {
                   AND sc.active = TRUE
                   AND sc.deleted IS NOT TRUE
                   AND sc.relationship_type = 1
-                  AND sc.reason_id IN (1, 2, 3, 4)
+                  AND sc.reason_id IN (1, 2, 3, 4, 70)
                   AND ((sc.available_from IS NULL OR sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP)))
             )
         """);

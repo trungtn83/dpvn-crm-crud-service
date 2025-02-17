@@ -125,6 +125,7 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
 
   @PostMapping("/in-ocean")
   public FastMap findInOceanCustomers(@RequestBody FastMap body) {
+    Long saleId = body.getLong("saleId");
     String filterText = body.getString("filterText");
     List<Long> typeIds = body.getList("typeIds");
     List<String> locationCodes = body.getList("locationCodes");
@@ -134,7 +135,7 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
 
     Page<Customer> customerPage =
         ((CustomerService) service)
-            .findInOceanCustomers(filterText, typeIds, locationCodes, sourceIds, page, pageSize);
+            .findInOceanCustomers(saleId, filterText, typeIds, locationCodes, sourceIds, page, pageSize);
     return FastMap.create()
         .add("rows", customerPage.stream().map(Customer::toDto).toList())
         .add("total", customerPage.getTotalElements())

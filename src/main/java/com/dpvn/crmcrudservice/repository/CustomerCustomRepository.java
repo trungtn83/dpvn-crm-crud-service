@@ -28,6 +28,7 @@ public class CustomerCustomRepository {
   }
 
   public Page<Customer> searchInOceanCustomers(
+      Long saleId,
       String filterText,
       List<Long> typeIds,
       List<String> locationCodes,
@@ -35,7 +36,7 @@ public class CustomerCustomRepository {
       Pageable pageable) {
     String SELECT = "SELECT DISTINCT ON (c.id) c.id, c.status, c.modified_date";
     String FROM = generateInOceanFrom(filterText, locationCodes);
-    String WHERE = generateInOceanWhere(filterText, typeIds, locationCodes, sourceIds);
+    String WHERE = generateInOceanWhere(saleId, filterText, typeIds, locationCodes, sourceIds);
     String ORDER_BY =
         " ORDER BY (CASE WHEN status = 'VERIFIED' THEN 1 ELSE 0 END) ASC, modified_date DESC";
 
@@ -45,6 +46,7 @@ public class CustomerCustomRepository {
                 "%s %s %s ORDER BY c.id, c.modified_date DESC",
                 SELECT, FROM, WHERE), // improve performance by ORDER BY c.id
             ORDER_BY,
+            saleId,
             filterText,
             typeIds,
             locationCodes,
@@ -53,6 +55,7 @@ public class CustomerCustomRepository {
     Long total =
         getInOceanTotal(
             String.format("%s %s %s", SELECT, FROM, WHERE),
+            saleId,
             filterText,
             typeIds,
             locationCodes,
@@ -83,8 +86,18 @@ public class CustomerCustomRepository {
   }
 
   private String generateInOceanWhere(
-      String filterText, List<Long> typeIds, List<String> locationCodes, List<Integer> sourceIds) {
+      Long saleId,
+      String filterText,
+      List<Long> typeIds,
+      List<String> locationCodes,
+      List<Integer> sourceIds) {
     StringBuilder WHERE = new StringBuilder(" WHERE c.active = false AND c.deleted IS NOT TRUE");
+
+    // fix cho bản thân sale đó nếu đã đào rồi thì ko thấy trong GOLDMINE hoặc SANDBANK nữa
+    if (saleId != null) {
+      WHERE.append(
+          " AND NOT EXISTS (SELECT 1 FROM sale_customer sc WHERE sc.customer_id = c.id AND sc.sale_id = :saleId AND sc.active = TRUE AND sc.deleted IS NOT TRUE AND sc.relationship_type = 1 AND sc.reason_id = 72)");
+    }
 
     if (StringUtil.isNotEmpty(filterText)) {
       WHERE.append(
@@ -124,6 +137,7 @@ public class CustomerCustomRepository {
   private List<Customer> getInOceanResults(
       String sql,
       String ORDER_BY,
+      Long saleId,
       String filterText,
       List<Long> typeIds,
       List<String> locationCodes,
@@ -133,6 +147,9 @@ public class CustomerCustomRepository {
         entityManager.createNativeQuery(
             String.format("SELECT id from (%s) temp %s", sql, ORDER_BY), Object.class);
 
+    if (saleId != null) {
+      query.setParameter("saleId", saleId);
+    }
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);
     }
@@ -168,12 +185,17 @@ public class CustomerCustomRepository {
 
   private Long getInOceanTotal(
       String sql,
+      Long saleId,
       String filterText,
       List<Long> typeIds,
       List<String> locationCodes,
       List<Integer> sourceIds) {
     Query query =
         entityManager.createNativeQuery(String.format("SELECT count(*) from (%s) temp", sql));
+
+    if (saleId != null) {
+      query.setParameter("saleId", saleId);
+    }
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);
     }
@@ -221,7 +243,7 @@ public class CustomerCustomRepository {
       """;
     String SELECT_COUNT = "SELECT count(*)";
     String FROM = generateInPoolFrom(filterText, locationCodes);
-    String WHERE = generateInPoolWhere(filterText, tags, typeIds, locationCodes, sourceIds);
+    String WHERE = generateInPoolWhere(saleId, filterText, tags, typeIds, locationCodes, sourceIds);
     String ORDER_BY = " ORDER BY is_star DESC, c.modified_date DESC, c.id";
 
     List<FastMap> results =
@@ -286,6 +308,7 @@ public class CustomerCustomRepository {
   }
 
   private String generateInPoolWhere(
+      Long saleId,
       String filterText,
       List<String> tags,
       List<Long> typeIds,
@@ -301,19 +324,26 @@ public class CustomerCustomRepository {
     // TODO: nếu là dạng tự tìm thì cho phép nhiều người cùng thấy, fix cho case reason = 7 ??? why
     // old code add not exist for 7x here
     // nếu tự tạo thì ko thấy trong kho vàng, nhưng người khác vẫn tạo mới vói số đt đó được
-    WHERE.append(
-        """
-        AND NOT EXISTS (
+    StringBuilder NOT_EXIST_IN_GOLD_OR_TREASURE =
+        new StringBuilder(
+            """
                 SELECT 1
                 FROM sale_customer sc
                 WHERE sc.customer_id = c.id
                   AND sc.active = TRUE
                   AND sc.deleted IS NOT TRUE
                   AND sc.relationship_type = 1
-                  AND sc.reason_id IN (1, 2, 3, 4, 70)
                   AND ((sc.available_from IS NULL OR sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP)))
-            )
         """);
+    // fix cho bản thân sale đó nếu đã đào rồi thì ko thấy trong GOLDMINE hoặc SANDBANK nữa
+    if (saleId != null) {
+      NOT_EXIST_IN_GOLD_OR_TREASURE.append(
+          " AND (sc.reason_id IN (1, 2, 3, 4, 70) OR (sc.sale_id = :saleId AND sc.reason_id = 71))");
+    } else {
+      NOT_EXIST_IN_GOLD_OR_TREASURE.append(" AND sc.reason_id IN (1, 2, 3, 4, 70)");
+    }
+    WHERE.append(String.format(" AND NOT EXISTS (%s)", NOT_EXIST_IN_GOLD_OR_TREASURE));
+
     if (StringUtil.isNotEmpty(filterText)) {
       WHERE.append(
           """
@@ -367,7 +397,9 @@ public class CustomerCustomRepository {
       Pageable pageable) {
     Query query = entityManager.createNativeQuery(sql, Object.class);
 
-    query.setParameter("saleId", saleId);
+    if (saleId != null) {
+      query.setParameter("saleId", saleId);
+    }
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);
     }
@@ -428,7 +460,9 @@ public class CustomerCustomRepository {
       List<String> locationCodes,
       List<Integer> sourceIds) {
     Query query = entityManager.createNativeQuery(sql);
-    query.setParameter("saleId", saleId);
+    if (saleId != null) {
+      query.setParameter("saleId", saleId);
+    }
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);
     }

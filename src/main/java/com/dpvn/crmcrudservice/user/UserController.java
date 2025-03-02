@@ -90,7 +90,7 @@ public class UserController extends AbstractCrudController<User, UserDto> {
             .orElse(null);
     List<Role> roles = cacheEntityService.getRoles();
     Role defaultRole =
-        roles.stream().filter(r -> "USER".equals(r.getRoleName())).findFirst().orElse(null);
+        roles.stream().filter(r -> "HUMAN".equals(r.getRoleName())).findFirst().orElse(null);
     this.service.sync(
         dtos.stream()
             .map(

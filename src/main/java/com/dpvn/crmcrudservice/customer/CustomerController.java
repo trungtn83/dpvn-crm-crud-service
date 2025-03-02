@@ -135,7 +135,8 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
 
     Page<Customer> customerPage =
         ((CustomerService) service)
-            .findInOceanCustomers(saleId, filterText, typeIds, locationCodes, sourceIds, page, pageSize);
+            .findInOceanCustomers(
+                saleId, filterText, typeIds, locationCodes, sourceIds, page, pageSize);
     return FastMap.create()
         .add("rows", customerPage.stream().map(Customer::toDto).toList())
         .add("total", customerPage.getTotalElements())

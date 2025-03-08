@@ -5,7 +5,9 @@ import com.dpvn.crmcrudservice.domain.dto.SaleCustomerStateDto;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomerState;
 import com.dpvn.shared.controller.AbstractCrudController;
+import com.dpvn.shared.util.DateUtil;
 import com.dpvn.shared.util.FastMap;
+import com.dpvn.shared.util.LocalDateUtil;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,11 +20,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/sale-customer")
 public class SaleCustomerController extends AbstractCrudController<SaleCustomer, SaleCustomerDto> {
   private final SaleCustomerStateService saleCustomerStateService;
+  private final SaleCustomerService saleCustomerService;
 
   public SaleCustomerController(
-      SaleCustomerService service, SaleCustomerStateService saleCustomerStateService) {
+      SaleCustomerService service,
+      SaleCustomerStateService saleCustomerStateService,
+      SaleCustomerService saleCustomerService) {
     super(service);
     this.saleCustomerStateService = saleCustomerStateService;
+    this.saleCustomerService = saleCustomerService;
   }
 
   @PostMapping("/remove-by-options")
@@ -31,9 +37,12 @@ public class SaleCustomerController extends AbstractCrudController<SaleCustomer,
   }
 
   /**
-   * @param body: all criteria will be applied if exited and not null, empty - saleId: Long -
-   *     customerIds: List<Long> find customer id in this list - relationshipType: Integer -
-   *     reasonIds: List<Long> find reason id in this list - reasonRef: String
+   * @param body: all criteria will be applied if exited and not null, empty
+   * - saleId: Long
+   * - customerIds: List<Long> find customer id in this list
+   * - relationshipType: Integer
+   * - reasonIds: List<Long> find reason id in this list
+   * - reasonRef: String
    */
   @PostMapping("/find-by-options")
   public List<SaleCustomerDto> findSaleCustomersByOptions(@RequestBody FastMap body) {
@@ -72,6 +81,26 @@ public class SaleCustomerController extends AbstractCrudController<SaleCustomer,
     List<Long> customerIds = body.getList("customerIds");
     return saleCustomerStateService.findLatestBySaleIdAndCustomerIds(saleId, customerIds).stream()
         .map(SaleCustomerState::toDto)
+        .toList();
+  }
+
+  /**
+   * - saleId: Long
+   * - fromDate: string -> yyyy-MM-dd
+   * - toDate: string -> yyyy-MM-dd
+   */
+  @PostMapping("/find-by-sale")
+  public List<SaleCustomerDto> findSaleCustomerBySale(@RequestBody FastMap body) {
+    Long saleId = body.getLong("saleId");
+    String fromDateStr = body.getString("fromDate");
+    String toDateStr = body.getString("toDate");
+    return saleCustomerService
+        .findSaleCustomersBySale(
+            saleId,
+            DateUtil.from(LocalDateUtil.from(fromDateStr)),
+            DateUtil.from(LocalDateUtil.from(toDateStr)))
+        .stream()
+        .map(SaleCustomer::toDto)
         .toList();
   }
 }

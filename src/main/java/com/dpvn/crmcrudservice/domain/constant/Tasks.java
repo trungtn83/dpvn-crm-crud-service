@@ -25,4 +25,6 @@ public class Tasks {
     public static final int URGENT = 40;
     public static final int RIGHT_NOW = 90;
   }
+
+  public static class Tags {}
 }

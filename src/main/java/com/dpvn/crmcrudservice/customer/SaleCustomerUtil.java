@@ -6,6 +6,7 @@ import com.dpvn.crmcrudservice.domain.entity.Campaign;
 import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
 import com.dpvn.crmcrudservice.domain.entity.User;
+import com.dpvn.shared.domain.constant.Globals;
 import com.dpvn.shared.util.DateUtil;
 import java.time.temporal.ChronoUnit;
 
@@ -37,7 +38,8 @@ public class SaleCustomerUtil {
     saleCustomer.setReasonRef(""); // should inject x-user-id here to know who assign this
     saleCustomer.setReasonNote("Tạo ra khi reviewer approve customer");
     saleCustomer.setAvailableFrom(DateUtil.now());
-    saleCustomer.setAvailableTo(DateUtil.now().plus(7, ChronoUnit.DAYS));
+    saleCustomer.setAvailableTo(
+        DateUtil.now().plus(Globals.Customer.LIFE_TIME_LEADER_ASSIGNED_IN_DAYS, ChronoUnit.DAYS));
     saleCustomer.setNote("");
     saleCustomer.setActive(true);
     saleCustomer.setDeleted(false);

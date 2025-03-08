@@ -30,7 +30,7 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
     return customers.stream().map(Customer::toDto).toList();
   }
 
-  @GetMapping("/find-by-ids")
+  @PostMapping("/find-by-ids")
   public List<CustomerDto> findByIds(@RequestBody List<Long> ids) {
     return ((CustomerService) service).findByIds(ids).stream().map(Customer::toDto).toList();
   }

@@ -2,6 +2,8 @@ package com.dpvn.crmcrudservice.repository;
 
 import com.dpvn.crmcrudservice.domain.entity.Interaction;
 import com.dpvn.shared.repository.AbstractRepository;
+
+import java.time.Instant;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,6 +18,8 @@ public interface InteractionRepository extends AbstractRepository<Interaction> {
           AND (:customerId IS NULL OR i.customerId = :customerId)
           AND (:campaignId IS NULL OR i.campaignId = :campaignId)
           AND (:visibility IS NULL OR i.visibility = :visibility)
+          AND (:fromDate IS NULL OR i.createdDate >= :fromDate)
+          AND (:toDate IS NULL OR i.createdDate < :toDate)
       """;
 
   @Query(FIND_INTERACTIONS_BY_OPTIONS)
@@ -23,7 +27,10 @@ public interface InteractionRepository extends AbstractRepository<Interaction> {
       @Param("userId") Long userId,
       @Param("customerId") Long customerId,
       @Param("campaignId") Long campaignId,
-      @Param("visibility") Integer visibility);
+      @Param("visibility") Integer visibility,
+      @Param("fromDate") Instant fromDate,
+      @Param("toDate") Instant toDate
+      );
 
   String FIND_LAST_INTERACTIONS_DATE =
       """

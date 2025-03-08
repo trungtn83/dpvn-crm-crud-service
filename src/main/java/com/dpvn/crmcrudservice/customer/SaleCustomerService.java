@@ -6,18 +6,22 @@ import com.dpvn.crmcrudservice.repository.SaleCustomerCustomRepository;
 import com.dpvn.crmcrudservice.repository.SaleCustomerRepository;
 import com.dpvn.shared.service.AbstractCrudService;
 import com.dpvn.shared.util.ListUtil;
+import java.time.Instant;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SaleCustomerService extends AbstractCrudService<SaleCustomer> {
   private final SaleCustomerCustomRepository saleCustomerCustomRepository;
+  private final SaleCustomerRepository saleCustomerRepository;
 
   public SaleCustomerService(
       SaleCustomerRepository repository,
-      SaleCustomerCustomRepository saleCustomerCustomRepository) {
+      SaleCustomerCustomRepository saleCustomerCustomRepository,
+      SaleCustomerRepository saleCustomerRepository) {
     super(repository);
     this.saleCustomerCustomRepository = saleCustomerCustomRepository;
+    this.saleCustomerRepository = saleCustomerRepository;
   }
 
   @Override
@@ -46,5 +50,11 @@ public class SaleCustomerService extends AbstractCrudService<SaleCustomer> {
     if (ListUtil.isNotEmpty(saleCustomers)) {
       saleCustomers.forEach(saleCustomer -> delete(saleCustomer.getId()));
     }
+  }
+
+  public List<SaleCustomer> findSaleCustomersBySale(
+      Long saleId, Instant fromDate, Instant toDate) {
+    return saleCustomerRepository.findBySaleIdAndCreatedDateGreaterThanEqualAndCreatedDateLessThan(
+        saleId, fromDate, toDate);
   }
 }

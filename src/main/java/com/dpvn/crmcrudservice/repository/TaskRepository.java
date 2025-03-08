@@ -1,5 +1,6 @@
 package com.dpvn.crmcrudservice.repository;
 
+import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.dpvn.crmcrudservice.domain.entity.Task;
 import com.dpvn.shared.repository.AbstractRepository;
 import java.util.List;
@@ -26,4 +27,6 @@ public interface TaskRepository extends AbstractRepository<Task> {
       @Param("campaignId") Long campaignId,
       @Param("kpiId") Long kpiId,
       @Param("otherId") Long otherId);
+
+  List<Task> findByIdIn(List<Long> ids);
 }

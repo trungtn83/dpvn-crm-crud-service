@@ -1,11 +1,16 @@
 package com.dpvn.crmcrudservice.user;
 
+import com.dpvn.crmcrudservice.domain.entity.Department;
+import com.dpvn.crmcrudservice.domain.entity.Role;
 import com.dpvn.crmcrudservice.domain.entity.User;
+import com.dpvn.crmcrudservice.domain.entity.UserProperty;
 import com.dpvn.crmcrudservice.repository.UserCustomRepository;
 import com.dpvn.crmcrudservice.repository.UserRepository;
 import com.dpvn.shared.exception.BadRequestException;
 import com.dpvn.shared.service.AbstractCrudService;
+import com.dpvn.shared.util.FastMap;
 import com.dpvn.shared.util.ObjectUtil;
+import com.dpvn.shared.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,13 +23,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserService extends AbstractCrudService<User> {
   private final UserCustomRepository userCustomRepository;
+  private final RoleService roleService;
+  private final DepartmentService departmentService;
 
   public UserService(
       UserRepository repository,
       UserCustomRepository userCustomRepository,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      RoleService roleService,
+      DepartmentService departmentService) {
     super(repository);
     this.userCustomRepository = userCustomRepository;
+    this.roleService = roleService;
+    this.departmentService = departmentService;
   }
 
   @Transactional
@@ -62,7 +73,9 @@ public class UserService extends AbstractCrudService<User> {
     }
     User user = userOpt.get();
     user.setPassword(password);
+    user.setStatus("1");
     user.setActive(Boolean.TRUE);
+    user.setDeleted(Boolean.FALSE);
     save(user);
   }
 
@@ -80,18 +93,69 @@ public class UserService extends AbstractCrudService<User> {
 
   public Page<User> searchUsers(
       String filterText,
-      List<String> departments,
-      List<String> roles,
+      Boolean active,
+      List<Long> departments,
+      List<Long> roles,
       Integer page,
       Integer pageSize) {
     Pageable pageable =
         (page == null || pageSize == null)
             ? PageRequest.of(0, Integer.MAX_VALUE)
             : PageRequest.of(page, pageSize);
-    return userCustomRepository.searchUsers(filterText, departments, roles, pageable);
+    return userCustomRepository.searchUsers(filterText, active, departments, roles, pageable);
   }
 
   public List<User> findByIds(List<Long> userIds) {
     return ((UserRepository) repository).findByIdIn(userIds);
+  }
+
+  @Override
+  @Transactional
+  public User create(User entity) {
+    User dbUser = findByIdOrIdf(entity.getIdf(), entity.getId()).orElse(null);
+    if (dbUser != null) {
+      throw new BadRequestException("Entity already exists.");
+    }
+
+    if (StringUtil.isEmpty(entity.getPassword())) {
+      entity.setPassword("123456");
+      entity.setActive(Boolean.TRUE);
+      entity.setDeleted(Boolean.FALSE);
+      entity.setStatus(null);
+    }
+
+    save(entity);
+    return entity;
+  }
+
+  @Override
+  @Transactional
+  public User update(Long id, FastMap data) {
+    User dbUser = findById(id).orElseThrow(() -> new BadRequestException("User not found"));
+    Long roleId = data.getLong("roleId");
+    if (dbUser.getRole() != null && !dbUser.getRole().getId().equals(roleId)) {
+      Role role =
+          roleService.findById(roleId).orElseThrow(() -> new BadRequestException("Role not found"));
+      dbUser.setRole(role);
+    }
+
+    Long departmentId = data.getLong("departmentId");
+    if (dbUser.getDepartment() != null && !dbUser.getDepartment().getId().equals(departmentId)) {
+      Department department =
+          departmentService
+              .findById(departmentId)
+              .orElseThrow(() -> new BadRequestException("Department not found"));
+      dbUser.setDepartment(department);
+    }
+
+    List<UserProperty> userProperties = data.getListClass("properties", UserProperty.class);
+    userProperties.forEach(up -> up.setUser(dbUser));
+    dbUser.getProperties().clear();
+    dbUser.getProperties().addAll(userProperties);
+
+    ObjectUtil.assign(dbUser, data, List.of("roleId", "departmentId", "properties"));
+    save(dbUser);
+
+    return dbUser;
   }
 }

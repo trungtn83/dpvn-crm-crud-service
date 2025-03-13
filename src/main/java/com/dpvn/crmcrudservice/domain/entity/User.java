@@ -3,12 +3,10 @@ package com.dpvn.crmcrudservice.domain.entity;
 import com.dpvn.crmcrudservice.domain.dto.UserDto;
 import com.dpvn.shared.domain.BaseEntity;
 import com.dpvn.shared.domain.entity.Address;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "`user`")
@@ -44,6 +42,13 @@ public class User extends BaseEntity<UserDto> {
   @ManyToOne
   @JoinColumn(name = "address_id", referencedColumnName = "id")
   private Address address;
+
+  @OneToMany(
+      mappedBy = "user",
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      fetch = FetchType.LAZY)
+  private List<UserProperty> properties = new ArrayList<>();
 
   public User() {
     super(UserDto.class);
@@ -135,5 +140,13 @@ public class User extends BaseEntity<UserDto> {
 
   public void setDob(Instant dob) {
     this.dob = dob;
+  }
+
+  public List<UserProperty> getProperties() {
+    return properties;
+  }
+
+  public void setProperties(List<UserProperty> properties) {
+    this.properties = properties;
   }
 }

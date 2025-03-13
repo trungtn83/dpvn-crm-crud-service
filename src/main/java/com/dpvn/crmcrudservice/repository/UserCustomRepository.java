@@ -6,6 +6,7 @@ import com.dpvn.shared.util.StringUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import java.util.Comparator;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -22,11 +23,15 @@ public class UserCustomRepository {
   }
 
   public Page<User> searchUsers(
-      String filterText, List<String> departments, List<String> roles, Pageable pageable) {
+      String filterText,
+      Boolean active,
+      List<Long> departments,
+      List<Long> roles,
+      Pageable pageable) {
     String SELECT = generateSelect();
     String SELECT_COUNT = "SELECT count(*)";
     String FROM = generateFrom();
-    String WHERE = generateWhere(filterText, departments, roles);
+    String WHERE = generateWhere(filterText, active, departments, roles);
     String ORDER_BY = generateOrder();
     List<User> results =
         getResults(
@@ -48,36 +53,37 @@ public class UserCustomRepository {
   private String generateFrom() {
     return """
         FROM "user" u
-          LEFT JOIN department d ON u.department_id = d.id
-          LEFT JOIN role r ON u.role_id = r.id
         """;
   }
 
-  private String generateWhere(String filterText, List<String> departments, List<String> roles) {
-    StringBuilder WHERE = new StringBuilder(" WHERE (u.active = TRUE AND u.deleted IS NOT TRUE)");
+  private String generateWhere(
+      String filterText, Boolean active, List<Long> departments, List<Long> roles) {
+    String WHERE =
+        "WHERE "
+            + (active == null
+                ? "(1=1)"
+                : (active
+                    ? "(u.active = TRUE and u.deleted IS NOT TRUE)"
+                    : "(u.active IS NOT TRUE OR u.deleted IS TRUE)"));
     if (StringUtil.isNotEmpty(filterText)) {
-      WHERE.append(
-          " AND (u.username ILIKE '%' || :filterText || '%' OR u.full_name ILIKE '%' || :filterText || '%' OR u.email ILIKE '%' || :filterText || '%' OR u.address_detail ILIKE '%' || :filterText || '%' OR u.description ILIKE '%' || :filterText || '%')");
+      WHERE +=
+          " AND (u.username ILIKE '%' || :filterText || '%' OR u.full_name ILIKE '%' || :filterText || '%' OR u.email ILIKE '%' || :filterText || '%' OR u.address_detail ILIKE '%' || :filterText || '%' OR u.description ILIKE '%' || :filterText || '%')";
     }
     if (ListUtil.isNotEmpty(departments)) {
-      WHERE.append(" AND (d.department_name IN :departments)");
+      WHERE += " AND (u.department_id IN :departments)";
     }
     if (ListUtil.isNotEmpty(roles)) {
-      WHERE.append(" AND (r.role_name IN :roles)");
+      WHERE += " AND (u.role_id IN :roles)";
     }
-    return WHERE.toString();
+    return WHERE;
   }
 
   private String generateOrder() {
-    return " ORDER BY u.modified_date DESC NULLS FIRST";
+    return " ORDER BY u.created_date DESC NULLS FIRST";
   }
 
   private List<User> getResults(
-      String sql,
-      String filterText,
-      List<String> departments,
-      List<String> roles,
-      Pageable pageable) {
+      String sql, String filterText, List<Long> departments, List<Long> roles, Pageable pageable) {
     Query query = entityManager.createNativeQuery(sql, Object.class);
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);
@@ -92,11 +98,12 @@ public class UserCustomRepository {
     query.setMaxResults(pageable.getPageSize());
 
     List<Long> os = query.getResultList();
-    return userRepository.findByIdIn(os);
+    return userRepository.findByIdIn(os).stream()
+        .sorted(Comparator.comparing((u -> os.indexOf(u.getId()))))
+        .toList();
   }
 
-  private Long getTotal(
-      String sql, String filterText, List<String> departments, List<String> roles) {
+  private Long getTotal(String sql, String filterText, List<Long> departments, List<Long> roles) {
     Query query = entityManager.createNativeQuery(sql);
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);

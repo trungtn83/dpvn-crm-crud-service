@@ -10,8 +10,6 @@ import com.dpvn.shared.domain.constant.Globals;
 import com.dpvn.shared.service.AbstractCrudService;
 import com.dpvn.shared.util.DateUtil;
 import com.dpvn.shared.util.ListUtil;
-
-import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
@@ -35,9 +33,9 @@ public class InteractionService extends AbstractCrudService<Interaction> {
   }
 
   public List<Interaction> getInteractionsByOptions(
-      Long userId, Long customerId, Long campaignId, Integer visibility, Instant fromDate, Instant toDate) {
+      Long userId, Long customerId, Long campaignId, Integer visibility) {
     return ((InteractionRepository) repository)
-        .findInteractionsByOptions(userId, customerId, campaignId, visibility, fromDate, toDate);
+        .findInteractionsByOptions(userId, customerId, campaignId, visibility);
   }
 
   public List<Interaction> getLastInteractionDates(Long userId, List<Long> customerIds) {

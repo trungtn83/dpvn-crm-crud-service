@@ -60,7 +60,8 @@ public class TaskCustomRepository extends AbstractService {
             statuses,
             progresses);
 
-    return new PageImpl<>(results, PageRequest.of(page, pageSize), total);
+    PageRequest pageRequest = PageRequest.of(page < 0 ? 0 : page, pageSize <= 0 ? 10 : pageSize);
+    return new PageImpl<>(results, pageRequest, total);
   }
 
   private List<Task> getTaskResults(

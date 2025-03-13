@@ -64,13 +64,14 @@ public class UserController extends AbstractCrudController<User, UserDto> {
   @PostMapping("/search")
   public FastMap searchUsers(@RequestBody FastMap condition) {
     String filterText = condition.getString("filterText");
-    List<String> departments = condition.getList("departments");
-    List<String> roles = condition.getList("roles");
+    Boolean active = condition.getBoolean("active");
+    List<Long> departments = condition.getList("departments");
+    List<Long> roles = condition.getList("roles");
     Integer page = condition.getInt("page");
     Integer pageSize = condition.getInt("pageSize");
     Page<UserDto> userPage =
         ((UserService) service)
-            .searchUsers(filterText, departments, roles, page, pageSize)
+            .searchUsers(filterText, active, departments, roles, page, pageSize)
             .map(User::toDto);
     return FastMap.create()
         .add("rows", userPage.getContent())

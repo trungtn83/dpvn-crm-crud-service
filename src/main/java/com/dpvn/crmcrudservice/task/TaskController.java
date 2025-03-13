@@ -3,23 +3,20 @@ package com.dpvn.crmcrudservice.task;
 import com.dpvn.crmcrudservice.domain.dto.TaskDto;
 import com.dpvn.crmcrudservice.domain.entity.Task;
 import com.dpvn.shared.controller.AbstractCrudController;
-import java.util.List;
-
 import com.dpvn.shared.util.FastMap;
+import java.util.List;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/task")
 public class TaskController extends AbstractCrudController<Task, TaskDto> {
 
-  public TaskController(TaskService service) {
+  private final TaskService taskService;
+
+  public TaskController(TaskService service, TaskService taskService) {
     super(service);
+    this.taskService = taskService;
   }
 
   @PostMapping("/find-by-options")
@@ -35,11 +32,24 @@ public class TaskController extends AbstractCrudController<Task, TaskDto> {
     Integer page = body.getInt("page");
     Integer pageSize = body.getInt("pageSize");
 
-    Page<Task> taskPage = ((TaskService) service).findTask(userId, customerId, filterText, tags, statuses, progress, sorts, page, pageSize);
+    Page<Task> taskPage =
+        ((TaskService) service)
+            .findTask(
+                userId, customerId, filterText, tags, statuses, progress, sorts, page, pageSize);
     return FastMap.create()
         .add("rows", taskPage.getContent().stream().map(Task::toDto))
         .add("total", taskPage.getTotalElements())
         .add("pageSize", taskPage.getSize())
         .add("page", taskPage.getNumber());
+  }
+
+  @GetMapping("/report-by-seller")
+  public List<TaskDto> reportBySeller(
+      @RequestParam("sellerId") Long sellerId,
+      @RequestParam("fromDate") String fromDateStr,
+      @RequestParam("toDate") String toDateStr) {
+    return taskService.reportTasksBySeller(sellerId, fromDateStr, toDateStr).stream()
+        .map(Task::toDto)
+        .toList();
   }
 }

@@ -1,8 +1,8 @@
 package com.dpvn.crmcrudservice.repository;
 
-import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.dpvn.crmcrudservice.domain.entity.Task;
 import com.dpvn.shared.repository.AbstractRepository;
+import java.time.Instant;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,23 +10,19 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TaskRepository extends AbstractRepository<Task> {
-  String FIND_TASKS_BY_OPTIONS =
+  String FIND_TASKS_FOR_SELLER_REPORT =
       """
-      SELECT t FROM Task t
-      WHERE (:userId IS NULL OR t.userId = :userId)
-          AND (:customerId IS NULL OR t.customerId = :customerId)
-          AND (:campaignId IS NULL OR t.campaignId = :campaignId)
-          AND (:kpiId IS NULL OR t.kpiId = :kpiId)
-          AND (:otherId IS NULL OR t.otherId = :otherId)
+        select * from task t
+        where t.user_id = :saleId
+          and t.progress = 100
+          and (:fromDate is null or t.modified_date between >= :fromDate) and (:toDate is null or t.modified_date < :toDate)
       """;
 
-  @Query(FIND_TASKS_BY_OPTIONS)
-  List<Task> findTasksByOptions(
-      @Param("userId") Long userId,
-      @Param("customerId") Long customerId,
-      @Param("campaignId") Long campaignId,
-      @Param("kpiId") Long kpiId,
-      @Param("otherId") Long otherId);
+  @Query(value = FIND_TASKS_FOR_SELLER_REPORT, nativeQuery = true)
+  List<Task> findTasksForSellerReport(
+      @Param("saleId") Long userId,
+      @Param("fromDate") Instant fromDate,
+      @Param("toDate") Instant toDate);
 
   List<Task> findByIdIn(List<Long> ids);
 }

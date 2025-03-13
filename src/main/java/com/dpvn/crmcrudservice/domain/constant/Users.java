@@ -21,4 +21,13 @@ public class Users {
     public static final String DEMIGOD = "DEMIGOD";
     public static final String GOD = "GOD";
   }
+
+  public static class Property {
+    private Property() {}
+
+    public static final String VOIP24H = "VOIP24H";
+    public static final String PHONE = "PHONE";
+    public static final String PHONE_NUMBER = "PHONE_NUMBER";
+    public static final String COMPUTER = "COMPUTER";
+  }
 }

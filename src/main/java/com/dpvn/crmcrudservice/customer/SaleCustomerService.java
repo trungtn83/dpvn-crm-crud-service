@@ -52,8 +52,7 @@ public class SaleCustomerService extends AbstractCrudService<SaleCustomer> {
     }
   }
 
-  public List<SaleCustomer> findSaleCustomersBySale(
-      Long saleId, Instant fromDate, Instant toDate) {
+  public List<SaleCustomer> findSaleCustomersBySale(Long saleId, Instant fromDate, Instant toDate) {
     return saleCustomerRepository.findBySaleIdAndCreatedDateGreaterThanEqualAndCreatedDateLessThan(
         saleId, fromDate, toDate);
   }

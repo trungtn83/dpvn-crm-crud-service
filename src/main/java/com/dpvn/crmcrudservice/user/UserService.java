@@ -51,7 +51,7 @@ public class UserService extends AbstractCrudService<User> {
             users.add(entity);
           } else {
             ObjectUtil.assign(
-                dbUser, entity, List.of("password", "status", "active", "role", "department"));
+                dbUser, entity, List.of("password", "status", "role", "department"));
             users.add(dbUser);
           }
         });

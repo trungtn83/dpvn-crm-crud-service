@@ -64,7 +64,7 @@ public class UserController extends AbstractCrudController<User, UserDto> {
   @PostMapping("/search")
   public FastMap searchUsers(@RequestBody FastMap condition) {
     String filterText = condition.getString("filterText");
-    Boolean active = condition.getBoolean("active");
+    Boolean active = condition.containsKey("active") ? condition.getBoolean("active") : null;
     List<Long> departments = condition.getList("departments");
     List<Long> roles = condition.getList("roles");
     Integer page = condition.getInt("page");

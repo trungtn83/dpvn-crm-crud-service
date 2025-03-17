@@ -38,11 +38,23 @@ public class TaskService extends AbstractCrudService<Task> {
       List<String> tags,
       List<String> statuses,
       List<Integer> progresses,
+      Instant fromDate,
+      Instant toDate,
       List<String> sorts,
       Integer page,
       Integer pageSize) {
     return taskCustomRepository.findTasks(
-        userId, customerId, filterText, tags, statuses, progresses, sorts, page, pageSize);
+        userId,
+        customerId,
+        filterText,
+        tags,
+        statuses,
+        progresses,
+        fromDate,
+        toDate,
+        sorts,
+        page,
+        pageSize);
   }
 
   public List<Task> reportTasksBySeller(Long sellerId, String fromDateStr, String toDateStr) {

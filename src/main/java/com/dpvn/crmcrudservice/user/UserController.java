@@ -1,5 +1,6 @@
 package com.dpvn.crmcrudservice.user;
 
+import com.dpvn.crmcrudservice.domain.constant.Users;
 import com.dpvn.crmcrudservice.domain.dto.UserDto;
 import com.dpvn.crmcrudservice.domain.entity.Department;
 import com.dpvn.crmcrudservice.domain.entity.Role;
@@ -7,6 +8,7 @@ import com.dpvn.crmcrudservice.domain.entity.User;
 import com.dpvn.crmcrudservice.repository.CacheEntityService;
 import com.dpvn.shared.controller.AbstractCrudController;
 import com.dpvn.shared.domain.BeanMapper;
+import com.dpvn.shared.exception.BadRequestException;
 import com.dpvn.shared.util.FastMap;
 import java.util.List;
 import java.util.Optional;
@@ -23,10 +25,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController extends AbstractCrudController<User, UserDto> {
 
   private final CacheEntityService cacheEntityService;
+  private final UserService userService;
 
   public UserController(UserService userService, CacheEntityService cacheEntityService) {
     super(userService);
     this.cacheEntityService = cacheEntityService;
+    this.userService = userService;
   }
 
   @GetMapping("/username/{username}")
@@ -111,5 +115,24 @@ public class UserController extends AbstractCrudController<User, UserDto> {
                   return user;
                 })
             .toList());
+  }
+
+  /**
+   * leaderId: Long
+   * memberId: Long
+   * action: ADD / REMOVE => use const please
+   */
+  @PostMapping("/member")
+  public void updateMember(@RequestBody FastMap body) {
+    Long leaderId = body.getLong("leaderId");
+    Long memberId = body.getLong("memberId");
+    String action = body.getString("action");
+    if (Users.Action.ADD.equals(action)) {
+      userService.addMember(leaderId, memberId);
+    } else if (Users.Action.REMOVE.equals(action)) {
+      userService.removeMember(leaderId, memberId);
+    } else {
+      throw new BadRequestException("Invalid action: " + action);
+    }
   }
 }

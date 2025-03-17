@@ -30,4 +30,11 @@ public class Users {
     public static final String PHONE_NUMBER = "PHONE_NUMBER";
     public static final String COMPUTER = "COMPUTER";
   }
+
+  public static class Action {
+    private Action() {}
+
+    public static final String ADD = "ADD";
+    public static final String REMOVE = "REMOVE";
+  }
 }

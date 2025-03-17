@@ -2,7 +2,11 @@ package com.dpvn.crmcrudservice.domain.entity;
 
 import com.dpvn.crmcrudservice.domain.dto.UserDto;
 import com.dpvn.shared.domain.BaseEntity;
+import com.dpvn.shared.domain.BeanMapper;
 import com.dpvn.shared.domain.entity.Address;
+import com.dpvn.shared.util.ListUtil;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -49,6 +53,53 @@ public class User extends BaseEntity<UserDto> {
       orphanRemoval = true,
       fetch = FetchType.LAZY)
   private List<UserProperty> properties = new ArrayList<>();
+
+  @ManyToMany(mappedBy = "members")
+  @JsonBackReference
+  private List<User> leaders = new ArrayList<>();
+
+  @ManyToMany
+  @JoinTable(
+      name = "user_member",
+      joinColumns = @JoinColumn(name = "member_id"),
+      inverseJoinColumns = @JoinColumn(name = "leader_id"))
+  @JsonManagedReference
+  private List<User> members = new ArrayList<>();
+
+  /**
+   * to avoid loop infinitive
+   *  - manual remove leader in member list
+   *  - manual remove member in leader list
+   */
+  @Override
+  public UserDto toDto() {
+    UserDto dto = BeanMapper.instance().map(this, UserDto.class);
+    if (ListUtil.isNotEmpty(leaders)) {
+      List<UserDto> leaderDtos =
+          leaders.stream()
+              .map(
+                  leader -> {
+                    UserDto leaderDto = BeanMapper.instance().map(leader, UserDto.class);
+                    leaderDto.setMembers(null);
+                    return leaderDto;
+                  })
+              .toList();
+      dto.setLeaders(leaderDtos);
+    }
+    if (ListUtil.isNotEmpty(members)) {
+      List<UserDto> memberDtos =
+          members.stream()
+              .map(
+                  member -> {
+                    UserDto memberDto = BeanMapper.instance().map(member, UserDto.class);
+                    memberDto.setLeaders(null);
+                    return memberDto;
+                  })
+              .toList();
+      dto.setMembers(memberDtos);
+    }
+    return dto;
+  }
 
   public User() {
     super(UserDto.class);
@@ -148,5 +199,21 @@ public class User extends BaseEntity<UserDto> {
 
   public void setProperties(List<UserProperty> properties) {
     this.properties = properties;
+  }
+
+  public List<User> getLeaders() {
+    return leaders;
+  }
+
+  public void setLeaders(List<User> leaders) {
+    this.leaders = leaders;
+  }
+
+  public List<User> getMembers() {
+    return members;
+  }
+
+  public void setMembers(List<User> members) {
+    this.members = members;
   }
 }

@@ -1,12 +1,14 @@
 package com.dpvn.crmcrudservice.repository;
 
 import com.dpvn.crmcrudservice.domain.entity.Task;
+import com.dpvn.shared.domain.constant.Globals;
 import com.dpvn.shared.service.AbstractService;
 import com.dpvn.shared.util.ListUtil;
 import com.dpvn.shared.util.StringUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -30,13 +32,16 @@ public class TaskCustomRepository extends AbstractService {
       List<String> tags,
       List<String> statuses,
       List<Integer> progresses,
+      Instant fromDate,
+      Instant toDate,
       List<String> sorts,
       Integer page,
       Integer pageSize) {
     String SELECT = "SELECT id";
     String SELECT_COUNT = "SELECT count(*)";
     String FROM = generateFrom();
-    String WHERE = generateWhere(userId, customerId, filterText, tags, statuses, progresses);
+    String WHERE =
+        generateWhere(userId, customerId, filterText, tags, statuses, progresses, fromDate, toDate);
     String SORT = generateSort(sorts);
 
     List<Task> results =
@@ -48,6 +53,8 @@ public class TaskCustomRepository extends AbstractService {
             tags,
             statuses,
             progresses,
+            fromDate,
+            toDate,
             page,
             pageSize);
     Long total =
@@ -58,9 +65,15 @@ public class TaskCustomRepository extends AbstractService {
             filterText,
             tags,
             statuses,
-            progresses);
+            progresses,
+            fromDate,
+            toDate);
 
-    PageRequest pageRequest = PageRequest.of(page < 0 ? 0 : page, pageSize <= 0 ? 10 : pageSize);
+    if (page == null || pageSize == null) {
+      page = 0;
+      pageSize = ListUtil.isEmpty(results) ? Globals.Paging.PAGE_SIZE : results.size();
+    }
+    PageRequest pageRequest = PageRequest.of(page, pageSize);
     return new PageImpl<>(results, pageRequest, total);
   }
 
@@ -72,6 +85,8 @@ public class TaskCustomRepository extends AbstractService {
       List<String> tags,
       List<String> statuses,
       List<Integer> progresses,
+      Instant fromDate,
+      Instant toDate,
       Integer page,
       Integer pageSize) {
     Query query = entityManager.createNativeQuery(sql);
@@ -93,8 +108,14 @@ public class TaskCustomRepository extends AbstractService {
     if (ListUtil.isNotEmpty(progresses)) {
       query.setParameter("progresses", progresses);
     }
+    if (fromDate != null) {
+      query.setParameter("fromDate", fromDate);
+    }
+    if (toDate != null) {
+      query.setParameter("toDate", toDate);
+    }
 
-    if (page > -1 && pageSize > 0) {
+    if (page != null && pageSize != null) {
       query.setFirstResult(page * pageSize);
       query.setMaxResults(pageSize);
     }
@@ -112,7 +133,9 @@ public class TaskCustomRepository extends AbstractService {
       String filterText,
       List<String> tags,
       List<String> statuses,
-      List<Integer> progresses) {
+      List<Integer> progresses,
+      Instant fromDate,
+      Instant toDate) {
     Query query = entityManager.createNativeQuery(sql);
     if (userId != null) {
       query.setParameter("userId", userId);
@@ -132,6 +155,12 @@ public class TaskCustomRepository extends AbstractService {
     if (ListUtil.isNotEmpty(progresses)) {
       query.setParameter("progresses", progresses);
     }
+    if (fromDate != null) {
+      query.setParameter("fromDate", fromDate);
+    }
+    if (toDate != null) {
+      query.setParameter("toDate", toDate);
+    }
     return ((Number) query.getSingleResult()).longValue();
   }
 
@@ -145,7 +174,9 @@ public class TaskCustomRepository extends AbstractService {
       String filterText,
       List<String> tags,
       List<String> statuses,
-      List<Integer> progresses) {
+      List<Integer> progresses,
+      Instant fromDate,
+      Instant toDate) {
     String WHERE = "WHERE t.active = TRUE AND t.deleted IS NOT TRUE";
     if (userId != null) {
       WHERE += " AND t.user_id = :userId";
@@ -165,6 +196,12 @@ public class TaskCustomRepository extends AbstractService {
     }
     if (ListUtil.isNotEmpty(progresses)) {
       WHERE += " AND t.progress IN :progresses";
+    }
+    if (fromDate != null) {
+      WHERE += " AND t.modified_date >= :fromDate";
+    }
+    if (toDate != null) {
+      WHERE += " AND t.modified_date < :toDate";
     }
     return WHERE;
   }

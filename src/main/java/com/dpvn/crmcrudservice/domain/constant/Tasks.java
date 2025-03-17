@@ -27,4 +27,10 @@ public class Tasks {
   }
 
   public static class Tags {}
+
+  public static class Progress {
+    private Progress() {}
+
+    public static final int DONE = 100;
+  }
 }

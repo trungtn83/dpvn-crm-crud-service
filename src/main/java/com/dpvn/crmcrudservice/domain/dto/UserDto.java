@@ -5,6 +5,7 @@ import com.dpvn.shared.domain.BaseDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -24,6 +25,9 @@ public class UserDto extends BaseDto<User> {
   private RoleDto role;
   private DepartmentDto department;
   private List<UserPropertyDto> properties;
+  private List<UserDto> leaders = new ArrayList<>();
+  private List<UserDto> members = new ArrayList<>();
+  private List<Long> memberIds = new ArrayList<>();
 
   public UserDto() {
     super(User.class);
@@ -139,5 +143,29 @@ public class UserDto extends BaseDto<User> {
 
   public void setProperties(List<UserPropertyDto> properties) {
     this.properties = properties;
+  }
+
+  public List<UserDto> getLeaders() {
+    return leaders;
+  }
+
+  public void setLeaders(List<UserDto> leaders) {
+    this.leaders = leaders;
+  }
+
+  public List<UserDto> getMembers() {
+    return members;
+  }
+
+  public void setMembers(List<UserDto> members) {
+    this.members = members;
+  }
+
+  public List<Long> getMemberIds() {
+    return memberIds;
+  }
+
+  public void setMemberIds(List<Long> memberIds) {
+    this.memberIds = memberIds;
   }
 }

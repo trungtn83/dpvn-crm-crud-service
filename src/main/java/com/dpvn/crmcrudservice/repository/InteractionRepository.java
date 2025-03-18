@@ -2,6 +2,7 @@ package com.dpvn.crmcrudservice.repository;
 
 import com.dpvn.crmcrudservice.domain.entity.Interaction;
 import com.dpvn.shared.repository.AbstractRepository;
+import java.time.Instant;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -37,4 +38,10 @@ public interface InteractionRepository extends AbstractRepository<Interaction> {
   @Query(value = FIND_LAST_INTERACTIONS_DATE, nativeQuery = true)
   List<Interaction> findLastInteractionsDate(
       @Param("userId") Long userId, @Param("customerIds") List<Long> customerIds);
+
+  @Query(
+      value =
+          "select count(*) from interaction where interact_by = :sellerId and created_date >= :fromDate and created_date < :toDate",
+      nativeQuery = true)
+  Long countReportInteractionsBySeller(Long sellerId, Instant fromDate, Instant toDate);
 }

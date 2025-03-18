@@ -3,7 +3,10 @@ package com.dpvn.crmcrudservice.interaction;
 import com.dpvn.crmcrudservice.domain.dto.InteractionDto;
 import com.dpvn.crmcrudservice.domain.entity.Interaction;
 import com.dpvn.shared.controller.AbstractCrudController;
+import com.dpvn.shared.util.DateUtil;
 import com.dpvn.shared.util.FastMap;
+import com.dpvn.shared.util.LocalDateUtil;
+import java.time.Instant;
 import java.util.List;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,5 +39,15 @@ public class InteractionController extends AbstractCrudController<Interaction, I
     List<Long> customerIds = body.getList("customerIds");
     return ((InteractionService) service)
         .getLastInteractionDates(userId, customerIds).stream().map(Interaction::toDto).toList();
+  }
+
+  @PostMapping("/report-by-seller")
+  public Long countReportInteractionBySeller(@RequestBody FastMap body) {
+    Long userId = body.getLong("userId");
+    String fromDateStr = body.getString("fromDate");
+    String toDateStr = body.getString("toDate");
+    Instant fromDate = DateUtil.from(LocalDateUtil.from(fromDateStr));
+    Instant toDate = DateUtil.from(LocalDateUtil.from(toDateStr).plusDays(1));
+    return ((InteractionService) service).countReportInteractionBySeller(userId, fromDate, toDate);
   }
 }

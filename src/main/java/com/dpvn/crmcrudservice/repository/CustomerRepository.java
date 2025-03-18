@@ -2,8 +2,10 @@ package com.dpvn.crmcrudservice.repository;
 
 import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.dpvn.shared.repository.AbstractRepository;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -31,4 +33,10 @@ public interface CustomerRepository extends AbstractRepository<Customer> {
   Page<Customer> findByStatusForInitRelationship(Pageable pageable);
 
   Optional<Customer> findByMobilePhone(String mobilePhone);
+
+  @Query(
+      value =
+          "SELECT count(*) FROM customer WHERE id in :ids and created_date >= :fromDate and created_date < :toDate",
+      nativeQuery = true)
+  Object countCustomerInIdsAndBetween(Set<Long> ids, Instant fromDate, Instant toDate);
 }

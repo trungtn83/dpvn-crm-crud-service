@@ -10,6 +10,7 @@ import com.dpvn.shared.domain.constant.Globals;
 import com.dpvn.shared.service.AbstractCrudService;
 import com.dpvn.shared.util.DateUtil;
 import com.dpvn.shared.util.ListUtil;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
@@ -71,5 +72,10 @@ public class InteractionService extends AbstractCrudService<Interaction> {
     }
 
     return super.create(entity);
+  }
+
+  public Long countReportInteractionBySeller(Long sellerId, Instant fromDate, Instant toDate) {
+    return ((InteractionRepository) repository)
+        .countReportInteractionsBySeller(sellerId, fromDate, toDate);
   }
 }

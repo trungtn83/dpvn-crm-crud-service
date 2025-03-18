@@ -61,7 +61,9 @@ public class TaskService extends AbstractCrudService<Task> {
     Instant fromDate =
         StringUtil.isNotEmpty(fromDateStr) ? DateUtil.from(LocalDateUtil.from(fromDateStr)) : null;
     Instant toDate =
-        StringUtil.isNotEmpty(toDateStr) ? DateUtil.from(LocalDateUtil.from(toDateStr)) : null;
+        StringUtil.isNotEmpty(toDateStr)
+            ? DateUtil.from(LocalDateUtil.from(toDateStr).plusDays(1))
+            : null;
     return taskRepository.findTasksForSellerReport(sellerId, fromDate, toDate);
   }
 }

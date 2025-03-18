@@ -8,7 +8,10 @@ import com.dpvn.shared.controller.AbstractCrudController;
 import com.dpvn.shared.util.DateUtil;
 import com.dpvn.shared.util.FastMap;
 import com.dpvn.shared.util.LocalDateUtil;
+import java.time.Instant;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/sale-customer")
 public class SaleCustomerController extends AbstractCrudController<SaleCustomer, SaleCustomerDto> {
+  protected static final Logger LOGGER = LoggerFactory.getLogger(SaleCustomerController.class);
   private final SaleCustomerStateService saleCustomerStateService;
   private final SaleCustomerService saleCustomerService;
 
@@ -89,18 +93,33 @@ public class SaleCustomerController extends AbstractCrudController<SaleCustomer,
    * - fromDate: string -> yyyy-MM-dd
    * - toDate: string -> yyyy-MM-dd
    */
+  //  @PostMapping("/find-by-sale")
+  //  public List<SaleCustomerDto> findSaleCustomerBySale(@RequestBody FastMap body) {
+  //    Date now = new Date();
+  //    Long saleId = body.getLong("saleId");
+  //    String fromDateStr = body.getString("fromDate");
+  //    String toDateStr = body.getString("toDate");
+  //    List<SaleCustomerDto> result = saleCustomerService
+  //        .findSaleCustomersBySale(
+  //            saleId,
+  //            DateUtil.from(LocalDateUtil.from(fromDateStr)),
+  //            DateUtil.from(LocalDateUtil.from(toDateStr)))
+  //        .stream()
+  //        .map(SaleCustomer::toDto)
+  //        .toList();
+  //    long diff = (new Date()).getTime() - now.getTime();
+  //    LOGGER.info("findSaleCustomerBySale: [{}-{}-{}]] = {}", saleId, fromDateStr, toDateStr,
+  // diff);
+  //    return result;
+  //  }
+
   @PostMapping("/find-by-sale")
-  public List<SaleCustomerDto> findSaleCustomerBySale(@RequestBody FastMap body) {
+  public FastMap findSaleCustomerBySale(@RequestBody FastMap body) {
     Long saleId = body.getLong("saleId");
     String fromDateStr = body.getString("fromDate");
     String toDateStr = body.getString("toDate");
-    return saleCustomerService
-        .findSaleCustomersBySale(
-            saleId,
-            DateUtil.from(LocalDateUtil.from(fromDateStr)),
-            DateUtil.from(LocalDateUtil.from(toDateStr)))
-        .stream()
-        .map(SaleCustomer::toDto)
-        .toList();
+    Instant fromDate = DateUtil.from(LocalDateUtil.from(fromDateStr));
+    Instant toDate = DateUtil.from(LocalDateUtil.from(toDateStr).plusDays(1));
+    return saleCustomerService.findSaleCustomersBySale(saleId, fromDate, toDate);
   }
 }

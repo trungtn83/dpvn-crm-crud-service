@@ -31,7 +31,7 @@ public class TaskController extends AbstractCrudController<Task, TaskDto> {
     String filterText = body.getString("filterText");
     List<String> tags = body.getList("tags");
     List<String> statuses = body.getList("statuses");
-    List<Integer> progress = body.getListClass("progress", Integer.class);
+    List<Integer> progresses = body.getListClass("progresses", Integer.class);
     String fromDateStr = body.getString("fromDate");
     String toDateStr = body.getString("toDate");
     List<String> sorts = body.getList("sorts");
@@ -49,7 +49,7 @@ public class TaskController extends AbstractCrudController<Task, TaskDto> {
                 filterText,
                 tags,
                 statuses,
-                progress,
+                progresses,
                 fromDate,
                 toDate,
                 sorts,

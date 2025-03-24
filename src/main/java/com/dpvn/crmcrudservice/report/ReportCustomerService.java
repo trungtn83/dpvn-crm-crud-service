@@ -6,9 +6,6 @@ import com.dpvn.crmcrudservice.domain.entity.report.TaskBySeller;
 import com.dpvn.crmcrudservice.repository.InteractionRepository;
 import com.dpvn.crmcrudservice.repository.SaleCustomerRepository;
 import com.dpvn.crmcrudservice.repository.TaskRepository;
-import com.dpvn.shared.util.DateUtil;
-import com.dpvn.shared.util.LocalDateUtil;
-import com.dpvn.shared.util.StringUtil;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +19,9 @@ public class ReportCustomerService {
   private final TaskRepository taskRepository;
 
   public ReportCustomerService(
-      SaleCustomerRepository saleCustomerRepository, InteractionRepository interactionRepository, TaskRepository taskRepository) {
+      SaleCustomerRepository saleCustomerRepository,
+      InteractionRepository interactionRepository,
+      TaskRepository taskRepository) {
     this.saleCustomerRepository = saleCustomerRepository;
     this.interactionRepository = interactionRepository;
     this.taskRepository = taskRepository;

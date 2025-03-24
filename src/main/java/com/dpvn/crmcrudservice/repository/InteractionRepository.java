@@ -41,7 +41,22 @@ public interface InteractionRepository extends AbstractRepository<Interaction> {
 
   @Query(
       value =
-          "select count(*) from interaction where interact_by = :sellerId and created_date >= :fromDate and created_date < :toDate",
+          "select count(*) from interaction where interact_by = :saleId and created_date >= :fromDate and created_date < :toDate",
       nativeQuery = true)
-  Long countReportInteractionsBySeller(Long sellerId, Instant fromDate, Instant toDate);
+  Long countReportInteractionsBySeller(Long saleId, Instant fromDate, Instant toDate);
+
+  String REPORT_INTERACTIONS_BY_SELLERS =
+      """
+        select i.id, i.interact_by , i.customer_id, c.customer_name, c.mobile_phone, i.title, i."content", i.visibility, i.created_date
+        from interaction i
+        left join customer c on i.customer_id  = c.id
+        where i.active = true and i.deleted is not true
+            and i.interact_by in :sellerIds
+            and i.type_id <> -1
+            and i.created_date >= :fromDate and i.created_date < :toDate
+      """;
+
+  @Query(value = REPORT_INTERACTIONS_BY_SELLERS, nativeQuery = true)
+  List<Object[]> reportInteractionsBySellers(
+      List<Long> sellerIds, Instant fromDate, Instant toDate);
 }

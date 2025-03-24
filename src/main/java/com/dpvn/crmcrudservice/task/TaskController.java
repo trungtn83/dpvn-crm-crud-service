@@ -26,7 +26,7 @@ public class TaskController extends AbstractCrudController<Task, TaskDto> {
 
   @PostMapping("/find-by-options")
   public FastMap findTasks(@RequestBody FastMap body) {
-    Long userId = body.getLong("userId");
+    Long sellerId = body.getLong("sellerId");
     Long customerId = body.getLong("customerId");
     String filterText = body.getString("filterText");
     List<String> tags = body.getList("tags");
@@ -44,7 +44,7 @@ public class TaskController extends AbstractCrudController<Task, TaskDto> {
     Page<Task> taskPage =
         ((TaskService) service)
             .findTask(
-                userId,
+                sellerId,
                 customerId,
                 filterText,
                 tags,
@@ -72,15 +72,5 @@ public class TaskController extends AbstractCrudController<Task, TaskDto> {
     } catch (Exception e) {
       return null;
     }
-  }
-
-  @GetMapping("/report-by-seller")
-  public List<TaskDto> reportBySeller(
-      @RequestParam("sellerId") Long sellerId,
-      @RequestParam("fromDate") String fromDateStr,
-      @RequestParam("toDate") String toDateStr) {
-    return taskService.reportTasksBySeller(sellerId, fromDateStr, toDateStr).stream()
-        .map(Task::toDto)
-        .toList();
   }
 }

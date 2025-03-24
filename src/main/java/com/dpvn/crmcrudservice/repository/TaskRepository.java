@@ -5,24 +5,20 @@ import com.dpvn.shared.repository.AbstractRepository;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TaskRepository extends AbstractRepository<Task> {
-  String FIND_TASKS_FOR_SELLER_REPORT =
+  String FIND_TASKS_FOR_SALE_REPORT =
       """
-        select * from task t
-        where t.user_id = :saleId
-          and t.progress = 100
-          and (:fromDate is null or t.modified_date between >= :fromDate) and (:toDate is null or t.modified_date < :toDate)
-      """;
+            select t.id, t.user_id, t.name, t.title, t.content, t.from_date, t.to_date, t.modified_date from task t
+            where t.user_id in :sellerIds
+              and t.progress = 100
+              and t.modified_date >= :fromDate and t.modified_date < :toDate
+          """;
 
-  @Query(value = FIND_TASKS_FOR_SELLER_REPORT, nativeQuery = true)
-  List<Task> findTasksForSellerReport(
-      @Param("saleId") Long userId,
-      @Param("fromDate") Instant fromDate,
-      @Param("toDate") Instant toDate);
+  @Query(value = FIND_TASKS_FOR_SALE_REPORT, nativeQuery = true)
+  List<Object[]> reportTasksBySellers(List<Long> sellerIds, Instant fromDate, Instant toDate);
 
   List<Task> findByIdIn(List<Long> ids);
 }

@@ -4,9 +4,6 @@ import com.dpvn.crmcrudservice.domain.entity.Task;
 import com.dpvn.crmcrudservice.repository.TaskCustomRepository;
 import com.dpvn.crmcrudservice.repository.TaskRepository;
 import com.dpvn.shared.service.AbstractCrudService;
-import com.dpvn.shared.util.DateUtil;
-import com.dpvn.shared.util.LocalDateUtil;
-import com.dpvn.shared.util.StringUtil;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -32,7 +29,7 @@ public class TaskService extends AbstractCrudService<Task> {
   }
 
   public Page<Task> findTask(
-      Long userId,
+      Long sellerId,
       Long customerId,
       String filterText,
       List<String> tags,
@@ -44,7 +41,7 @@ public class TaskService extends AbstractCrudService<Task> {
       Integer page,
       Integer pageSize) {
     return taskCustomRepository.findTasks(
-        userId,
+        sellerId,
         customerId,
         filterText,
         tags,
@@ -55,15 +52,5 @@ public class TaskService extends AbstractCrudService<Task> {
         sorts,
         page,
         pageSize);
-  }
-
-  public List<Task> reportTasksBySeller(Long sellerId, String fromDateStr, String toDateStr) {
-    Instant fromDate =
-        StringUtil.isNotEmpty(fromDateStr) ? DateUtil.from(LocalDateUtil.from(fromDateStr)) : null;
-    Instant toDate =
-        StringUtil.isNotEmpty(toDateStr)
-            ? DateUtil.from(LocalDateUtil.from(toDateStr).plusDays(1))
-            : null;
-    return taskRepository.findTasksForSellerReport(sellerId, fromDate, toDate);
   }
 }

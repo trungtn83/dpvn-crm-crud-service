@@ -29,7 +29,7 @@ public class TaskService extends AbstractCrudService<Task> {
   }
 
   public Page<Task> findTask(
-      Long sellerId,
+      Long userId,
       Long customerId,
       String filterText,
       List<String> tags,
@@ -41,7 +41,7 @@ public class TaskService extends AbstractCrudService<Task> {
       Integer page,
       Integer pageSize) {
     return taskCustomRepository.findTasks(
-        sellerId,
+        userId,
         customerId,
         filterText,
         tags,

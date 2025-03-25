@@ -26,7 +26,7 @@ public class TaskCustomRepository extends AbstractService {
   }
 
   public Page<Task> findTasks(
-      Long sellerId,
+      Long userId,
       Long customerId,
       String filterText,
       List<String> tags,
@@ -41,14 +41,13 @@ public class TaskCustomRepository extends AbstractService {
     String SELECT_COUNT = "SELECT count(*)";
     String FROM = generateFrom();
     String WHERE =
-        generateWhere(
-            sellerId, customerId, filterText, tags, statuses, progresses, fromDate, toDate);
+        generateWhere(userId, customerId, filterText, tags, statuses, progresses, fromDate, toDate);
     String SORT = generateSort(sorts);
 
     List<Task> results =
         getTaskResults(
             String.format("%s %s %s %s", SELECT, FROM, WHERE, SORT),
-            sellerId,
+            userId,
             customerId,
             filterText,
             tags,
@@ -61,7 +60,7 @@ public class TaskCustomRepository extends AbstractService {
     Long total =
         getTaskTotal(
             String.format("%s %s %s", SELECT_COUNT, FROM, WHERE),
-            sellerId,
+            userId,
             customerId,
             filterText,
             tags,
@@ -80,7 +79,7 @@ public class TaskCustomRepository extends AbstractService {
 
   private List<Task> getTaskResults(
       String sql,
-      Long sellerId,
+      Long userId,
       Long customerId,
       String filterText,
       List<String> tags,
@@ -91,8 +90,8 @@ public class TaskCustomRepository extends AbstractService {
       Integer page,
       Integer pageSize) {
     Query query = entityManager.createNativeQuery(sql);
-    if (sellerId != null) {
-      query.setParameter("sellerId", sellerId);
+    if (userId != null) {
+      query.setParameter("userId", userId);
     }
     if (customerId != null) {
       query.setParameter("customerId", customerId);
@@ -129,7 +128,7 @@ public class TaskCustomRepository extends AbstractService {
 
   private Long getTaskTotal(
       String sql,
-      Long sellerId,
+      Long userId,
       Long customerId,
       String filterText,
       List<String> tags,
@@ -138,8 +137,8 @@ public class TaskCustomRepository extends AbstractService {
       Instant fromDate,
       Instant toDate) {
     Query query = entityManager.createNativeQuery(sql);
-    if (sellerId != null) {
-      query.setParameter("sellerId", sellerId);
+    if (userId != null) {
+      query.setParameter("userId", userId);
     }
     if (customerId != null) {
       query.setParameter("customerId", customerId);
@@ -170,7 +169,7 @@ public class TaskCustomRepository extends AbstractService {
   }
 
   private String generateWhere(
-      Long sellerId,
+      Long userId,
       Long customerId,
       String filterText,
       List<String> tags,
@@ -179,8 +178,8 @@ public class TaskCustomRepository extends AbstractService {
       Instant fromDate,
       Instant toDate) {
     String WHERE = "WHERE t.active = TRUE AND t.deleted IS NOT TRUE";
-    if (sellerId != null) {
-      WHERE += " AND t.user_id = :sellerId";
+    if (userId != null) {
+      WHERE += " AND t.user_id = :userId";
     }
     if (customerId != null) {
       WHERE += " AND t.customer_id = :customerId";

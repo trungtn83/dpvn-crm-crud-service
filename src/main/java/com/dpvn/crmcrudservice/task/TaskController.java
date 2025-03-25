@@ -26,7 +26,7 @@ public class TaskController extends AbstractCrudController<Task, TaskDto> {
 
   @PostMapping("/find-by-options")
   public FastMap findTasks(@RequestBody FastMap body) {
-    Long sellerId = body.getLong("sellerId");
+    Long userId = body.getLong("userId");
     Long customerId = body.getLong("customerId");
     String filterText = body.getString("filterText");
     List<String> tags = body.getList("tags");
@@ -44,7 +44,7 @@ public class TaskController extends AbstractCrudController<Task, TaskDto> {
     Page<Task> taskPage =
         ((TaskService) service)
             .findTask(
-                sellerId,
+                userId,
                 customerId,
                 filterText,
                 tags,

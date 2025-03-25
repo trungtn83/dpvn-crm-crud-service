@@ -34,7 +34,7 @@ public class ReportCustomerController {
     String fromDateStr = body.getString("fromDate");
     String toDateStr = body.getString("toDate");
     Instant fromDate = DateUtil.from(LocalDateUtil.from(fromDateStr));
-    Instant toDate = DateUtil.from(LocalDateUtil.from(toDateStr).plusDays(1));
+    Instant toDate = DateUtil.from(LocalDateUtil.from(toDateStr));
     return reportCustomerService.reportCustomersBySellers(sellerIds, fromDate, toDate);
   }
 
@@ -50,7 +50,7 @@ public class ReportCustomerController {
     String fromDateStr = body.getString("fromDate");
     String toDateStr = body.getString("toDate");
     Instant fromDate = DateUtil.from(LocalDateUtil.from(fromDateStr));
-    Instant toDate = DateUtil.from(LocalDateUtil.from(toDateStr).plusDays(1));
+    Instant toDate = DateUtil.from(LocalDateUtil.from(toDateStr));
     return reportCustomerService.reportInteractionsBySellers(sellerIds, fromDate, toDate);
   }
 
@@ -65,7 +65,7 @@ public class ReportCustomerController {
     String fromDateStr = body.getString("fromDate");
     String toDateStr = body.getString("toDate");
     Instant fromDate = DateUtil.from(LocalDateUtil.from(fromDateStr));
-    Instant toDate = DateUtil.from(LocalDateUtil.from(toDateStr).plusDays(1));
+    Instant toDate = DateUtil.from(LocalDateUtil.from(toDateStr));
     return reportCustomerService.reportTasksBySellers(sellerIds, fromDate, toDate);
   }
 }

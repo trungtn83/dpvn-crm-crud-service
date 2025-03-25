@@ -95,10 +95,14 @@ public class CustomerService extends AbstractCrudService<Customer> {
           .filter(entity -> StringUtil.isNotEmpty(entity.getMobilePhone()))
           .forEach(
               entity -> {
+                // fix for case Customer update phone number in Kiotviet system
+                // phone number changed, but idf still existed =)))
                 Customer dbCustomer =
-                    ((CustomerRepository) repository)
-                        .findByMobilePhone(entity.getMobilePhone())
-                        .orElse(null);
+                    entity.getIdf() != null
+                        ? repository.findByIdf(entity.getIdf()).orElse(null)
+                        : ((CustomerRepository) repository)
+                            .findByMobilePhone(entity.getMobilePhone())
+                            .orElse(null);
                 if (dbCustomer == null) {
                   entity.getReferences().forEach(ref -> ref.setCustomer(entity));
                   entity.getAddresses().forEach(address -> address.setCustomer(entity));

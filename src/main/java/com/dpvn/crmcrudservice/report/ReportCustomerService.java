@@ -80,7 +80,7 @@ public class ReportCustomerService {
       List<Long> sellerIds, Instant fromDate, Instant toDate) {
     List<Object[]> os = taskRepository.reportTasksBySellers(sellerIds, fromDate, toDate);
     List<TaskBySeller> taskBySellers = os.stream().map(this::tranformToTaskBySeller).toList();
-    return taskBySellers.stream().collect(Collectors.groupingBy(TaskBySeller::getId));
+    return taskBySellers.stream().collect(Collectors.groupingBy(TaskBySeller::getSellerId));
   }
 
   private TaskBySeller tranformToTaskBySeller(Object[] o) {

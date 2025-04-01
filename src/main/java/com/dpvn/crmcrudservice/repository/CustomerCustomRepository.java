@@ -759,12 +759,12 @@ public class CustomerCustomRepository {
             SELECT DISTINCT ON (i.customer_id)
                    i.*
             FROM interaction i
-            WHERE i.visibility = 0 %s
+            WHERE 1 = 1 %s
             ORDER BY i.customer_id, i.created_date DESC
         ) latest_i ON latest_i.customer_id = c.id
         """,
             saleId == null ? "" : "AND latest_scs.sale_id = :saleId",
-            saleId == null ? "" : "OR i.created_by = :saleId");
+            saleId == null ? "" : "AND (i.visibility = 0 OR i.created_by = :saleId)");
     return FROM;
   }
 

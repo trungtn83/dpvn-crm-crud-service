@@ -30,10 +30,10 @@ public class AddressService extends AbstractCrudService<Address> {
         || StringUtil.isEmpty(provinceNameInput)) {
       return null;
     }
-    String wardName = wardNameInput.trim().toLowerCase().replaceAll("phường|xã", "");
+    String wardName = wardNameInput.trim().toLowerCase().replaceAll("phường|xã", "").trim();
     String districtName =
-        districtNameInput.trim().toLowerCase().replaceAll("quận|huyện|thị trấn", "");
-    String provinceName = provinceNameInput.trim().toLowerCase().replaceAll("tỉnh|thành phố", "");
+        districtNameInput.trim().toLowerCase().replaceAll("quận|huyện|thị trấn", "").trim();
+    String provinceName = provinceNameInput.trim().toLowerCase().replaceAll("tỉnh|thành phố", "").trim();
 
     List<Address> addresses = cacheEntityService.getAddresses();
     List<Address> results =

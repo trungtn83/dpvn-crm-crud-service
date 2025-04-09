@@ -3,6 +3,7 @@ package com.dpvn.crmcrudservice.domain.entity;
 import com.dpvn.crmcrudservice.domain.dto.UserPropertyDto;
 import com.dpvn.shared.domain.BaseEntity;
 import jakarta.persistence.*;
+import java.time.Instant;
 
 @Entity
 @Table(name = "user_property")
@@ -17,6 +18,9 @@ public class UserProperty extends BaseEntity<UserPropertyDto> {
 
   @Column(columnDefinition = "TEXT")
   private String reference;
+
+  private Instant fromDate;
+  private Instant toDate;
 
   @ManyToOne
   @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "id")
@@ -64,5 +68,21 @@ public class UserProperty extends BaseEntity<UserPropertyDto> {
 
   public void setUser(User user) {
     this.user = user;
+  }
+
+  public Instant getFromDate() {
+    return fromDate;
+  }
+
+  public void setFromDate(Instant fromDate) {
+    this.fromDate = fromDate;
+  }
+
+  public Instant getToDate() {
+    return toDate;
+  }
+
+  public void setToDate(Instant toDate) {
+    this.toDate = toDate;
   }
 }

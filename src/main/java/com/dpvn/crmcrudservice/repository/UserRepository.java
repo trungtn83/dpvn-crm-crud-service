@@ -3,7 +3,6 @@ package com.dpvn.crmcrudservice.repository;
 import com.dpvn.crmcrudservice.domain.entity.User;
 import com.dpvn.shared.repository.AbstractRepository;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends AbstractRepository<User> {
   List<User> findByIdIn(List<Long> ids);
 
-  Optional<User> findByUsername(String username);
+  User findByUsername(String username);
 
   String FIND_USERS_BY_OPTIONS =
       """

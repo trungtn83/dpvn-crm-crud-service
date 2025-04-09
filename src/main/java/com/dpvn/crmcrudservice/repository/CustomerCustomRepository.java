@@ -490,7 +490,7 @@ public class CustomerCustomRepository {
   }
 
   public Page<FastMap> searchMyCustomers(
-      Long saleId,
+      List<Long> saleIds,
       Long customerTypeId,
       Long customerCategoryId,
       String filterText,
@@ -500,7 +500,7 @@ public class CustomerCustomRepository {
 
     String SELECT =
         """
-            SELECT DISTINCT ON (latest_sc.available_to, c.id)
+            SELECT DISTINCT ON (latest_sc.sale_id, latest_sc.available_to, c.id)
                 c.id AS customer_id,
                 latest_sc.id AS sale_customer_id,
                 latest_sc.created_by AS sale_customer_created_by,
@@ -551,13 +551,13 @@ public class CustomerCustomRepository {
                 latest_i.visibility AS interaction_visibility
       """;
     String SELECT_COUNT = "SELECT COUNT(*)";
-    String FROM = generateMyCustomerFrom(saleId, customerCategoryId, filterText, reasonIds);
+    String FROM = generateMyCustomerFrom(saleIds, customerCategoryId, filterText, reasonIds);
     String WHERE = generateMyCustomersWhere(filterText, customerTypeId, reasonIds);
-    String ORDER = " ORDER BY latest_sc.available_to ASC, c.id";
+    String ORDER = " ORDER BY latest_sc.sale_id, latest_sc.available_to ASC, c.id";
     List<FastMap> results =
         getMyCustomerResults(
             String.format("%s %s %s %s", SELECT, FROM, WHERE, ORDER),
-            saleId,
+            saleIds,
             customerTypeId,
             customerCategoryId,
             filterText,
@@ -566,7 +566,7 @@ public class CustomerCustomRepository {
     Long total =
         getMyCustomerTotal(
             String.format("%s %s %s", SELECT_COUNT, FROM, WHERE),
-            saleId,
+            saleIds,
             customerTypeId,
             customerCategoryId,
             filterText,
@@ -576,15 +576,15 @@ public class CustomerCustomRepository {
 
   private List<FastMap> getMyCustomerResults(
       String sql,
-      Long saleId,
+      List<Long> saleIds,
       Long customerTypeId,
       Long customerCategoryId,
       String filterText,
       List<Integer> reasonIds,
       Pageable pageable) {
     Query query = entityManager.createNativeQuery(sql, Object.class);
-    if (saleId != null) {
-      query.setParameter("saleId", saleId);
+    if (ListUtil.isNotEmpty(saleIds)) {
+      query.setParameter("saleIds", saleIds);
     }
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);
@@ -620,14 +620,14 @@ public class CustomerCustomRepository {
 
   private Long getMyCustomerTotal(
       String sql,
-      Long saleId,
+      List<Long> saleIds,
       Long customerTypeId,
       Long customerCategoryId,
       String filterText,
       List<Integer> reasonIds) {
     Query query = entityManager.createNativeQuery(sql, Object.class);
-    if (saleId != null) {
-      query.setParameter("saleId", saleId);
+    if (ListUtil.isNotEmpty(saleIds)) {
+      query.setParameter("saleIds", saleIds);
     }
     if (StringUtil.isNotEmpty(filterText)) {
       query.setParameter("filterText", filterText);
@@ -705,7 +705,7 @@ public class CustomerCustomRepository {
   }
 
   private String generateMyCustomerFrom(
-      Long saleId, Long customerCategoryId, String filterText, List<Integer> reasonIds) {
+      List<Long> saleIds, Long customerCategoryId, String filterText, List<Integer> reasonIds) {
     String FROM =
         String.format(
             """
@@ -723,7 +723,7 @@ public class CustomerCustomRepository {
             ORDER BY sc.customer_id, sc.available_to DESC NULLS FIRST
         ) latest_sc ON latest_sc.customer_id = c.id AND (c.active = true OR latest_sc.reason_id = 72)
         """,
-            saleId == null ? "" : "AND sc.sale_id = :saleId",
+            ListUtil.isEmpty(saleIds) ? "" : "AND sc.sale_id IN (:saleIds)",
             ListUtil.isEmpty(reasonIds) ? "" : "AND sc.reason_id IN (:reasonIds)");
     if (customerCategoryId != null) {
       FROM +=
@@ -737,7 +737,7 @@ public class CustomerCustomRepository {
               ORDER BY scs_inner.customer_id, scs_inner.sale_id, scs_inner.created_date DESC
           ) AS scs ON scs.customer_id = c.id AND scs.customer_category_id = :customerCategoryId
           """,
-              saleId == null ? "1 = 1" : "AND scs_inner.sale_id = :saleId");
+              ListUtil.isEmpty(saleIds) ? "1 = 1" : "AND scs_inner.sale_id IN (:saleIds)");
     }
     if (StringUtil.isNotEmpty(filterText)) {
       FROM +=
@@ -759,12 +759,14 @@ public class CustomerCustomRepository {
             SELECT DISTINCT ON (i.customer_id)
                    i.*
             FROM interaction i
-            WHERE 1 = 1 %s
+            WHERE type_id <> -1 %s
             ORDER BY i.customer_id, i.created_date DESC
         ) latest_i ON latest_i.customer_id = c.id
         """,
-            saleId == null ? "" : "AND latest_scs.sale_id = :saleId",
-            saleId == null ? "" : "AND (i.visibility = 0 OR i.created_by = :saleId)");
+            ListUtil.isEmpty(saleIds) ? "" : "AND latest_scs.sale_id IN (:saleIds)",
+            ListUtil.isEmpty(saleIds)
+                ? ""
+                : "AND (i.visibility = 0 OR i.created_by IN (:saleIds))");
     return FROM;
   }
 

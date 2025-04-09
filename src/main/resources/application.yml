@@ -2,8 +2,6 @@ server:
   port: 8090
 
 spring:
-  config:
-    import: "classpath:/application-shared.yml"
   application:
     name: crm-crud-service
   datasource:
@@ -44,15 +42,15 @@ eureka:
   instance:
     prefer-ip-address: true
 
-#logging:
-#  level:
-#    org:
-#      hibernate:
-#        SQL: DEBUG
-#        type:
-#          descriptor:
-#            sql:
-#              BasicBinder: TRACE
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
 
 ---
 spring:

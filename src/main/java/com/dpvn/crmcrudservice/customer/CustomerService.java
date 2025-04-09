@@ -4,12 +4,7 @@ import com.dpvn.crmcrudservice.address.AddressService;
 import com.dpvn.crmcrudservice.domain.constant.Customers;
 import com.dpvn.crmcrudservice.domain.constant.RelationshipType;
 import com.dpvn.crmcrudservice.domain.constant.SaleCustomers;
-import com.dpvn.crmcrudservice.domain.entity.Customer;
-import com.dpvn.crmcrudservice.domain.entity.CustomerAddress;
-import com.dpvn.crmcrudservice.domain.entity.CustomerReference;
-import com.dpvn.crmcrudservice.domain.entity.CustomerType;
-import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
-import com.dpvn.crmcrudservice.domain.entity.User;
+import com.dpvn.crmcrudservice.domain.entity.*;
 import com.dpvn.crmcrudservice.interaction.InteractionService;
 import com.dpvn.crmcrudservice.interaction.InteractionUtil;
 import com.dpvn.crmcrudservice.repository.CacheEntityService;
@@ -387,7 +382,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
   }
 
   public Page<FastMap> findMyCustomers(
-      Long saleId,
+      List<Long> saleIds,
       Long customerTypeId,
       Long customerCategoryId,
       String filterText,
@@ -396,7 +391,12 @@ public class CustomerService extends AbstractCrudService<Customer> {
       int pageSize) {
     Pageable pageable = PageRequest.of(page, pageSize);
     return customerCustomRepository.searchMyCustomers(
-        saleId, customerTypeId, customerCategoryId, filterText, reasonIds, pageable);
+        saleIds,
+        customerTypeId,
+        customerCategoryId,
+        filterText,
+        reasonIds,
+        pageable);
   }
 
   @Transactional

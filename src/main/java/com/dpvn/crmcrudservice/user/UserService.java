@@ -1,18 +1,16 @@
 package com.dpvn.crmcrudservice.user;
 
-import com.dpvn.crmcrudservice.domain.dto.UserPropertyDto;
 import com.dpvn.crmcrudservice.domain.entity.*;
 import com.dpvn.crmcrudservice.repository.UserCustomRepository;
-import com.dpvn.crmcrudservice.repository.UserMemberRepository;
 import com.dpvn.crmcrudservice.repository.UserRepository;
+import com.dpvn.shared.domain.constant.Globals;
 import com.dpvn.shared.exception.BadRequestException;
 import com.dpvn.shared.service.AbstractCrudService;
-import com.dpvn.shared.util.FastMap;
-import com.dpvn.shared.util.ObjectUtil;
-import com.dpvn.shared.util.StringUtil;
+import com.dpvn.shared.util.*;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,20 +22,17 @@ public class UserService extends AbstractCrudService<User> {
   private final UserCustomRepository userCustomRepository;
   private final RoleService roleService;
   private final DepartmentService departmentService;
-  private final UserMemberRepository userMemberRepository;
 
   public UserService(
       UserRepository repository,
       UserCustomRepository userCustomRepository,
       UserRepository userRepository,
       RoleService roleService,
-      DepartmentService departmentService,
-      UserMemberRepository userMemberRepository) {
+      DepartmentService departmentService) {
     super(repository);
     this.userCustomRepository = userCustomRepository;
     this.roleService = roleService;
     this.departmentService = departmentService;
-    this.userMemberRepository = userMemberRepository;
   }
 
   @Transactional
@@ -46,7 +41,7 @@ public class UserService extends AbstractCrudService<User> {
     List<User> users = new ArrayList<>();
     entities.forEach(
         entity -> {
-          User dbUser = findByUsername(entity.getUsername()).orElse(null);
+          User dbUser = findByUsername(entity.getUsername());
           if (dbUser == null) {
             entity.setPassword("123456");
             entity.setActive(false);
@@ -63,16 +58,15 @@ public class UserService extends AbstractCrudService<User> {
     return ((UserRepository) repository).findByIdIn(ids);
   }
 
-  public Optional<User> findByUsername(String username) {
+  public User findByUsername(String username) {
     return ((UserRepository) repository).findByUsername(username);
   }
 
   public void changePassword(String username, String password) {
-    Optional<User> userOpt = findByUsername(username);
-    if (userOpt.isEmpty()) {
+    User user = findByUsername(username);
+    if (user == null) {
       throw new BadRequestException("User not found");
     }
-    User user = userOpt.get();
     user.setPassword(password);
     user.setStatus("1");
     user.setActive(Boolean.TRUE);
@@ -149,10 +143,34 @@ public class UserService extends AbstractCrudService<User> {
       dbUser.setDepartment(department);
     }
 
-    List<UserPropertyDto> userPropertyDtos = data.getListClass("properties", UserPropertyDto.class);
-    List<UserProperty> userProperties =
-        userPropertyDtos.stream().map(UserPropertyDto::toEntity).toList();
-    userProperties.forEach(up -> up.setUser(dbUser));
+    List<UserProperty> userProperties = data.getListClass("properties", UserProperty.class);
+    Instant now = DateUtil.now();
+    //    List<UserProperty> userProperties =
+    //        userPropertyDtos.stream().map(dto-> {
+    //          UserProperty entity = dto.toEntity();
+    //          entity.setActive(Boolean.TRUE);
+    //          entity.setDeleted(Boolean.FALSE);
+    //          entity.setCreatedDate(now);
+    //          entity.setModifiedDate(now);
+    //          entity.setFromDate(now);
+    //          if ("MEMBER".equals(entity.getCode()) && "JUDAS".equals(entity.getStatus())) {
+    //            entity.setFromDate(now.plus(Globals.Customer.LIFE_TIME_TREASURE_IN_DAYS,
+    // ChronoUnit.DAYS));
+    //          }
+    //          return entity;
+    //        }).toList();
+    userProperties.forEach(
+        up -> {
+          up.setUser(dbUser);
+          up.setActive(Boolean.TRUE);
+          up.setDeleted(Boolean.FALSE);
+          up.setCreatedDate(now);
+          up.setModifiedDate(now);
+          up.setFromDate(now);
+          if ("MEMBER".equals(up.getCode()) && "JUDAS".equals(up.getStatus())) {
+            up.setToDate(now.plus(Globals.Customer.LIFE_TIME_TREASURE_IN_DAYS, ChronoUnit.DAYS));
+          }
+        });
     dbUser.getProperties().clear();
     dbUser.getProperties().addAll(userProperties);
 
@@ -160,38 +178,5 @@ public class UserService extends AbstractCrudService<User> {
     save(dbUser);
 
     return dbUser;
-  }
-
-  public void addMember(Long leaderId, Long memberId) {
-    UserMember existed = userMemberRepository.findByLeaderIdAndMemberId(memberId, leaderId);
-    if (existed != null) {
-      throw new BadRequestException(
-          String.format(
-              "Relationship leader-member [%d - %s] already exists.", leaderId, memberId));
-    }
-
-    List<User> users = findUsersByIds(List.of(leaderId, memberId));
-    User leader =
-        users.stream().filter(user -> user.getId().equals(leaderId)).findFirst().orElseThrow();
-    User member =
-        users.stream().filter(user -> user.getId().equals(memberId)).findFirst().orElseThrow();
-
-    leader.getMembers().add(member);
-    member.getLeaders().add(leader);
-    save(leader);
-    save(member);
-  }
-
-  public void removeMember(Long leaderId, Long memberId) {
-    List<User> users = findUsersByIds(List.of(leaderId, memberId));
-    User leader =
-        users.stream().filter(user -> user.getId().equals(leaderId)).findFirst().orElseThrow();
-    User member =
-        users.stream().filter(user -> user.getId().equals(memberId)).findFirst().orElseThrow();
-
-    leader.getMembers().remove(member);
-    member.getLeaders().remove(leader);
-    save(leader);
-    save(member);
   }
 }

@@ -2,10 +2,11 @@ package com.dpvn.crmcrudservice.domain.dto;
 
 import com.dpvn.crmcrudservice.domain.entity.User;
 import com.dpvn.shared.domain.BaseDto;
+import com.dpvn.shared.util.ListUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -25,9 +26,6 @@ public class UserDto extends BaseDto<User> {
   private RoleDto role;
   private DepartmentDto department;
   private List<UserPropertyDto> properties;
-  private List<UserDto> leaders = new ArrayList<>();
-  private List<UserDto> members = new ArrayList<>();
-  private List<Long> memberIds = new ArrayList<>();
 
   public UserDto() {
     super(User.class);
@@ -145,27 +143,30 @@ public class UserDto extends BaseDto<User> {
     this.properties = properties;
   }
 
-  public List<UserDto> getLeaders() {
-    return leaders;
+  @JsonIgnore
+  public List<Long> getJudasMemberIds() {
+    if (ListUtil.isEmpty(properties)) {
+      return List.of();
+    }
+    return properties.stream()
+        .filter(
+            p ->
+                "MEMBER".equals(p.getCode())
+                    && "JUDAS".equals(p.getStatus())
+                    && (p.getFromDate() == null || p.getFromDate().isBefore(Instant.now()))
+                    && (p.getToDate() == null || p.getToDate().isAfter(Instant.now())))
+        .map(p -> Long.parseLong(p.getValue()))
+        .toList();
   }
 
-  public void setLeaders(List<UserDto> leaders) {
-    this.leaders = leaders;
-  }
-
-  public List<UserDto> getMembers() {
-    return members;
-  }
-
-  public void setMembers(List<UserDto> members) {
-    this.members = members;
-  }
-
-  public List<Long> getMemberIds() {
-    return memberIds;
-  }
-
-  public void setMemberIds(List<Long> memberIds) {
-    this.memberIds = memberIds;
+  @JsonIgnore
+  public List<Long> getDiscipleMemberIds() {
+    if (ListUtil.isEmpty(properties)) {
+      return List.of();
+    }
+    return properties.stream()
+        .filter(p -> "MEMBER".equals(p.getCode()) && "DISCIPLE".equals(p.getStatus()))
+        .map(p -> Long.parseLong(p.getValue()))
+        .toList();
   }
 }

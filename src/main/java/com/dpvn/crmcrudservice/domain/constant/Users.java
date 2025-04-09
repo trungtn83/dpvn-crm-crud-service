@@ -29,6 +29,7 @@ public class Users {
     public static final String PHONE = "PHONE";
     public static final String PHONE_NUMBER = "PHONE_NUMBER";
     public static final String COMPUTER = "COMPUTER";
+    public static final String MEMBER = "MEMBER";
   }
 
   public static class Action {
@@ -36,5 +37,6 @@ public class Users {
 
     public static final String ADD = "ADD";
     public static final String REMOVE = "REMOVE";
+    public static final String TRANSFER = "TRANSFER";
   }
 }

@@ -80,7 +80,7 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
 
   @PostMapping("/my")
   public FastMap findMyCustomers(@RequestBody FastMap body) {
-    Long saleId = body.getLong("saleId");
+    List<Long> saleIds = body.getListClass("saleIds", Long.class);
     Long customerTypeId = body.getLong("customerTypeId");
     Long customerCategoryId = body.getLong("customerCategoryId");
     String filterText = body.getString("filterText");
@@ -92,7 +92,7 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
     Page<FastMap> customerPage =
         ((CustomerService) service)
             .findMyCustomers(
-                saleId, customerTypeId, customerCategoryId, filterText, reasonIds, page, pageSize);
+                saleIds, customerTypeId, customerCategoryId, filterText, reasonIds, page, pageSize);
     return FastMap.create()
         .add("rows", customerPage.getContent())
         .add("total", customerPage.getTotalElements())

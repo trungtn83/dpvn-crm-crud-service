@@ -92,12 +92,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
               entity -> {
                 // fix for case Customer update phone number in Kiotviet system
                 // phone number changed, but idf still existed =)))
-                Customer dbCustomer =
-                    entity.getIdf() != null
-                        ? repository.findByIdf(entity.getIdf()).orElse(null)
-                        : ((CustomerRepository) repository)
-                            .findByMobilePhone(entity.getMobilePhone())
-                            .orElse(null);
+                Customer dbCustomer = getDbCustomer(entity.getIdf(), entity.getMobilePhone());
                 if (dbCustomer == null) {
                   entity.getReferences().forEach(ref -> ref.setCustomer(entity));
                   entity.getAddresses().forEach(address -> address.setCustomer(entity));
@@ -132,6 +127,20 @@ public class CustomerService extends AbstractCrudService<Customer> {
       LOGGER.error(
           ListUtil.toString(Arrays.asList(e.getStackTrace())), "Failed to sync customers: %s", e);
     }
+  }
+
+  private Customer getDbCustomer(Long idf, String phoneNumber) {
+    Customer result = null;
+    if (idf != null) {
+      result = repository.findByIdf(idf).orElse(null);
+    }
+    if (result != null) {
+      return result;
+    }
+    if (StringUtil.isNotEmpty(phoneNumber)) {
+      result = ((CustomerRepository) repository).findByMobilePhone(phoneNumber).orElse(null);
+    }
+    return result;
   }
 
   private void standardizeMobilePhone(Customer customer) {
@@ -391,12 +400,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
       int pageSize) {
     Pageable pageable = PageRequest.of(page, pageSize);
     return customerCustomRepository.searchMyCustomers(
-        saleIds,
-        customerTypeId,
-        customerCategoryId,
-        filterText,
-        reasonIds,
-        pageable);
+        saleIds, customerTypeId, customerCategoryId, filterText, reasonIds, pageable);
   }
 
   @Transactional

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "customer", uniqueConstraints = @UniqueConstraint(columnNames = "idf"))
+@Table(name = "customer")
 public class Customer extends BaseEntity<CustomerDto> {
   private String customerCode;
 

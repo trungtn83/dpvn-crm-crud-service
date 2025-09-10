@@ -32,6 +32,14 @@ public class Customers {
     public static final String LAST_SUCCESSFUL_TRANSACTION_DATE =
         "LAST_SUCCESSFUL_TRANSACTION_DATE";
     public static final String LAST_TRANSACTION_DATE = "LAST_TRANSACTION_DATE";
+
+    public static final String PAPER_LICENSE = "PAPER_LICENSE";
+    public static final String PAPER_PHARMACY_ELIGIBILITY_LICENSE = "PAPER_PHARMACY_ELIGIBILITY_LICENSE";
+    public static final String PAPER_EXAMINATION_TREATMENT_LICENSE = "PAPER_EXAMINATION_TREATMENT_LICENSE";
+    public static final String PAPER_GPP = "PAPER_GPP";
+    public static final String PAPER_GDP = "PAPER_GDP";
+    public static final String PAPER_GSP = "PAPER_GSP";
+
     public static final String OTHER = "OTHER";
   }
 

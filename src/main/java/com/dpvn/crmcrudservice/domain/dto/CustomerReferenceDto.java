@@ -23,6 +23,13 @@ public class CustomerReferenceDto extends BaseDto<CustomerReference> {
     this.value = value;
   }
 
+public CustomerReferenceDto(String code, String value, String reference) {
+    super(CustomerReference.class);
+    this.code = code;
+    this.value = value;
+    this.reference = reference;
+  }
+
   public String getCode() {
     return code;
   }

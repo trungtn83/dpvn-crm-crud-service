@@ -22,19 +22,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController extends AbstractCrudController<User, UserDto> {
 
   private final CacheEntityService cacheEntityService;
-  private final UserService userService;
 
   public UserController(UserService userService, CacheEntityService cacheEntityService) {
     super(userService);
     this.cacheEntityService = cacheEntityService;
-    this.userService = userService;
   }
 
   @GetMapping("/username/{username}")
   public UserDto getCrmUserByUserName(@PathVariable String username) {
     User user = ((UserService) service).findByUsername(username);
-    UserDto dto = user != null ? user.toDto() : null;
-    return dto;
+    return user != null ? user.toDto() : null;
   }
 
   @PostMapping("/change-password")

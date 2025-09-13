@@ -6,6 +6,7 @@ import com.dpvn.crmcrudservice.domain.entity.report.TaskBySeller;
 import com.dpvn.crmcrudservice.repository.InteractionRepository;
 import com.dpvn.crmcrudservice.repository.SaleCustomerRepository;
 import com.dpvn.crmcrudservice.repository.TaskRepository;
+import com.dpvn.shared.util.StringUtil;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -38,13 +39,13 @@ public class ReportCustomerService {
 
   private CustomerBySeller tranformToCustomerBySeller(Object[] o) {
     CustomerBySeller customer = new CustomerBySeller();
-    customer.setId(Long.parseLong(o[0].toString()));
-    customer.setSellerId(Long.parseLong(o[1].toString()));
-    customer.setReason(Integer.parseInt(o[2].toString()));
+    customer.setId(Long.parseLong(StringUtil.toString(o[0])));
+    customer.setSellerId(Long.parseLong(StringUtil.toString(o[1])));
+    customer.setReason(Integer.parseInt(StringUtil.toString(o[2])));
     customer.setCreatedDate((Instant) o[3]);
-    customer.setName(o[4].toString());
-    customer.setCode(o[5].toString());
-    customer.setMobilePhone(o[6].toString());
+    customer.setName(StringUtil.toString(o[4]));
+    customer.setCode(StringUtil.toString(o[5]));
+    customer.setMobilePhone(StringUtil.toString(o[6]));
     return customer;
   }
 
@@ -60,18 +61,14 @@ public class ReportCustomerService {
 
   private InteractionBySeller tranformToInteractionBySeller(Object[] o) {
     InteractionBySeller interaction = new InteractionBySeller();
-    interaction.setId(Long.parseLong(o[0].toString()));
-    interaction.setSellerId(Long.parseLong(o[1].toString()));
-    interaction.setCustomerId(Long.parseLong(o[2].toString()));
-    interaction.setCustomerName(o[3].toString());
-    if (o[4] != null) {
-      interaction.setMobilePhone(o[4].toString());
-    }
-    if (o[5] != null) {
-      interaction.setTitle(o[5].toString());
-    }
-    interaction.setContent(o[6].toString());
-    interaction.setVisibility(Integer.parseInt(o[7].toString()));
+    interaction.setId(Long.parseLong(StringUtil.toString(o[0])));
+    interaction.setSellerId(Long.parseLong(StringUtil.toString(o[1])));
+    interaction.setCustomerId(Long.parseLong(StringUtil.toString(o[2])));
+    interaction.setCustomerName(StringUtil.toString(o[3]));
+    interaction.setMobilePhone(StringUtil.toString(o[4]));
+    interaction.setTitle(StringUtil.toString(o[5]));
+    interaction.setContent(StringUtil.toString(o[6]));
+    interaction.setVisibility(Integer.parseInt(StringUtil.toString(o[7])));
     interaction.setCreatedDate((Instant) o[8]);
     return interaction;
   }
@@ -85,26 +82,14 @@ public class ReportCustomerService {
 
   private TaskBySeller tranformToTaskBySeller(Object[] o) {
     TaskBySeller task = new TaskBySeller();
-    task.setId(Long.parseLong(o[0].toString()));
-    task.setSellerId(Long.parseLong(o[1].toString()));
-    if (o[2] != null) {
-      task.setName(o[2].toString());
-    }
-    if (o[3] != null) {
-      task.setTitle(o[3].toString());
-    }
-    if (o[4] != null) {
-      task.setContent(o[4].toString());
-    }
-    if (o[5] != null) {
-      task.setFromDate((Instant) o[5]);
-    }
-    if (o[6] != null) {
-      task.setToDate((Instant) o[6]);
-    }
-    if (o[7] != null) {
-      task.setModifiedDate((Instant) o[7]);
-    }
+    task.setId(Long.parseLong(StringUtil.toString(o[0])));
+    task.setSellerId(Long.parseLong(StringUtil.toString(o[1])));
+    task.setName(StringUtil.toString(o[2]));
+    task.setTitle(StringUtil.toString(o[3]));
+    task.setContent(StringUtil.toString(o[4]));
+    task.setFromDate((Instant) o[5]);
+    task.setToDate((Instant) o[6]);
+    task.setModifiedDate((Instant) o[7]);
     return task;
   }
 }

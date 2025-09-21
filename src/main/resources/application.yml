@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: crm-crud-service
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
   datasource:
     hikari:
       connection-timeout: 60000 #milisecond

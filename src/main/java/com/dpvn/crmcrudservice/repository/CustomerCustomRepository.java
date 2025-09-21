@@ -91,12 +91,12 @@ public class CustomerCustomRepository {
       List<Long> typeIds,
       List<String> locationCodes,
       List<Integer> sourceIds) {
-    StringBuilder WHERE = new StringBuilder(" WHERE c.active = false AND c.deleted IS NOT TRUE");
+    StringBuilder WHERE = new StringBuilder(" WHERE c.active = false AND c.deleted = false");
 
     // fix cho bản thân sale đó nếu đã đào rồi thì ko thấy trong GOLDMINE hoặc SANDBANK nữa
     if (saleId != null) {
       WHERE.append(
-          " AND NOT EXISTS (SELECT 1 FROM sale_customer sc WHERE sc.customer_id = c.id AND sc.sale_id = :saleId AND sc.active = TRUE AND sc.deleted IS NOT TRUE AND sc.relationship_type = 1 AND sc.reason_id = 72)");
+          " AND NOT EXISTS (SELECT 1 FROM sale_customer sc WHERE sc.customer_id = c.id AND sc.sale_id = :saleId AND sc.active = TRUE AND sc.deleted = false AND sc.relationship_type = 1 AND sc.reason_id = 72)");
     }
 
     if (StringUtil.isNotEmpty(filterText)) {
@@ -278,6 +278,8 @@ public class CustomerCustomRepository {
                 WHERE sc.sale_id = :saleId
                   AND sc.relationship_type = 2
                   AND sc.reason_id = 5
+                  AND sc.active = true
+                  AND sc.deleted = false
                 GROUP BY sc.customer_id
             ) AS sc_star
                 ON sc_star.customer_id = c.id
@@ -285,6 +287,8 @@ public class CustomerCustomRepository {
                 SELECT i.customer_id, MAX(i.id) AS id
                 FROM interaction i
                 WHERE i.type_id = 1
+                  AND i.active = true
+                  AND i.deleted = false
                 GROUP BY i.customer_id
             ) AS boom_interaction
                 ON boom_interaction.customer_id = c.id
@@ -292,8 +296,8 @@ public class CustomerCustomRepository {
     if (StringUtil.isNotEmpty(filterText)) {
       FROM.append(
           """
-          LEFT JOIN customer_reference cr ON c.id = cr.customer_id
-          LEFT JOIN customer_address ca ON c.id = ca.customer_id
+          LEFT JOIN customer_reference cr ON c.id = cr.customer_id AND cr.active = true AND cr.deleted = false
+          LEFT JOIN customer_address ca ON c.id = ca.customer_id AND ca.active = true AND ca.deleted = false
         """);
     }
     if (StringUtil.isEmpty(filterText)
@@ -301,7 +305,7 @@ public class CustomerCustomRepository {
         && locationCodes.size() == 3) {
       FROM.append(
           """
-          LEFT JOIN customer_address ca ON c.id = ca.customer_id
+          LEFT JOIN customer_address ca ON c.id = ca.customer_id AND ca.active = true AND ca.deleted = false
         """);
     }
     return FROM.toString();
@@ -316,7 +320,7 @@ public class CustomerCustomRepository {
       List<Integer> sourceIds) {
     StringBuilder WHERE =
         new StringBuilder(
-            "WHERE (c.active = TRUE AND c.deleted IS NOT TRUE AND c.status = '"
+            "WHERE (c.active = TRUE AND c.deleted = false AND c.status = '"
                 + Customers.Status.VERIFIED
                 + "')");
 
@@ -331,7 +335,7 @@ public class CustomerCustomRepository {
                 FROM sale_customer sc
                 WHERE sc.customer_id = c.id
                   AND sc.active = TRUE
-                  AND sc.deleted IS NOT TRUE
+                  AND sc.deleted = false
                   AND sc.relationship_type = 1
                   AND ((sc.available_from IS NULL OR sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP)))
         """);
@@ -357,11 +361,11 @@ public class CustomerCustomRepository {
     if (ListUtil.isNotEmpty(tags)) {
       if (tags.contains(Customers.Tag.SOLD)) {
         WHERE.append(
-            " AND (EXISTS (SELECT 1 FROM sale_customer sc WHERE sc.customer_id = c.id AND sc.relationship_type = 1 AND sc.reason_id = 5))");
+            " AND (EXISTS (SELECT 1 FROM sale_customer sc WHERE sc.customer_id = c.id AND sc.relationship_type = 1 AND sc.reason_id = 5 AND sc.active = true AND sc.deleted = false))");
       }
       if (tags.contains(Customers.Tag.TAKING_CARE)) {
         WHERE.append(
-            " AND (EXISTS (SELECT 1 FROM interaction i WHERE i.customer_id = c.id AND i.created_date >= CURRENT_DATE - INTERVAL '7 days'))");
+            " AND (EXISTS (SELECT 1 FROM interaction i WHERE i.customer_id = c.id AND i.created_date >= CURRENT_DATE - INTERVAL '7 days' AND i.active = true AND i.deleted = false))");
       }
     }
     if (ListUtil.isNotEmpty(typeIds)) {
@@ -715,7 +719,7 @@ public class CustomerCustomRepository {
                    sc.*
             FROM sale_customer sc
             WHERE sc.active = true
-              AND sc.deleted is not true
+              AND sc.deleted = false
               %s
               AND sc.relationship_type = 1
               %s
@@ -742,8 +746,8 @@ public class CustomerCustomRepository {
     if (StringUtil.isNotEmpty(filterText)) {
       FROM +=
           """
-          LEFT JOIN customer_reference cr ON c.id = cr.customer_id
-          LEFT JOIN customer_address ca ON c.id = ca.customer_id
+          LEFT JOIN customer_reference cr ON c.id = cr.customer_id AND cr.active = true AND cr.deleted = false
+          LEFT JOIN customer_address ca ON c.id = ca.customer_id AND ca.active = true AND ca.deleted = false
         """;
     }
     FROM +=
@@ -753,13 +757,14 @@ public class CustomerCustomRepository {
             SELECT DISTINCT ON (scs.customer_id)
                    scs.*
             FROM sale_customer_state scs
+            WHERE scs.active = true AND scs.deleted = false
             ORDER BY scs.customer_id, scs.modified_date DESC
         ) latest_scs ON latest_scs.customer_id = c.id %s
         LEFT JOIN (
             SELECT DISTINCT ON (i.customer_id)
                    i.*
             FROM interaction i
-            WHERE type_id <> -1 %s
+            WHERE type_id <> -1 AND i.active = TRUE AND i.deleted = FALSE %s
             ORDER BY i.customer_id, i.created_date DESC
         ) latest_i ON latest_i.customer_id = c.id
         """,
@@ -772,7 +777,7 @@ public class CustomerCustomRepository {
 
   private String generateMyCustomersWhere(
       String filterText, Long customerTypeId, List<Integer> reasonIds) {
-    StringBuilder WHERE = new StringBuilder("WHERE c.deleted IS NOT TRUE");
+    StringBuilder WHERE = new StringBuilder("WHERE c.deleted = false");
     if (customerTypeId != null) {
       WHERE.append(" AND c.customer_type_id = :customerTypeId");
     }
@@ -795,7 +800,7 @@ public class CustomerCustomRepository {
                 FROM sale_customer sc
                 WHERE sc.customer_id = c.id
                   AND sc.active = TRUE
-                  AND sc.deleted IS NOT TRUE
+                  AND sc.deleted = false
                   AND sc.relationship_type = 1
                   AND sc.reason_id = 1
                   AND ((sc.available_from IS NULL OR sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP)))
@@ -813,13 +818,13 @@ public class CustomerCustomRepository {
         WITH LastModifiedTasks AS (
             SELECT DISTINCT ON (customer_id) customer_id, id AS last_modified_task_id, "name" AS last_modified_task_name, modified_date AS last_modified_task_date
             FROM task
-            WHERE progress <> 100 %s
+            WHERE progress <> 100 AND active = TRUE AND deleted = FALSE %s
             ORDER BY customer_id, modified_date DESC
         ),
         OldestCreatedTasks AS (
             SELECT DISTINCT ON (customer_id) customer_id, id AS oldest_modified_task_id, "name" AS oldest_modified_task_name, modified_date AS oldest_modified_task_date
             FROM task
-            WHERE progress <> 100 %s
+            WHERE progress <> 100 AND active = TRUE AND deleted = FALSE %s
             ORDER BY customer_id, modified_date ASC
         )
         """,
@@ -933,11 +938,11 @@ public class CustomerCustomRepository {
               SELECT sale_id, customer_id
               FROM sale_customer sc
               WHERE sc.active = TRUE %s
-                AND sc.deleted IS NOT TRUE
+                AND sc.deleted = false
                 AND sc.relationship_type = 1
                 AND (sc.available_from IS NULL OR sc.available_from <= CURRENT_TIMESTAMP AND (sc.available_to IS NULL OR sc.available_to >= CURRENT_TIMESTAMP))
             ) AS XXX on XXX.customer_id = c.id
-            JOIN task t ON c.id = t.customer_id AND t.progress <> 100 %s
+            JOIN task t ON c.id = t.customer_id AND t.progress <> 100 AND t.active = TRUE and t.deleted = FALSE %s
             LEFT JOIN LastModifiedTasks lmt ON c.id = lmt.customer_id
             LEFT JOIN OldestCreatedTasks oct ON c.id = oct.customer_id
         """,
@@ -947,8 +952,8 @@ public class CustomerCustomRepository {
     if (StringUtil.isNotEmpty(filterText)) {
       FROM +=
           """
-          LEFT JOIN customer_reference cr ON c.id = cr.customer_id
-          LEFT JOIN customer_address ca ON c.id = ca.customer_id
+          LEFT JOIN customer_reference cr ON c.id = cr.customer_id AND sc.active = TRUE AND sc.deleted = false
+          LEFT JOIN customer_address ca ON c.id = ca.customer_id AND ca.active = TRUE AND ca.deleted = false
         """;
     }
     return FROM;
@@ -956,7 +961,7 @@ public class CustomerCustomRepository {
 
   private String generateTaskBasedWhere(String filterText, List<String> tags) {
     String WHERE =
-        "WHERE (c.active = true AND (c.status = '"
+        "WHERE (c.active = true AND c.deleted = false AND (c.status = '"
             + Customers.Status.VERIFIED
             + "' OR c.status = '"
             + Customers.Status.VERIFYING

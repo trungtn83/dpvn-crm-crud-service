@@ -102,10 +102,29 @@ public class CustomerService extends AbstractCrudService<Customer> {
                   ObjectUtil.assign(dbCustomer, entity, List.of("references", "addresses"));
 
                   if (ListUtil.isNotEmpty(entity.getReferences())) {
-                    dbCustomer.getReferences().clear();
-                    List<CustomerReference> references = entity.getReferences();
-                    references.forEach(ref -> ref.setCustomer(dbCustomer));
-                    dbCustomer.getReferences().addAll(references);
+                    List<CustomerReference> newReferences = entity.getReferences();
+                    newReferences.forEach(
+                        newRef -> {
+                          newRef.setCustomer(dbCustomer);
+                          newRef.setActive(true);
+                          newRef.setDeleted(false);
+                        });
+                    dbCustomer
+                        .getReferences()
+                        .forEach(
+                            oldRef -> {
+                              if (newReferences.stream()
+                                  .noneMatch(
+                                      nf -> StringUtil.equals(nf.getValue(), oldRef.getValue()))) {
+                                CustomerReference newReference = new CustomerReference();
+                                newReference.setCode(oldRef.getCode());
+                                newReference.setValue(oldRef.getValue());
+                                newReference.setActive(false);
+                                newReference.setDeleted(false);
+                                newReferences.add(newReference);
+                              }
+                            });
+                    dbCustomer.getReferences().addAll(newReferences);
                   }
                   if (ListUtil.isNotEmpty(entity.getAddresses())) {
                     dbCustomer.getAddresses().clear();
@@ -459,12 +478,33 @@ public class CustomerService extends AbstractCrudService<Customer> {
     Customer dbEntity = findById(id).orElseThrow();
     ObjectUtil.assign(dbEntity, data);
 
-    List<CustomerReference> references = data.getListClass("references", CustomerReference.class);
+    List<CustomerReference> references =
+        new ArrayList<>(data.getListClass("references", CustomerReference.class));
     if (ListUtil.isNotEmpty(references)) {
-      dbEntity.getReferences().clear();
-      references.forEach(ref -> ref.setCustomer(dbEntity));
-      dbEntity.getReferences().addAll(references);
+      references.forEach(
+          ref -> {
+            ref.setActive(true);
+            ref.setDeleted(false);
+            ref.setCustomer(dbEntity);
+          });
     }
+    dbEntity
+        .getReferences()
+        .forEach(
+            oldRef -> {
+              if (references.stream()
+                  .noneMatch(ref -> StringUtil.equals(ref.getValue(), oldRef.getValue()))) {
+                CustomerReference newReference = new CustomerReference();
+                newReference.setCode(oldRef.getCode());
+                newReference.setValue(oldRef.getValue());
+                newReference.setActive(false);
+                newReference.setDeleted(true);
+                newReference.setCustomer(dbEntity);
+                references.add(newReference);
+              }
+            });
+    dbEntity.getReferences().clear();
+    dbEntity.getReferences().addAll(references);
 
     List<CustomerAddress> addresses = data.getListClass("addresses", CustomerAddress.class);
     if (ListUtil.isNotEmpty(addresses)) {

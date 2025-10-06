@@ -1,6 +1,7 @@
 package com.dpvn.crmcrudservice.customer;
 
 import com.dpvn.crmcrudservice.address.AddressService;
+import com.dpvn.crmcrudservice.client.WmsCrudServiceClient;
 import com.dpvn.crmcrudservice.domain.constant.Customers;
 import com.dpvn.crmcrudservice.domain.constant.RelationshipType;
 import com.dpvn.crmcrudservice.domain.constant.SaleCustomers;
@@ -43,6 +44,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
   private final AddressService addressService;
   private final CacheEntityService cacheEntityService;
   private final InteractionService interactionService;
+  private final WmsCrudServiceClient wmsCrudServiceClient;
 
   public CustomerService(
       CustomerRepository repository,
@@ -52,7 +54,8 @@ public class CustomerService extends AbstractCrudService<Customer> {
       SaleCustomerService saleCustomerService,
       AddressService addressService,
       CacheEntityService cacheEntityService,
-      InteractionService interactionService) {
+      InteractionService interactionService,
+      WmsCrudServiceClient wmsCrudServiceClient) {
     super(repository);
     this.customerCustomRepository = customerCustomRepository;
     this.saleCustomerRepository = saleCustomerRepository;
@@ -61,6 +64,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
     this.addressService = addressService;
     this.cacheEntityService = cacheEntityService;
     this.interactionService = interactionService;
+    this.wmsCrudServiceClient = wmsCrudServiceClient;
   }
 
   @Transactional
@@ -132,6 +136,18 @@ public class CustomerService extends AbstractCrudService<Customer> {
                     addresses.forEach(address -> address.setCustomer(dbCustomer));
                     dbCustomer.getAddresses().addAll(addresses);
                   }
+
+                  // nếu sdt giữ nguyên mà idf thay đổi
+                  // migrate từ hệ thống cũ qua thì cập nhật la order, invoice
+                  if (!Objects.equals(entity.getIdf(), dbCustomer.getIdf())) {
+                    FastMap body =
+                        FastMap.create()
+                            .add("oldCustomerIdf", dbCustomer.getIdf())
+                            .add("newCustomerIdf", entity.getIdf());
+                    wmsCrudServiceClient.updateOrderCustomerIdfs(body);
+                    wmsCrudServiceClient.updateInvoiceCustomerIdfs(body);
+                  }
+
                   customers.add(dbCustomer);
                   updated.getAndIncrement();
                 }

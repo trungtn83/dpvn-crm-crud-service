@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/customer")
 public class CustomerController extends AbstractCrudController<Customer, CustomerDto> {
 
+  private final CustomerService customerService;
+
   public CustomerController(CustomerService customerService) {
     super(customerService);
+    this.customerService = customerService;
   }
 
   /**
@@ -190,5 +193,11 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
     Long saleId = body.getLong("saleId");
     ((CustomerService) service)
         .approveCustomerFromSandToGold(userId, id, approved, dispatchTypeId, saleId);
+  }
+
+  @Deprecated
+  @PostMapping("/customer-reference/fix-missing-slug")
+  public void fixCustomerPaperDocuments() {
+    customerService.fixCustomerPaperDocuments();
   }
 }

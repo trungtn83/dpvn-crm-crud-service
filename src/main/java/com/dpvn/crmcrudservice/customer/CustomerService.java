@@ -1,6 +1,7 @@
 package com.dpvn.crmcrudservice.customer;
 
 import com.dpvn.crmcrudservice.address.AddressService;
+import com.dpvn.crmcrudservice.client.StorageClient;
 import com.dpvn.crmcrudservice.client.WmsCrudServiceClient;
 import com.dpvn.crmcrudservice.domain.constant.Customers;
 import com.dpvn.crmcrudservice.domain.constant.RelationshipType;
@@ -10,6 +11,7 @@ import com.dpvn.crmcrudservice.interaction.InteractionService;
 import com.dpvn.crmcrudservice.interaction.InteractionUtil;
 import com.dpvn.crmcrudservice.repository.CacheEntityService;
 import com.dpvn.crmcrudservice.repository.CustomerCustomRepository;
+import com.dpvn.crmcrudservice.repository.CustomerReferenceRepository;
 import com.dpvn.crmcrudservice.repository.CustomerRepository;
 import com.dpvn.crmcrudservice.repository.SaleCustomerRepository;
 import com.dpvn.crmcrudservice.user.UserService;
@@ -20,6 +22,7 @@ import com.dpvn.shared.util.FastMap;
 import com.dpvn.shared.util.ListUtil;
 import com.dpvn.shared.util.ObjectUtil;
 import com.dpvn.shared.util.StringUtil;
+import com.dpvn.storageservice.domain.FileDto;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +48,8 @@ public class CustomerService extends AbstractCrudService<Customer> {
   private final CacheEntityService cacheEntityService;
   private final InteractionService interactionService;
   private final WmsCrudServiceClient wmsCrudServiceClient;
+  private final CustomerReferenceRepository customerReferenceRepository;
+  private final StorageClient storageClient;
 
   public CustomerService(
       CustomerRepository repository,
@@ -55,7 +60,9 @@ public class CustomerService extends AbstractCrudService<Customer> {
       AddressService addressService,
       CacheEntityService cacheEntityService,
       InteractionService interactionService,
-      WmsCrudServiceClient wmsCrudServiceClient) {
+      WmsCrudServiceClient wmsCrudServiceClient,
+      CustomerReferenceRepository customerReferenceRepository,
+      StorageClient storageClient) {
     super(repository);
     this.customerCustomRepository = customerCustomRepository;
     this.saleCustomerRepository = saleCustomerRepository;
@@ -65,6 +72,8 @@ public class CustomerService extends AbstractCrudService<Customer> {
     this.cacheEntityService = cacheEntityService;
     this.interactionService = interactionService;
     this.wmsCrudServiceClient = wmsCrudServiceClient;
+    this.customerReferenceRepository = customerReferenceRepository;
+    this.storageClient = storageClient;
   }
 
   @Transactional
@@ -607,5 +616,21 @@ public class CustomerService extends AbstractCrudService<Customer> {
     approveAndAssignToPool(customer.getId());
     SaleCustomer saleCustomer = SaleCustomerUtil.generateSaleCustomer(customer, sale);
     saleCustomerService.create(saleCustomer);
+  }
+
+  /**
+   * Chạy 1 lần fix các customer ref nếu có ref nhưng không upload được ảnh để save vào field value
+   */
+  @Deprecated
+  public void fixCustomerPaperDocuments() {
+    List<CustomerReference> customerReferences =
+        customerReferenceRepository.findErrorCustomerReferences();
+    for (CustomerReference customerReference : customerReferences) {
+      FileDto fileDto =
+          storageClient.uploadFileFromUrl(
+              FastMap.create().add("url", customerReference.getReference()));
+      customerReference.setValue(fileDto.getSlug());
+    }
+    customerReferenceRepository.saveAll(customerReferences);
   }
 }

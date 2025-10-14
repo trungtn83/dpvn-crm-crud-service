@@ -56,6 +56,9 @@ logging:
             sql:
               BasicBinder: TRACE
 
+storage-service:
+  url: http://localhost:8250/api
+
 ---
 spring:
   config:
@@ -77,3 +80,6 @@ eureka:
       defaultZone: http://dpvn-eureka-server:8761/eureka
   instance:
     prefer-ip-address: true
+
+storage-service:
+  url: https://storage.duocphamvietnhat.com/api

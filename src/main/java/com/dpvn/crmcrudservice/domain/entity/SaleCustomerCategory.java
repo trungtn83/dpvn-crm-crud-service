@@ -1,14 +1,13 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.dto.SaleCustomerCategoryDto;
-import com.dpvn.shared.domain.BaseEntity;
+import com.dpvn.sharedjpa.domain.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "sale_customer_category")
-public class SaleCustomerCategory extends BaseEntity<SaleCustomerCategoryDto> {
+public class SaleCustomerCategory extends BaseEntity {
   private Long saleId;
   private String code;
 
@@ -17,10 +16,6 @@ public class SaleCustomerCategory extends BaseEntity<SaleCustomerCategoryDto> {
 
   @Column(columnDefinition = "TEXT")
   private String description;
-
-  public SaleCustomerCategory() {
-    super(SaleCustomerCategoryDto.class);
-  }
 
   public Long getSaleId() {
     return saleId;

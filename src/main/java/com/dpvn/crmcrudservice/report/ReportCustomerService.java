@@ -6,7 +6,7 @@ import com.dpvn.crmcrudservice.domain.entity.report.TaskBySeller;
 import com.dpvn.crmcrudservice.repository.InteractionRepository;
 import com.dpvn.crmcrudservice.repository.SaleCustomerRepository;
 import com.dpvn.crmcrudservice.repository.TaskRepository;
-import com.dpvn.shared.util.StringUtil;
+import com.dpvn.sharedcore.util.StringUtil;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;

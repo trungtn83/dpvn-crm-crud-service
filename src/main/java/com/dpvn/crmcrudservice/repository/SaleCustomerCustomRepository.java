@@ -1,8 +1,8 @@
 package com.dpvn.crmcrudservice.repository;
 
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
-import com.dpvn.shared.util.ListUtil;
-import com.dpvn.shared.util.StringUtil;
+import com.dpvn.sharedcore.util.ListUtil;
+import com.dpvn.sharedcore.util.StringUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;

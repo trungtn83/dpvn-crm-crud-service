@@ -1,7 +1,7 @@
 package com.dpvn.crmcrudservice.client;
 
-import com.dpvn.shared.util.FastMap;
-import com.dpvn.storageservice.domain.FileDto;
+import com.dpvn.sharedcore.util.FastMap;
+import com.dpvn.storageservice.domain.dto.FileDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

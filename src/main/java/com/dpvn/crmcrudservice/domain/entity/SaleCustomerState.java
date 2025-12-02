@@ -1,8 +1,6 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.constant.SaleCustomers;
-import com.dpvn.crmcrudservice.domain.dto.SaleCustomerStateDto;
-import com.dpvn.shared.domain.BaseEntity;
+import com.dpvn.sharedjpa.domain.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -10,13 +8,11 @@ import jakarta.persistence.Table;
 /** EXTEND MORE IN THE FUTURE */
 @Entity
 @Table(name = "sale_customer_state")
-public class SaleCustomerState extends BaseEntity<SaleCustomerStateDto> {
+public class SaleCustomerState extends BaseEntity {
 
   private Long saleId;
   private Long customerId;
   private Long customerCategoryId;
-
-  private Integer state = SaleCustomers.State.NEW_CONTACT;
 
   @Column(columnDefinition = "TEXT")
   private String feeShip;
@@ -39,10 +35,6 @@ public class SaleCustomerState extends BaseEntity<SaleCustomerStateDto> {
   @Column(columnDefinition = "TEXT")
   private String note;
 
-  public SaleCustomerState() {
-    super(SaleCustomerStateDto.class);
-  }
-
   public Long getSaleId() {
     return saleId;
   }
@@ -57,14 +49,6 @@ public class SaleCustomerState extends BaseEntity<SaleCustomerStateDto> {
 
   public void setCustomerId(Long customerId) {
     this.customerId = customerId;
-  }
-
-  public Integer getState() {
-    return state;
-  }
-
-  public void setState(Integer status) {
-    this.state = status;
   }
 
   public String getFeeShip() {

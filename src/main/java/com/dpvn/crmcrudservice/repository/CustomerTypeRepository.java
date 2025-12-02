@@ -1,7 +1,7 @@
 package com.dpvn.crmcrudservice.repository;
 
 import com.dpvn.crmcrudservice.domain.entity.CustomerType;
-import com.dpvn.shared.repository.AbstractRepository;
+import com.dpvn.sharedjpa.repository.AbstractRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository

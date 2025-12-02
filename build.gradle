@@ -23,17 +23,20 @@ ext {
 }
 
 dependencies {
-    implementation 'com.dpvn:dpvn-shared:0.0.1-SNAPSHOT'
-    implementation 'com.dpvn:dpvn-wms-crud-service:0.0.1-SNAPSHOT'
-    implementation 'com.dpvn:dpvn-storage-service:0.0.1-SNAPSHOT'
+    implementation 'com.dpvn:shared-core:0.0.1-SNAPSHOT'
+    implementation 'com.dpvn:shared-jpa:0.0.1-SNAPSHOT'
+    implementation 'com.dpvn:shared-kafka:0.0.1-SNAPSHOT'
+    implementation 'com.dpvn:dpvn-report-crud-service:0.0.1-SNAPSHOT:domain'
+    implementation 'com.dpvn:dpvn-kiotviet-service:0.0.1-SNAPSHOT:domain'
+    implementation 'com.dpvn:dpvn-gateway-service:0.0.1-SNAPSHOT:domain'
+    implementation 'com.dpvn:dpvn-storage-service:0.0.1-SNAPSHOT:domain'
 
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    runtimeOnly 'org.postgresql:postgresql'
 
-    implementation 'org.modelmapper:modelmapper:3.2.0'
-    implementation 'org.postgresql:postgresql'
+    // MapStruct phải có ở mọi nơi vì annotationProcessor không gióng api, ko kế thừa được
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
@@ -65,10 +68,11 @@ tasks.withType(JavaCompile) {
 }
 
 task domainJar(type: Jar) {
+    archiveClassifier.set('domain')
     from(sourceSets.main.output) {
-        include 'com/dpvn/crmcrudservice/domain/**'
+        include 'com/dpvn/crmcrudservice/domain/dto/**'
+        include 'com/dpvn/crmcrudservice/domain/constant/**'
     }
-
     manifest {
         attributes(
                 'Main-Class': 'com.dpvn.crmcrudservice.CrudServiceApplication'

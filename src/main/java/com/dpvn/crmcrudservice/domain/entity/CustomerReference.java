@@ -1,7 +1,7 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.dto.CustomerReferenceDto;
-import com.dpvn.shared.domain.BaseEntity;
+import com.dpvn.sharedjpa.domain.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -10,8 +10,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "customer_reference")
-public class CustomerReference extends BaseEntity<CustomerReferenceDto> {
-  private String code; // ZALo, FB...
+public class CustomerReference extends BaseEntity {
+  private String code; // ZALo, FB, LICENSE_PAPER...
 
   @Column(columnDefinition = "TEXT")
   private String name;
@@ -24,11 +24,8 @@ public class CustomerReference extends BaseEntity<CustomerReferenceDto> {
 
   @ManyToOne
   @JoinColumn(name = "customer_id", nullable = false, referencedColumnName = "id")
+  @JsonIgnore
   private Customer customer;
-
-  public CustomerReference() {
-    super(CustomerReferenceDto.class);
-  }
 
   public String getCode() {
     return code;

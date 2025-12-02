@@ -2,11 +2,12 @@ package com.dpvn.crmcrudservice.task;
 
 import com.dpvn.crmcrudservice.domain.dto.TaskDto;
 import com.dpvn.crmcrudservice.domain.entity.Task;
-import com.dpvn.shared.controller.AbstractCrudController;
-import com.dpvn.shared.util.DateUtil;
-import com.dpvn.shared.util.FastMap;
-import com.dpvn.shared.util.LocalDateUtil;
-import com.dpvn.shared.util.StringUtil;
+import com.dpvn.crmcrudservice.domain.mapper.TaskMapper;
+import com.dpvn.sharedcore.util.DateUtil;
+import com.dpvn.sharedcore.util.FastMap;
+import com.dpvn.sharedcore.util.LocalDateUtil;
+import com.dpvn.sharedcore.util.StringUtil;
+import com.dpvn.sharedjpa.controller.AbstractCrudController;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -16,12 +17,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/task")
 public class TaskController extends AbstractCrudController<Task, TaskDto> {
-
-  private final TaskService taskService;
-
-  public TaskController(TaskService service, TaskService taskService) {
-    super(service);
-    this.taskService = taskService;
+  public TaskController(TaskMapper mapper, TaskService service) {
+    super(mapper, service);
   }
 
   @PostMapping("/find-by-options")
@@ -56,7 +53,7 @@ public class TaskController extends AbstractCrudController<Task, TaskDto> {
                 page,
                 pageSize);
     return FastMap.create()
-        .add("rows", taskPage.getContent().stream().map(Task::toDto))
+        .add("rows", mapper.toDtoList(taskPage.getContent()))
         .add("total", taskPage.getTotalElements())
         .add("pageSize", taskPage.getSize())
         .add("page", taskPage.getNumber());

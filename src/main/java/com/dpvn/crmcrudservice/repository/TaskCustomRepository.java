@@ -1,10 +1,10 @@
 package com.dpvn.crmcrudservice.repository;
 
 import com.dpvn.crmcrudservice.domain.entity.Task;
-import com.dpvn.shared.domain.constant.Globals;
-import com.dpvn.shared.service.AbstractService;
-import com.dpvn.shared.util.ListUtil;
-import com.dpvn.shared.util.StringUtil;
+import com.dpvn.sharedcore.domain.constant.Globals;
+import com.dpvn.sharedcore.service.AbstractService;
+import com.dpvn.sharedcore.util.ListUtil;
+import com.dpvn.sharedcore.util.StringUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;

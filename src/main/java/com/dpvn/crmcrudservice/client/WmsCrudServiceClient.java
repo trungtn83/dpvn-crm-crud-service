@@ -1,6 +1,6 @@
 package com.dpvn.crmcrudservice.client;
 
-import com.dpvn.shared.util.FastMap;
+import com.dpvn.sharedcore.util.FastMap;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.PostMapping;

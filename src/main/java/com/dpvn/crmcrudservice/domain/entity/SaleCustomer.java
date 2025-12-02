@@ -1,33 +1,27 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.dto.SaleCustomerDto;
-import com.dpvn.shared.domain.BaseEntity;
-import com.dpvn.shared.domain.BeanMapper;
+import com.dpvn.sharedjpa.domain.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.Instant;
 
 @Entity
 @Table(name = "sale_customer")
-public class SaleCustomer extends BaseEntity<SaleCustomerDto> {
-  private Long saleId;
+public class SaleCustomer extends BaseEntity {
+  private Long saleId; // DB id
+  private Long customerId; // DB id
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "customer_id", nullable = false, referencedColumnName = "id")
-  private Customer customer;
+  // status: GOLD or TREASURE
 
-  @Column(name = "relationship_type")
-  private Integer relationshipType; // PIC or EVOLVE
+  // INVOICE, ORDER, SELF-DIG, FRom SANDBANK....
+  private String reasonCode; // assign by campaign, by self create, by leader....
 
-  private Integer reasonId; // assign by campaign, by self create, by leader....
-
+  // value related to reason id
   @Column(columnDefinition = "TEXT")
   private String reasonRef;
 
+  // tiếng việt giải thích chăng???
   @Column(columnDefinition = "TEXT")
   private String reasonNote;
 
@@ -37,40 +31,12 @@ public class SaleCustomer extends BaseEntity<SaleCustomerDto> {
   @Column(columnDefinition = "TEXT")
   private String note;
 
-  @Override
-  public SaleCustomerDto toDto() {
-    SaleCustomerDto dto = BeanMapper.instance().map(this, SaleCustomerDto.class);
-    dto.setCustomerId(this.customer.getId());
-    dto.setCustomerDto(this.customer.toDto());
-    return dto;
+  public String getReasonCode() {
+    return reasonCode;
   }
 
-  public SaleCustomer() {
-    super(SaleCustomerDto.class);
-  }
-
-  public Customer getCustomer() {
-    return customer;
-  }
-
-  public void setCustomer(Customer customer) {
-    this.customer = customer;
-  }
-
-  public Integer getRelationshipType() {
-    return relationshipType;
-  }
-
-  public void setRelationshipType(Integer relationShipType) {
-    this.relationshipType = relationShipType;
-  }
-
-  public Integer getReasonId() {
-    return reasonId;
-  }
-
-  public void setReasonId(Integer reasonId) {
-    this.reasonId = reasonId;
+  public void setReasonCode(String reasonCode) {
+    this.reasonCode = reasonCode;
   }
 
   public String getReasonNote() {
@@ -119,5 +85,13 @@ public class SaleCustomer extends BaseEntity<SaleCustomerDto> {
 
   public void setReasonRef(String reasonRef) {
     this.reasonRef = reasonRef;
+  }
+
+  public Long getCustomerId() {
+    return customerId;
+  }
+
+  public void setCustomerId(Long customerId) {
+    this.customerId = customerId;
   }
 }

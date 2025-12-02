@@ -1,7 +1,7 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.dto.CustomerDto;
-import com.dpvn.shared.domain.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,10 +12,14 @@ import jakarta.persistence.Transient;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "customer")
-public class Customer extends BaseEntity<CustomerDto> {
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Customer extends com.dpvn.sharedjpa.domain.entity.BaseEntity {
   private String customerCode;
 
   @Column(columnDefinition = "TEXT")
@@ -36,6 +40,7 @@ public class Customer extends BaseEntity<CustomerDto> {
   @Transient private String customerType;
   // still available for future
   private Integer customerCategoryId;
+  // kiotviet, cràtonline, shoppe....
   private Integer sourceId;
 
   @Column(columnDefinition = "TEXT")
@@ -57,16 +62,9 @@ public class Customer extends BaseEntity<CustomerDto> {
       fetch = FetchType.LAZY)
   private List<CustomerReference> references = new ArrayList<>();
 
-  @OneToMany(
-      mappedBy = "customer",
-      cascade = CascadeType.ALL,
-      orphanRemoval = true,
-      fetch = FetchType.LAZY)
-  private List<CustomerAddress> addresses = new ArrayList<>();
-
-  public Customer() {
-    super(CustomerDto.class);
-  }
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(columnDefinition = "jsonb")
+  private List<String> addresses = new ArrayList<>();
 
   public String getCustomerCode() {
     return customerCode;
@@ -204,19 +202,19 @@ public class Customer extends BaseEntity<CustomerDto> {
     this.birthday = birthday;
   }
 
-  public List<CustomerAddress> getAddresses() {
-    return addresses;
-  }
-
-  public void setAddresses(List<CustomerAddress> addresses) {
-    this.addresses = addresses;
-  }
-
   public String getCustomerType() {
     return customerType;
   }
 
   public void setCustomerType(String customerType) {
     this.customerType = customerType;
+  }
+
+  public List<String> getAddresses() {
+    return addresses;
+  }
+
+  public void setAddresses(List<String> addresses) {
+    this.addresses = addresses;
   }
 }

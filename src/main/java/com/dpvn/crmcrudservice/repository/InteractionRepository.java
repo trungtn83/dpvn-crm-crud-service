@@ -1,9 +1,11 @@
 package com.dpvn.crmcrudservice.repository;
 
 import com.dpvn.crmcrudservice.domain.entity.Interaction;
-import com.dpvn.shared.repository.AbstractRepository;
+import com.dpvn.sharedjpa.repository.AbstractRepository;
 import java.time.Instant;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -12,19 +14,14 @@ import org.springframework.stereotype.Repository;
 public interface InteractionRepository extends AbstractRepository<Interaction> {
   String FIND_INTERACTIONS_BY_OPTIONS =
       """
-      SELECT i FROM Interaction i
-      WHERE (:userId IS NULL OR i.interactBy = :userId)
-          AND (:customerId IS NULL OR i.customerId = :customerId)
-          AND (:campaignId IS NULL OR i.campaignId = :campaignId)
-          AND (:visibility IS NULL OR i.visibility = :visibility)
+        SELECT i FROM Interaction i
+        WHERE i.customerId = :customerId AND (i.visibility = 0 OR (:userId IS NULL OR i.interactBy = :userId))
+        ORDER BY i.createdDate DESC
       """;
 
   @Query(FIND_INTERACTIONS_BY_OPTIONS)
-  List<Interaction> findInteractionsByOptions(
-      @Param("userId") Long userId,
-      @Param("customerId") Long customerId,
-      @Param("campaignId") Long campaignId,
-      @Param("visibility") Integer visibility);
+  Page<Interaction> findInteractionsByCustomer(
+      @Param("userId") Long userId, @Param("customerId") Long customerId, Pageable pageable);
 
   String FIND_LAST_INTERACTIONS_DATE =
       """

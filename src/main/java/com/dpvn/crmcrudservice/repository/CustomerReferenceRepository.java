@@ -1,7 +1,7 @@
 package com.dpvn.crmcrudservice.repository;
 
 import com.dpvn.crmcrudservice.domain.entity.CustomerReference;
-import com.dpvn.shared.repository.AbstractRepository;
+import com.dpvn.sharedjpa.repository.AbstractRepository;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

@@ -1,203 +1,104 @@
 package com.dpvn.crmcrudservice.customer;
 
+import com.dpvn.apigateway.domain.Headers;
 import com.dpvn.crmcrudservice.domain.dto.CustomerDto;
-import com.dpvn.crmcrudservice.domain.dto.SaleCustomerDto;
+import com.dpvn.crmcrudservice.domain.dto.CustomerStatusDto;
+import com.dpvn.crmcrudservice.domain.dto.GoldCustomerDto;
+import com.dpvn.crmcrudservice.domain.dto.GoldMineCustomerDto;
+import com.dpvn.crmcrudservice.domain.dto.TreasureCustomerDto;
+import com.dpvn.crmcrudservice.domain.dto.ViewCustomerDetailDto;
 import com.dpvn.crmcrudservice.domain.entity.Customer;
-import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
-import com.dpvn.shared.controller.AbstractCrudController;
-import com.dpvn.shared.util.FastMap;
-import java.time.Instant;
+import com.dpvn.crmcrudservice.domain.entity.CustomerStatus;
+import com.dpvn.crmcrudservice.domain.mapper.CustomerMapper;
+import com.dpvn.crmcrudservice.domain.mapper.CustomerStatusMapper;
+import com.dpvn.sharedcore.domain.constant.Globals;
+import com.dpvn.sharedcore.domain.dto.PagingResponse;
+import com.dpvn.sharedcore.util.FastMap;
+import com.dpvn.sharedjpa.controller.AbstractCrudController;
 import java.util.List;
-import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 @RestController
 @RequestMapping("/customer")
 public class CustomerController extends AbstractCrudController<Customer, CustomerDto> {
 
   private final CustomerService customerService;
+  private final CustomerStatusMapper customerStatusMapper;
 
-  public CustomerController(CustomerService customerService) {
-    super(customerService);
+  public CustomerController(
+      CustomerMapper mapper,
+      CustomerService service,
+      CustomerService customerService,
+      CustomerStatusMapper customerStatusMapper) {
+    super(mapper, service);
     this.customerService = customerService;
+    this.customerStatusMapper = customerStatusMapper;
   }
 
-  /**
-   * @param mobilePhone
-   * @return Find customer by mobile phone in main contact, in additional phone and zalo from
-   *     references
-   */
-  @GetMapping("/find-by-mobile-phone")
-  public List<CustomerDto> findByMobilePhone(@RequestParam("mobilePhone") String mobilePhone) {
-    List<Customer> customers = ((CustomerService) service).findCustomersByMobilePhone(mobilePhone);
-    return customers.stream().map(Customer::toDto).toList();
+  @GetMapping("/{id}/status")
+  public CustomerStatusDto getCustomerStatus(@PathVariable Long id) {
+    CustomerStatus customerStatus = ((CustomerService) service).getCustomerStatus(id);
+    return customerStatusMapper.toDto(customerStatus);
   }
 
-  @PostMapping("/find-by-ids")
-  public List<CustomerDto> findByIds(@RequestBody List<Long> ids) {
-    return ((CustomerService) service).findByIds(ids).stream().map(Customer::toDto).toList();
+  @GetMapping("/{id}/view")
+  public ViewCustomerDetailDto getCustomerDetailView(
+      @RequestHeader(value = Headers.X_USER_ID) Long userId, @PathVariable Long id) {
+    return customerService.getCustomerDetailView(userId, id);
   }
 
-  @GetMapping("/find-by-status-for-init")
-  public List<CustomerDto> findByStatusForInitRelationship(
-      @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
-      @RequestParam(value = "pageSize", required = false, defaultValue = "100") Integer pageSize) {
-    List<Customer> customers =
-        ((CustomerService) service).findByStatusForInitRelationship(page, pageSize);
-    return customers.stream().map(Customer::toDto).toList();
-  }
-
-  @PostMapping("/assign")
-  public void assignCustomer(@RequestBody SaleCustomerDto body) {
-    Long saleId = body.getSaleId();
-    Long customerId = body.getCustomerId();
-    SaleCustomer entity = body.toEntity();
-    ((CustomerService) service).assign(saleId, customerId, entity);
-  }
-
-  @PostMapping("/revoke")
-  public void revokeCustomer(@RequestBody SaleCustomerDto body) {
-    Long saleId = body.getSaleId();
-    Long customerId = body.getCustomerId();
-    ((CustomerService) service).revoke(saleId, customerId);
-  }
-
-  /**
-   * @param body
-   * @return List of error customer that can not be assigned to sale
-   */
-  @PostMapping("/assigns")
-  public List<Long> assignCustomers(@RequestBody FastMap body) {
+  @PostMapping("/my-treasure")
+  public PagingResponse<TreasureCustomerDto> findAllMyTreasureCustomers(@RequestBody FastMap body) {
+    int page = body.getInt(0, "page");
+    int pageSize = body.getInt(Globals.Paging.PAGE_SIZE, "pageSize");
     Long saleId = body.getLong("saleId");
-    List<Long> customerIds = body.getList("customerIds");
-    SaleCustomer entity = body.getClass("info", SaleCustomerDto.class).toEntity();
-    return ((CustomerService) service).assigns(saleId, customerIds, entity);
-  }
-
-  @PostMapping("/revokes")
-  public List<Long> revokeCustomers(@RequestBody FastMap body) {
-    Long saleId = body.getLong("saleId");
-    List<Long> customerIds = body.getList("customerIds");
-    return ((CustomerService) service).revokes(saleId, customerIds);
-  }
-
-  @PostMapping("/my")
-  public FastMap findMyCustomers(@RequestBody FastMap body) {
-    List<Long> saleIds = body.getListClass("saleIds", Long.class);
     Long customerTypeId = body.getLong("customerTypeId");
-    Long customerCategoryId = body.getLong("customerCategoryId");
     String filterText = body.getString("filterText");
-    List<Integer> reasonIds = body.getList("reasonIds");
-
-    Integer page = body.getInt("page");
-    Integer pageSize = body.getInt("pageSize");
-
-    Page<FastMap> customerPage =
-        ((CustomerService) service)
-            .findMyCustomers(
-                saleIds, customerTypeId, customerCategoryId, filterText, reasonIds, page, pageSize);
-    return FastMap.create()
-        .add("rows", customerPage.getContent())
-        .add("total", customerPage.getTotalElements())
-        .add("pageSize", customerPage.getSize())
-        .add("page", customerPage.getNumber());
+    return customerService.findAllMyTreasureCustomers(
+        saleId, customerTypeId, filterText, page, pageSize);
   }
 
-  @PostMapping("/in-pool")
-  public FastMap findInPoolCustomers(@RequestBody FastMap body) {
+  @PostMapping("/my-gold")
+  public PagingResponse<GoldCustomerDto> findAllMyGoldCustomers(@RequestBody FastMap body) {
+    int page = body.getInt(0, "page");
+    int pageSize = body.getInt(Globals.Paging.PAGE_SIZE, "pageSize");
     Long saleId = body.getLong("saleId");
+    Long customerTypeId = body.getLong("customerTypeId");
+    Long saleCustomerCategoryId = body.getLong("saleCustomerCategoryId");
+    List<String> tags = body.getListClass("tags", String.class);
     String filterText = body.getString("filterText");
-    List<String> tags = body.getList("tags");
-    List<Long> typeIds = body.getList("typeIds");
-    List<String> locationCodes = body.getList("locationCodes");
-    List<Integer> sourceIds = body.getList("sourceIds");
-
-    Integer page = body.getInt("page");
-    Integer pageSize = body.getInt("pageSize");
-
-    Page<FastMap> customerPage =
-        ((CustomerService) service)
-            .findInPoolCustomers(
-                saleId, filterText, tags, typeIds, locationCodes, sourceIds, page, pageSize);
-    return FastMap.create()
-        .add("rows", customerPage.getContent())
-        .add("total", customerPage.getTotalElements())
-        .add("pageSize", customerPage.getSize())
-        .add("page", customerPage.getNumber());
+    return customerService.findAllMyGoldCustomers(
+        saleId, customerTypeId, saleCustomerCategoryId, tags, filterText, page, pageSize);
   }
 
-  @PostMapping("/in-ocean")
-  public FastMap findInOceanCustomers(@RequestBody FastMap body) {
+  @PostMapping("/in-goldmine")
+  public PagingResponse<GoldMineCustomerDto> findAllCustomersInGoldMine(@RequestBody FastMap body) {
+    int page = body.getInt(0, "page");
+    int pageSize = body.getInt(Globals.Paging.PAGE_SIZE, "pageSize");
     Long saleId = body.getLong("saleId");
+    Long sourceId = body.getLong("sourceId");
+    Long customerTypeId = body.getLong("customerTypeId");
+    List<String> tags = body.getListClass("tags", String.class);
     String filterText = body.getString("filterText");
-    List<Long> typeIds = body.getList("typeIds");
-    List<String> locationCodes = body.getList("locationCodes");
-    List<Integer> sourceIds = body.getList("sourceIds");
-    Integer page = body.getInt("page");
-    Integer pageSize = body.getInt("pageSize");
-
-    Page<Customer> customerPage =
-        ((CustomerService) service)
-            .findInOceanCustomers(
-                saleId, filterText, typeIds, locationCodes, sourceIds, page, pageSize);
-    return FastMap.create()
-        .add("rows", customerPage.stream().map(Customer::toDto).toList())
-        .add("total", customerPage.getTotalElements())
-        .add("pageSize", customerPage.getSize())
-        .add("page", customerPage.getNumber());
+    return customerService.findAllInGoldMineCustomers(
+        saleId, sourceId, customerTypeId, tags, filterText, page, pageSize);
   }
 
-  @PostMapping("/task-based")
-  public FastMap findTaskBasedCustomers(@RequestBody FastMap body) {
-    Long saleId = body.getLong("saleId");
+  @PostMapping("/in-sandbank")
+  public PagingResponse<CustomerDto> findAllCustomersInSandBank(@RequestBody FastMap body) {
+    int page = body.getInt(0, "page");
+    int pageSize = body.getInt(Globals.Paging.PAGE_SIZE, "pageSize");
+    Long sourceId = body.getLong("sourceId");
+    Long customerTypeId = body.getLong("customerTypeId");
     String filterText = body.getString("filterText");
-    List<String> tags = body.getList("tags");
-
-    Integer page = body.getInt("page");
-    Integer pageSize = body.getInt("pageSize");
-
-    Page<FastMap> customerPage =
-        ((CustomerService) service)
-            .findTaskBasedCustomers(saleId, filterText, tags, page, pageSize);
-    return FastMap.create()
-        .add("rows", customerPage.getContent())
-        .add("total", customerPage.getTotalElements())
-        .add("pageSize", customerPage.getSize())
-        .add("page", customerPage.getNumber());
-  }
-
-  @PostMapping("/{id}/update-last-transaction")
-  public void updateLastTransaction(@PathVariable Long id, @RequestBody FastMap body) {
-    Instant lastTransaction = body.getInstant("lastTransaction");
-    boolean isSuccessful = body.getBoolean("isSuccessful");
-    ((CustomerService) service).updateLastTransaction(id, lastTransaction, isSuccessful);
-  }
-
-  // sourceId = 1, KIOTVIET, = 2, CRAFTONLINE...
-  // sourceId = null, find last created customer from all sources
-  @GetMapping("/find-last-created")
-  public CustomerDto findLastCreatedCustomer(
-      @RequestParam(value = "sourceId", required = false) Integer sourceId) {
-    Customer customer = ((CustomerService) service).findLastCreatedCustomerBySource(sourceId);
-    if (customer == null) {
-      return null;
-    }
-    return customer.toDto();
-  }
-
-  @PostMapping("/{id}/approve")
-  public void approveCustomerFromSandToGold(@PathVariable Long id, @RequestBody FastMap body) {
-    Long userId = body.getLong("userId");
-    Boolean approved = body.getBoolean("approved");
-    Integer dispatchTypeId = body.getInt("dispatchTypeId");
-    Long saleId = body.getLong("saleId");
-    ((CustomerService) service)
-        .approveCustomerFromSandToGold(userId, id, approved, dispatchTypeId, saleId);
-  }
-
-  @Deprecated
-  @PostMapping("/customer-reference/fix-missing-slug")
-  public void fixCustomerPaperDocuments() {
-    customerService.fixCustomerPaperDocuments();
+    return customerService.findAllInSandBankCustomers(
+        sourceId, customerTypeId, filterText, page, pageSize);
   }
 }

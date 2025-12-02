@@ -2,7 +2,7 @@ package com.dpvn.crmcrudservice.customer;
 
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomerCategory;
 import com.dpvn.crmcrudservice.repository.SaleCustomerCategoryRepository;
-import com.dpvn.shared.service.AbstractCrudService;
+import com.dpvn.sharedjpa.service.AbstractCrudService;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -13,15 +13,9 @@ public class SaleCustomerCategoryService extends AbstractCrudService<SaleCustome
   }
 
   @Override
-  public void sync(List<SaleCustomerCategory> entities) {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
+  public void sync(List<SaleCustomerCategory> list) {}
 
-  public List<SaleCustomerCategory> findBySaleId(Long saleId) {
-    return ((SaleCustomerCategoryRepository) repository).findBySaleId(saleId);
-  }
-
-  public List<SaleCustomerCategory> findByCode(Long saleId, String code) {
-    return ((SaleCustomerCategoryRepository) repository).findBySaleIdAndCode(saleId, code);
+  public List<SaleCustomerCategory> findAllSaleCustomerCategoriesBySale(Long saleId) {
+    return ((SaleCustomerCategoryRepository) repository).findAllBySaleId(saleId);
   }
 }

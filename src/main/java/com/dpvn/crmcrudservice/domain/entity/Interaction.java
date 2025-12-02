@@ -1,17 +1,14 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.constant.Visibility;
-import com.dpvn.crmcrudservice.domain.dto.InteractionDto;
-import com.dpvn.shared.domain.BaseEntity;
-import com.dpvn.shared.domain.BeanMapper;
-import com.dpvn.shared.util.StringUtil;
+import com.dpvn.crmcrudservice.domain.constant.Interactions;
+import com.dpvn.sharedjpa.domain.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "interaction")
-public class Interaction extends BaseEntity<InteractionDto> {
+public class Interaction extends BaseEntity {
   // TODO: maybe does not need now
   private Integer typeId;
 
@@ -46,22 +43,7 @@ public class Interaction extends BaseEntity<InteractionDto> {
   private String files;
 
   @Column(nullable = false)
-  private Integer visibility = Visibility.PRIVATE;
-
-  @Override
-  public InteractionDto toDto() {
-    InteractionDto dto = BeanMapper.instance().map(this, InteractionDto.class);
-    dto.setUrls(StringUtil.split(urls));
-    dto.setImages(StringUtil.split(images));
-    dto.setAudios(StringUtil.split(audios));
-    dto.setVideos(StringUtil.split(videos));
-    dto.setFiles(StringUtil.split(files));
-    return dto;
-  }
-
-  public Interaction() {
-    super(InteractionDto.class);
-  }
+  private Integer visibility = Interactions.Visibility.PRIVATE;
 
   public Long getCampaignId() {
     return campaignId;

@@ -1,6 +1,6 @@
 package com.dpvn.crmcrudservice.interaction;
 
-import com.dpvn.crmcrudservice.domain.constant.Visibility;
+import com.dpvn.crmcrudservice.domain.constant.Interactions;
 import com.dpvn.crmcrudservice.domain.entity.Interaction;
 
 public class InteractionUtil {
@@ -17,7 +17,7 @@ public class InteractionUtil {
     interaction.setCustomerId(customerId);
     interaction.setTitle(title);
     interaction.setContent(content);
-    interaction.setVisibility(Visibility.PUBLIC);
+    interaction.setVisibility(Interactions.Visibility.PUBLIC);
     return interaction;
   }
 }

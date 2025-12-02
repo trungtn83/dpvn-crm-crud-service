@@ -1,14 +1,13 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
-import com.dpvn.crmcrudservice.domain.dto.CustomerTypeDto;
-import com.dpvn.shared.domain.BaseEntity;
+import com.dpvn.sharedjpa.domain.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "customer_type")
-public class CustomerType extends BaseEntity<CustomerTypeDto> {
+public class CustomerType extends BaseEntity {
   private String typeCode;
 
   @Column(columnDefinition = "TEXT")
@@ -19,10 +18,6 @@ public class CustomerType extends BaseEntity<CustomerTypeDto> {
 
   @Column(columnDefinition = "TEXT")
   private String description;
-
-  public CustomerType() {
-    super(CustomerTypeDto.class);
-  }
 
   public String getTypeCode() {
     return typeCode;

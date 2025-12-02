@@ -1,18 +1,17 @@
 package com.dpvn.crmcrudservice.domain.entity;
 
 import com.dpvn.crmcrudservice.domain.constant.Tasks;
-import com.dpvn.crmcrudservice.domain.dto.TaskDto;
-import com.dpvn.shared.domain.BaseEntity;
-import com.dpvn.shared.domain.BeanMapper;
-import com.dpvn.shared.util.StringUtil;
+import com.dpvn.sharedjpa.domain.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name = "task")
-public class Task extends BaseEntity<TaskDto> {
+public class Task extends BaseEntity {
   private Long userId;
   private Long customerId;
   private Long campaignId;
@@ -38,18 +37,6 @@ public class Task extends BaseEntity<TaskDto> {
 
   @Column(columnDefinition = "TEXT")
   private String relatedPersonIds;
-
-  @Override
-  public TaskDto toDto() {
-    TaskDto dto = BeanMapper.instance().map(this, TaskDto.class);
-    dto.setRelatedPersonIds(
-        StringUtil.split(relatedPersonIds).stream().map(Long::valueOf).toList());
-    return dto;
-  }
-
-  public Task() {
-    super(TaskDto.class);
-  }
 
   public Long getUserId() {
     return userId;
@@ -157,6 +144,12 @@ public class Task extends BaseEntity<TaskDto> {
 
   public String getRelatedPersonIds() {
     return relatedPersonIds;
+  }
+
+  @JsonSetter("relatedPersonIds")
+  public void setRelatedPersonIds(List<Long> relatedPersonIds) {
+    this.relatedPersonIds =
+        String.join(",", relatedPersonIds.stream().map(String::valueOf).toList());
   }
 
   public void setRelatedPersonIds(String relatedPersonIds) {

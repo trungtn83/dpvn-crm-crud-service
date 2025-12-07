@@ -1,20 +1,20 @@
-//package com.dpvn.crmcrudservice.report;
+// package com.dpvn.crmcrudservice.report;
 //
-//import com.dpvn.crmcrudservice.domain.entity.report.CustomerBySeller;
-//import com.dpvn.crmcrudservice.domain.entity.report.InteractionBySeller;
-//import com.dpvn.crmcrudservice.domain.entity.report.TaskBySeller;
-//import com.dpvn.crmcrudservice.repository.InteractionRepository;
-//import com.dpvn.crmcrudservice.repository.SaleCustomerRepository;
-//import com.dpvn.crmcrudservice.repository.TaskRepository;
-//import com.dpvn.sharedcore.util.StringUtil;
-//import java.time.Instant;
-//import java.util.List;
-//import java.util.Map;
-//import java.util.stream.Collectors;
-//import org.springframework.stereotype.Service;
+// import com.dpvn.crmcrudservice.domain.entity.report.CustomerBySeller;
+// import com.dpvn.crmcrudservice.domain.entity.report.InteractionBySeller;
+// import com.dpvn.crmcrudservice.domain.entity.report.TaskBySeller;
+// import com.dpvn.crmcrudservice.repository.InteractionRepository;
+// import com.dpvn.crmcrudservice.repository.SaleCustomerRepository;
+// import com.dpvn.crmcrudservice.repository.TaskRepository;
+// import com.dpvn.sharedcore.util.StringUtil;
+// import java.time.Instant;
+// import java.util.List;
+// import java.util.Map;
+// import java.util.stream.Collectors;
+// import org.springframework.stereotype.Service;
 //
-//@Service
-//public class ReportCustomerService {
+// @Service
+// public class ReportCustomerService {
 //  private final SaleCustomerRepository saleCustomerRepository;
 //  private final InteractionRepository interactionRepository;
 //  private final TaskRepository taskRepository;
@@ -71,4 +71,4 @@
 //    task.setModifiedDate((Instant) o[7]);
 //    return task;
 //  }
-//}
+// }

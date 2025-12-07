@@ -48,6 +48,5 @@ public interface InteractionRepository extends AbstractRepository<Interaction> {
       """;
 
   @Query(value = REPORT_INTERACTIONS_BY_SELLERS, nativeQuery = true)
-  List<Object[]> reportInteractionsBySellers(
-      List<Long> saleIds, Instant fromDate, Instant toDate);
+  List<Object[]> reportInteractionsBySellers(List<Long> saleIds, Instant fromDate, Instant toDate);
 }

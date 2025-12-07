@@ -11,7 +11,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,16 +39,15 @@ public class InteractionService extends AbstractCrudService<Interaction> {
     return ((InteractionRepository) repository).findLastInteractionsDate(userId, customerIds);
   }
 
-  public Map<Long, List<FastMap>> reportInteractionsBySeller(List<Long> saleIds, String fromDateStr, String toDateStr) {
+  public Map<Long, List<FastMap>> reportInteractionsBySeller(
+      List<Long> saleIds, String fromDateStr, String toDateStr) {
     Instant fromDate = DateUtil.from(LocalDateUtil.from(fromDateStr));
     Instant toDate = DateUtil.from(LocalDateUtil.from(toDateStr)).plus(1, ChronoUnit.DAYS);
 
     List<Object[]> os =
-            ((InteractionRepository) repository).reportInteractionsBySellers(saleIds, fromDate, toDate);
-    List<FastMap> interactionFms =
-        os.stream().map(this::transformToFastMap).toList();
-    return interactionFms.stream()
-        .collect(Collectors.groupingBy(fm -> fm.getLong("interactBy")));
+        ((InteractionRepository) repository).reportInteractionsBySellers(saleIds, fromDate, toDate);
+    List<FastMap> interactionFms = os.stream().map(this::transformToFastMap).toList();
+    return interactionFms.stream().collect(Collectors.groupingBy(fm -> fm.getLong("interactBy")));
   }
 
   private FastMap transformToFastMap(Object[] os) {

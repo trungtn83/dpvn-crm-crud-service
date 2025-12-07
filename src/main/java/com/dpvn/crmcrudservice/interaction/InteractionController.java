@@ -7,10 +7,8 @@ import com.dpvn.sharedcore.domain.constant.Globals;
 import com.dpvn.sharedcore.domain.dto.PagingResponse;
 import com.dpvn.sharedcore.util.FastMap;
 import com.dpvn.sharedjpa.controller.AbstractCrudController;
-
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

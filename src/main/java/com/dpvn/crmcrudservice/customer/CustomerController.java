@@ -17,7 +17,6 @@ import com.dpvn.sharedcore.util.FastMap;
 import com.dpvn.sharedjpa.controller.AbstractCrudController;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,7 +38,8 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
       CustomerMapper mapper,
       CustomerService service,
       CustomerService customerService,
-      CustomerStatusMapper customerStatusMapper, com.dpvn.crmcrudservice.customer.ReportCustomerService reportCustomerService) {
+      CustomerStatusMapper customerStatusMapper,
+      com.dpvn.crmcrudservice.customer.ReportCustomerService reportCustomerService) {
     super(mapper, service);
     this.customerService = customerService;
     this.customerStatusMapper = customerStatusMapper;

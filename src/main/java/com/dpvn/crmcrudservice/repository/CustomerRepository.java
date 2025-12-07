@@ -2,7 +2,6 @@ package com.dpvn.crmcrudservice.repository;
 
 import com.dpvn.crmcrudservice.domain.entity.Customer;
 import com.dpvn.sharedjpa.repository.AbstractRepository;
-
 import java.time.Instant;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
@@ -42,5 +41,6 @@ public interface CustomerRepository extends AbstractRepository<Customer> {
       """;
 
   @Query(value = REPORT_CUSTOMERS_BY_SELLERS, nativeQuery = true)
-  List<Object[]> reportCustomersBySellersInRange(List<Long> sellerIds, Instant fromDate, Instant toDate);
+  List<Object[]> reportCustomersBySellersInRange(
+      List<Long> sellerIds, Instant fromDate, Instant toDate);
 }

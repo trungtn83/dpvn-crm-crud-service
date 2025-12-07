@@ -29,7 +29,6 @@ import com.dpvn.sharedcore.util.LocalDateUtil;
 import com.dpvn.sharedcore.util.ObjectUtil;
 import com.dpvn.sharedcore.util.StringUtil;
 import com.dpvn.sharedjpa.service.AbstractCrudService;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -291,10 +290,13 @@ public class CustomerService extends AbstractCrudService<Customer> {
         filterText, sourceId, customerTypeId, pageable);
   }
 
-  public Map<Long, List<FastMap>> reportCustomersBySellersInRange(List<Long> sellerIds, String fromDateStr, String toDateStr) {
+  public Map<Long, List<FastMap>> reportCustomersBySellersInRange(
+      List<Long> sellerIds, String fromDateStr, String toDateStr) {
     Instant fromDate = DateUtil.from(LocalDateUtil.from(fromDateStr));
     Instant toDate = DateUtil.from(LocalDateUtil.from(toDateStr)).plus(1, ChronoUnit.DAYS);
-    List<Object[]> oss = ((CustomerRepository) repository).reportCustomersBySellersInRange(sellerIds, fromDate, toDate);
+    List<Object[]> oss =
+        ((CustomerRepository) repository)
+            .reportCustomersBySellersInRange(sellerIds, fromDate, toDate);
     List<FastMap> invoiceFms = oss.stream().map(this::transformToFastMap).toList();
     return invoiceFms.stream().collect(Collectors.groupingBy(fm -> fm.getLong("saleId")));
   }

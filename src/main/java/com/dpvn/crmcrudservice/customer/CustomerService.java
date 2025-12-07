@@ -22,10 +22,16 @@ import com.dpvn.crmcrudservice.repository.SaleCustomerRepository;
 import com.dpvn.crmcrudservice.repository.SaleCustomerStateRepository;
 import com.dpvn.reportcrudservice.domain.dto.UserDto;
 import com.dpvn.sharedcore.domain.dto.PagingResponse;
+import com.dpvn.sharedcore.util.DateUtil;
+import com.dpvn.sharedcore.util.FastMap;
 import com.dpvn.sharedcore.util.ListUtil;
+import com.dpvn.sharedcore.util.LocalDateUtil;
 import com.dpvn.sharedcore.util.ObjectUtil;
 import com.dpvn.sharedcore.util.StringUtil;
 import com.dpvn.sharedjpa.service.AbstractCrudService;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -283,5 +289,23 @@ public class CustomerService extends AbstractCrudService<Customer> {
     Pageable pageable = PageRequest.of(page, pageSize);
     return customerCustomRepository.findAllInSandBankCustomers(
         filterText, sourceId, customerTypeId, pageable);
+  }
+
+  public Map<Long, List<FastMap>> reportCustomersBySellersInRange(List<Long> sellerIds, String fromDateStr, String toDateStr) {
+    Instant fromDate = DateUtil.from(LocalDateUtil.from(fromDateStr));
+    Instant toDate = DateUtil.from(LocalDateUtil.from(toDateStr)).plus(1, ChronoUnit.DAYS);
+    List<Object[]> oss = ((CustomerRepository) repository).reportCustomersBySellersInRange(sellerIds, fromDate, toDate);
+    List<FastMap> invoiceFms = oss.stream().map(this::transformToFastMap).toList();
+    return invoiceFms.stream().collect(Collectors.groupingBy(fm -> fm.getLong("saleId")));
+  }
+
+  private FastMap transformToFastMap(Object[] os) {
+    return FastMap.create()
+        .add("customerId", os[0])
+        .add("saleId", os[1])
+        .add("createdDate", os[2])
+        .add("customerName", os[3])
+        .add("customerCode", os[4])
+        .add("mobilePhone", os[5]);
   }
 }

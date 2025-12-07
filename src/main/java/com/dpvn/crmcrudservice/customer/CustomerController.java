@@ -16,6 +16,8 @@ import com.dpvn.sharedcore.domain.dto.PagingResponse;
 import com.dpvn.sharedcore.util.FastMap;
 import com.dpvn.sharedjpa.controller.AbstractCrudController;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,15 +33,17 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
 
   private final CustomerService customerService;
   private final CustomerStatusMapper customerStatusMapper;
+  private final com.dpvn.crmcrudservice.customer.ReportCustomerService reportCustomerService;
 
   public CustomerController(
       CustomerMapper mapper,
       CustomerService service,
       CustomerService customerService,
-      CustomerStatusMapper customerStatusMapper) {
+      CustomerStatusMapper customerStatusMapper, com.dpvn.crmcrudservice.customer.ReportCustomerService reportCustomerService) {
     super(mapper, service);
     this.customerService = customerService;
     this.customerStatusMapper = customerStatusMapper;
+    this.reportCustomerService = reportCustomerService;
   }
 
   @GetMapping("/{id}/status")
@@ -100,5 +104,13 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
     String filterText = body.getString("filterText");
     return customerService.findAllInSandBankCustomers(
         sourceId, customerTypeId, filterText, page, pageSize);
+  }
+
+  @PostMapping("/report-by-sellers")
+  public Map<Long, List<FastMap>> reportCustomersBySellersInRange(@RequestBody FastMap body) {
+    List<Long> sellerIds = body.getListClass("saleIds", Long.class);
+    String fromDate = body.getString("fromDate");
+    String toDate = body.getString("toDate");
+    return ((CustomerService) service).reportCustomersBySellersInRange(sellerIds, fromDate, toDate);
   }
 }

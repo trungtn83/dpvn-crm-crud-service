@@ -28,7 +28,6 @@ public class CustomerCustomRepository {
   private final GoldCustomerMapper goldCustomerMapper;
   private final Map<String, String> sqlTemplates;
   private final CustomerMapper customerMapper;
-  private final SaleCustomerReferenceRepository saleCustomerReferenceRepository;
   private final GoldMineCustomerMapper goldMineCustomerMapper;
   @PersistenceContext private EntityManager entityManager;
   private final CustomerRepository customerRepository;
@@ -39,14 +38,12 @@ public class CustomerCustomRepository {
       GoldCustomerMapper goldCustomerMapper,
       Map<String, String> sqlTemplates,
       CustomerMapper customerMapper,
-      SaleCustomerReferenceRepository saleCustomerReferenceRepository,
       GoldMineCustomerMapper goldMineCustomerMapper) {
     this.customerRepository = customerRepository;
     this.treasureCustomerMapper = treasureCustomerMapper;
     this.goldCustomerMapper = goldCustomerMapper;
     this.sqlTemplates = sqlTemplates;
     this.customerMapper = customerMapper;
-    this.saleCustomerReferenceRepository = saleCustomerReferenceRepository;
     this.goldMineCustomerMapper = goldMineCustomerMapper;
   }
 

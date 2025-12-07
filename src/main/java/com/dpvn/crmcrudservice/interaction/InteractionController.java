@@ -5,12 +5,12 @@ import com.dpvn.crmcrudservice.domain.entity.Interaction;
 import com.dpvn.crmcrudservice.domain.mapper.InteractionMapper;
 import com.dpvn.sharedcore.domain.constant.Globals;
 import com.dpvn.sharedcore.domain.dto.PagingResponse;
-import com.dpvn.sharedcore.util.DateUtil;
 import com.dpvn.sharedcore.util.FastMap;
-import com.dpvn.sharedcore.util.LocalDateUtil;
 import com.dpvn.sharedjpa.controller.AbstractCrudController;
-import java.time.Instant;
+
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,13 +51,11 @@ public class InteractionController extends AbstractCrudController<Interaction, I
     return mapper.toDtoList(interactions);
   }
 
-  @PostMapping("/report-by-seller")
-  public Long countReportInteractionBySeller(@RequestBody FastMap body) {
-    Long userId = body.getLong("userId");
-    String fromDateStr = body.getString("fromDate");
-    String toDateStr = body.getString("toDate");
-    Instant fromDate = DateUtil.from(LocalDateUtil.from(fromDateStr));
-    Instant toDate = DateUtil.from(LocalDateUtil.from(toDateStr).plusDays(1));
-    return ((InteractionService) service).countReportInteractionBySeller(userId, fromDate, toDate);
+  @PostMapping("/report-by-sellers")
+  public Map<Long, List<FastMap>> reportInteractionsBySeller(@RequestBody FastMap body) {
+    List<Long> saleIds = body.getListClass("saleIds", Long.class);
+    String fromDate = body.getString("fromDate");
+    String toDate = body.getString("toDate");
+    return ((InteractionService) service).reportInteractionsBySeller(saleIds, fromDate, toDate);
   }
 }

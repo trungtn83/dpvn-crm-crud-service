@@ -60,6 +60,6 @@ public class InteractionService extends AbstractCrudService<Interaction> {
         .add("title", os[5])
         .add("content", os[6])
         .add("visibility", os[7])
-        .add("created_date", os[8]);
+        .add("createdDate", os[8]);
   }
 }

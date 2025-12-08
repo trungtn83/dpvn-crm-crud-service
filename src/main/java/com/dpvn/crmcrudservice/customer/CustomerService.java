@@ -305,9 +305,10 @@ public class CustomerService extends AbstractCrudService<Customer> {
     return FastMap.create()
         .add("customerId", os[0])
         .add("saleId", os[1])
-        .add("createdDate", os[2])
-        .add("customerName", os[3])
-        .add("customerCode", os[4])
-        .add("mobilePhone", os[5]);
+        .add("reasonCode", os[2])
+        .add("createdDate", os[3])
+        .add("customerName", os[4])
+        .add("customerCode", os[5])
+        .add("mobilePhone", os[6]);
   }
 }

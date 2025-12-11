@@ -10,7 +10,7 @@ spring:
     show-sql: false
   datasource:
     hikari:
-      connection-timeout: 60000 #milisecond
+      connection-timeout: 3000 #milisecond
       maximum-pool-size: 20
       minimum-idle: 2
       idle-timeout: 300000 # Close idle connections after 30s

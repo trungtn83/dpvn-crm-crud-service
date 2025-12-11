@@ -2,15 +2,16 @@ package com.dpvn.crmcrudservice.repository;
 
 import com.dpvn.crmcrudservice.domain.entity.CustomerReference;
 import com.dpvn.sharedjpa.repository.AbstractRepository;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CustomerReferenceRepository extends AbstractRepository<CustomerReference> {
   @Query(
-      value =
-          "select * from customer_reference cr where cr.code like 'PAPER_%' and cr.reference is not null and cr.value is null",
-      nativeQuery = true)
-  List<CustomerReference> findErrorCustomerReferences();
+      "select cr from CustomerReference cr where cr.code like 'PAPER_%' AND cr.modifiedDate is null")
+  Page<CustomerReference> findAllCustomerReferencesWithPaperCode(Pageable pageable);
+
+  void deleteCustomerReferenceByValueIsNull();
 }

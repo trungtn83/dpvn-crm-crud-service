@@ -32,18 +32,18 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
 
   private final CustomerService customerService;
   private final CustomerStatusMapper customerStatusMapper;
-  private final com.dpvn.crmcrudservice.customer.ReportCustomerService reportCustomerService;
+  private final CustomerReferenceService customerReferenceService;
 
   public CustomerController(
       CustomerMapper mapper,
       CustomerService service,
       CustomerService customerService,
       CustomerStatusMapper customerStatusMapper,
-      com.dpvn.crmcrudservice.customer.ReportCustomerService reportCustomerService) {
+      CustomerReferenceService customerReferenceService) {
     super(mapper, service);
     this.customerService = customerService;
     this.customerStatusMapper = customerStatusMapper;
-    this.reportCustomerService = reportCustomerService;
+    this.customerReferenceService = customerReferenceService;
   }
 
   @GetMapping("/{id}/status")
@@ -112,5 +112,11 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
     String fromDate = body.getString("fromDate");
     String toDate = body.getString("toDate");
     return ((CustomerService) service).reportCustomersBySellersInRange(sellerIds, fromDate, toDate);
+  }
+
+  @Deprecated
+  @PostMapping("/reference/correction")
+  public void correctCustomerReference() {
+    customerReferenceService.correctCustomerReference();
   }
 }

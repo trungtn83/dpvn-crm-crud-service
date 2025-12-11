@@ -19,9 +19,7 @@ WHERE c.active = TRUE
     WHERE sc.customer_id = c.id
       AND sc.active = TRUE
       AND sc.deleted = FALSE
-      AND sc.status IN ('TREASURE', 'GOLD')
-      AND sc.available_from <= NOW()
-      AND sc.available_to > NOW()
+      AND ((sc.status IN ('TREASURE', 'GOLD') AND sc.available_from <= NOW() AND sc.available_to > NOW()) OR (sc.status = 'GOLD' AND sc.sale_id = :saleId))
 )
     {FILTER}
 ORDER BY scr_1.status NULLS LAST, c.id

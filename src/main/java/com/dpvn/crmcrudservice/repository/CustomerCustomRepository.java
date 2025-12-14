@@ -281,6 +281,7 @@ public class CustomerCustomRepository {
       countQuery.setParameter("tags", tags);
     }
     query.setParameter("saleId", saleId);
+    countQuery.setParameter("saleId", saleId);
 
     List<Object[]> os = query.getResultList();
     List<FastMap> rawCustomers =

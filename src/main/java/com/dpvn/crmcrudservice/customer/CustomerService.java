@@ -132,6 +132,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
                         if (newReferences.stream()
                             .noneMatch(nf -> StringUtil.equals(nf.getValue(), oldRef.getValue()))) {
                           CustomerReference newReference = new CustomerReference();
+                          newReference.setCustomer(dbCustomer);
                           newReference.setCode(oldRef.getCode());
                           newReference.setValue(oldRef.getValue());
                           newReference.setActive(false);

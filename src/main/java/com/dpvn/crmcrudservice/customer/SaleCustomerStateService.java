@@ -3,15 +3,16 @@ package com.dpvn.crmcrudservice.customer;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomerState;
 import com.dpvn.crmcrudservice.repository.SaleCustomerStateRepository;
 import com.dpvn.sharedjpa.service.AbstractCrudService;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class SaleCustomerStateService extends AbstractCrudService<SaleCustomerState> {
   private final SaleCustomerStateRepository saleCustomerStateRepository;
 
-  public SaleCustomerStateService(SaleCustomerStateRepository repository, SaleCustomerStateRepository saleCustomerStateRepository) {
+  public SaleCustomerStateService(
+      SaleCustomerStateRepository repository,
+      SaleCustomerStateRepository saleCustomerStateRepository) {
     super(repository);
     this.saleCustomerStateRepository = saleCustomerStateRepository;
   }
@@ -22,7 +23,9 @@ public class SaleCustomerStateService extends AbstractCrudService<SaleCustomerSt
   }
 
   public void upsert(SaleCustomerState entity) {
-    SaleCustomerState dbSaleCustomerState = saleCustomerStateRepository.getBySaleIdAndCustomerId(entity.getSaleId(), entity.getCustomerId());
+    SaleCustomerState dbSaleCustomerState =
+        saleCustomerStateRepository.getBySaleIdAndCustomerId(
+            entity.getSaleId(), entity.getCustomerId());
     if (dbSaleCustomerState != null) {
       dbSaleCustomerState.setCustomerCategoryId(entity.getCustomerCategoryId());
       dbSaleCustomerState.setCharacteristic(entity.getCharacteristic());

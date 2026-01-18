@@ -12,8 +12,6 @@ import jakarta.persistence.Transient;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "customer")

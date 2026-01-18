@@ -1,15 +1,9 @@
 package com.dpvn.crmcrudservice.customer;
 
-import com.dpvn.crmcrudservice.domain.dto.SaleCustomerReferenceDto;
 import com.dpvn.crmcrudservice.domain.dto.SaleCustomerStateDto;
-import com.dpvn.crmcrudservice.domain.entity.SaleCustomerReference;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomerState;
-import com.dpvn.crmcrudservice.domain.mapper.SaleCustomerMapper;
-import com.dpvn.crmcrudservice.domain.mapper.SaleCustomerReferenceMapper;
 import com.dpvn.crmcrudservice.domain.mapper.SaleCustomerStateMapper;
-import com.dpvn.sharedcore.domain.mapper.BaseMapper;
 import com.dpvn.sharedjpa.controller.AbstractCrudController;
-import com.dpvn.sharedjpa.service.AbstractCrudService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class SaleCustomerStateController
     extends AbstractCrudController<SaleCustomerState, SaleCustomerStateDto> {
 
-
-  public SaleCustomerStateController(SaleCustomerStateMapper mapper, SaleCustomerStateService service) {
+  public SaleCustomerStateController(
+      SaleCustomerStateMapper mapper, SaleCustomerStateService service) {
     super(mapper, service);
   }
 

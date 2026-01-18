@@ -315,7 +315,8 @@ public class CustomerService extends AbstractCrudService<Customer> {
   }
 
   public Customer findCustomerByMobilePhone(String mobilePhone) {
-    List<Customer> customers = ((CustomerRepository) repository).findAllCustomersByMobilePhoneIn(List.of(mobilePhone));
+    List<Customer> customers =
+        ((CustomerRepository) repository).findAllCustomersByMobilePhoneIn(List.of(mobilePhone));
     if (ListUtil.isEmpty(customers)) {
       return null;
     }

@@ -7,7 +7,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "wms-crud-service", contextId = "wms-crud-service-client", configuration = FeignCommonConfig .class)
+@FeignClient(
+    name = "wms-crud-service",
+    contextId = "wms-crud-service-client",
+    configuration = FeignCommonConfig.class)
 public interface WmsCrudServiceClient {
 
   /**

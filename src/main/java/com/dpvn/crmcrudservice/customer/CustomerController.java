@@ -14,7 +14,6 @@ import com.dpvn.crmcrudservice.domain.mapper.CustomerStatusMapper;
 import com.dpvn.sharedcore.domain.constant.Globals;
 import com.dpvn.sharedcore.domain.dto.PagingResponse;
 import com.dpvn.sharedcore.util.FastMap;
-import com.dpvn.sharedcore.util.ListUtil;
 import com.dpvn.sharedjpa.controller.AbstractCrudController;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,8 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
       CustomerService service,
       CustomerService customerService,
       CustomerStatusMapper customerStatusMapper,
-      CustomerReferenceService customerReferenceService, CustomerMapper customerMapper) {
+      CustomerReferenceService customerReferenceService,
+      CustomerMapper customerMapper) {
     super(mapper, service);
     this.customerService = customerService;
     this.customerStatusMapper = customerStatusMapper;

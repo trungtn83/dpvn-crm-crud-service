@@ -1,15 +1,12 @@
 package com.dpvn.crmcrudservice.customer;
 
 import com.dpvn.crmcrudservice.domain.dto.SaleCustomerDto;
-import com.dpvn.crmcrudservice.domain.dto.SaleCustomerStateDto;
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
 import com.dpvn.crmcrudservice.domain.mapper.SaleCustomerMapper;
 import com.dpvn.sharedjpa.controller.AbstractCrudController;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")

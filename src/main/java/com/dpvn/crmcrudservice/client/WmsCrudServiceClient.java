@@ -1,12 +1,13 @@
 package com.dpvn.crmcrudservice.client;
 
+import com.dpvn.sharedcore.config.FeignCommonConfig;
 import com.dpvn.sharedcore.util.FastMap;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "wms-crud-service", contextId = "wms-crud-service-client")
+@FeignClient(name = "wms-crud-service", contextId = "wms-crud-service-client", configuration = FeignCommonConfig .class)
 public interface WmsCrudServiceClient {
 
   /**

@@ -14,6 +14,7 @@ import com.dpvn.crmcrudservice.domain.mapper.CustomerStatusMapper;
 import com.dpvn.sharedcore.domain.constant.Globals;
 import com.dpvn.sharedcore.domain.dto.PagingResponse;
 import com.dpvn.sharedcore.util.FastMap;
+import com.dpvn.sharedcore.util.ListUtil;
 import com.dpvn.sharedjpa.controller.AbstractCrudController;
 import java.util.List;
 import java.util.Map;
@@ -33,17 +34,19 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
   private final CustomerService customerService;
   private final CustomerStatusMapper customerStatusMapper;
   private final CustomerReferenceService customerReferenceService;
+  private final CustomerMapper customerMapper;
 
   public CustomerController(
       CustomerMapper mapper,
       CustomerService service,
       CustomerService customerService,
       CustomerStatusMapper customerStatusMapper,
-      CustomerReferenceService customerReferenceService) {
+      CustomerReferenceService customerReferenceService, CustomerMapper customerMapper) {
     super(mapper, service);
     this.customerService = customerService;
     this.customerStatusMapper = customerStatusMapper;
     this.customerReferenceService = customerReferenceService;
+    this.customerMapper = customerMapper;
   }
 
   @GetMapping("/{id}/status")
@@ -118,5 +121,14 @@ public class CustomerController extends AbstractCrudController<Customer, Custome
   @PostMapping("/reference/correction")
   public void correctCustomerReference() {
     customerReferenceService.correctCustomerReference();
+  }
+
+  @GetMapping("/find-by-phone/{mobilePhone}")
+  public CustomerDto findCustomerByPhone(@PathVariable String mobilePhone) {
+    Customer customer = ((CustomerService) service).findCustomerByMobilePhone(mobilePhone);
+    if (customer == null) {
+      return null;
+    }
+    return customerMapper.toDto(customer);
   }
 }

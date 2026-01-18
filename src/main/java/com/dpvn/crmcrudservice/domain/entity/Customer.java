@@ -62,9 +62,8 @@ public class Customer extends com.dpvn.sharedjpa.domain.entity.BaseEntity {
       fetch = FetchType.LAZY)
   private List<CustomerReference> references = new ArrayList<>();
 
-  @JdbcTypeCode(SqlTypes.JSON)
-  @Column(columnDefinition = "jsonb")
-  private List<String> addresses = new ArrayList<>();
+  @Column(columnDefinition = "TEXT")
+  private String address;
 
   public String getCustomerCode() {
     return customerCode;
@@ -210,11 +209,11 @@ public class Customer extends com.dpvn.sharedjpa.domain.entity.BaseEntity {
     this.customerType = customerType;
   }
 
-  public List<String> getAddresses() {
-    return addresses;
+  public String getAddress() {
+    return address;
   }
 
-  public void setAddresses(List<String> addresses) {
-    this.addresses = addresses;
+  public void setAddress(String address) {
+    this.address = address;
   }
 }

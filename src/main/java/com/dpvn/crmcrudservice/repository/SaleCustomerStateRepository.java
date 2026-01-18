@@ -29,4 +29,6 @@ public interface SaleCustomerStateRepository extends AbstractRepository<SaleCust
   @Query(value = FIND_LATEST_SALE_CUSTOMER_STATE, nativeQuery = true)
   List<SaleCustomerState> findLatestBySaleIdAndCustomerIds(
       @Param("saleId") Long saleId, @Param("customerIds") List<Long> customerIds);
+
+  SaleCustomerState getBySaleIdAndCustomerId(Long saleId, Long customerId);
 }

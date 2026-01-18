@@ -31,7 +31,7 @@ public class CustomerDto extends BaseDto {
   private String relationships;
   private String specialEvents;
   private List<CustomerReferenceDto> references = new ArrayList<>();
-  private List<String> addresses = new ArrayList<>();
+  private String address;
 
   public String getCustomerType() {
     return customerType;
@@ -185,11 +185,11 @@ public class CustomerDto extends BaseDto {
     this.birthday = birthday;
   }
 
-  public List<String> getAddresses() {
-    return addresses;
+  public String getAddress() {
+    return address;
   }
 
-  public void setAddresses(List<String> addresses) {
-    this.addresses = addresses;
+  public void setAddress(String address) {
+    this.address = address;
   }
 }

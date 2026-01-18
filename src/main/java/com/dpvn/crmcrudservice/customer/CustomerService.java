@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CustomerService extends AbstractCrudService<Customer> {
@@ -311,5 +312,24 @@ public class CustomerService extends AbstractCrudService<Customer> {
         .add("customerName", os[4])
         .add("customerCode", os[5])
         .add("mobilePhone", os[6]);
+  }
+
+  public Customer findCustomerByMobilePhone(String mobilePhone) {
+    List<Customer> customers = ((CustomerRepository) repository).findAllCustomersByMobilePhoneIn(List.of(mobilePhone));
+    if (ListUtil.isEmpty(customers)) {
+      return null;
+    }
+    return customers.get(0);
+  }
+
+  @Override
+  @Transactional
+  public Customer update(Customer entity) {
+    if (entity.getId() == null) {
+      throw new IllegalArgumentException("Entity must have an ID to be updated.");
+    } else {
+      entity.getReferences().forEach(ref -> ref.setCustomer(entity));
+      return this.save(entity);
+    }
   }
 }

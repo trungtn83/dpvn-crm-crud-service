@@ -251,7 +251,7 @@ public class CustomerCustomRepository {
     if (ListUtil.isNotEmpty(tags)) {
       if (tags.contains("SOLD")) {
         filterBuilder.append(
-            " AND (EXISTS (SELECT 1 FROM sale_customer_reference scr WHERE scr.customer_id = c.id AND sc.status = 'SOLD' AND sc.active = TRUE AND sc.deleted = false))");
+            " AND (EXISTS (SELECT 1 FROM sale_customer_reference scr WHERE scr.customer_id = c.id AND scr.status = 'SOLD' AND scr.active = TRUE AND scr.deleted = false))");
       }
     }
 
@@ -275,10 +275,6 @@ public class CustomerCustomRepository {
     if (customerTypeId != null) {
       query.setParameter("customerTypeId", customerTypeId);
       countQuery.setParameter("customerTypeId", customerTypeId);
-    }
-    if (ListUtil.isNotEmpty(tags)) {
-      query.setParameter("tags", tags);
-      countQuery.setParameter("tags", tags);
     }
     query.setParameter("saleId", saleId);
     countQuery.setParameter("saleId", saleId);

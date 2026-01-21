@@ -9,7 +9,7 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CustomerStatusDto {
-  private Long owner;
+  private Long owner; // sale id, NOT idf
   private Long occupier;
   private Instant availableTo;
   private Set<Long> relatedOwners = new HashSet<>();

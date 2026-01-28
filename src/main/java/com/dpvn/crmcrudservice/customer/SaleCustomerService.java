@@ -10,13 +10,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class SaleCustomerService extends AbstractCrudService<SaleCustomer> {
 
-  private final SaleCustomerCategoryRepository saleCustomerCategoryRepository;
-
   public SaleCustomerService(
-      SaleCustomerRepository repository,
-      SaleCustomerCategoryRepository saleCustomerCategoryRepository) {
+      SaleCustomerRepository repository) {
     super(repository);
-    this.saleCustomerCategoryRepository = saleCustomerCategoryRepository;
   }
 
   @Override
@@ -62,5 +58,9 @@ public class SaleCustomerService extends AbstractCrudService<SaleCustomer> {
     if (dbEntity != null) {
       repository.deleteById(dbEntity.getId());
     }
+  }
+
+  public List<SaleCustomer> findAllSaleCustomerActiveByCustomerId(Long customerId) {
+    return ((SaleCustomerRepository) repository).findAllActiveByCustomerId(customerId);
   }
 }

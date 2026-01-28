@@ -55,6 +55,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
   private final CustomerMapper customerMapper;
   private final CustomerStatusMapper customerStatusMapper;
   private final SaleCustomerStateMapper saleCustomerStateMapper;
+  private final SaleCustomerService saleCustomerService;
 
   public CustomerService(
       CustomerRepository repository,
@@ -64,7 +65,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
       SaleCustomerStateRepository saleCustomerStateRepository,
       CustomerMapper customerMapper,
       CustomerStatusMapper customerStatusMapper,
-      SaleCustomerStateMapper saleCustomerStateMapper) {
+      SaleCustomerStateMapper saleCustomerStateMapper, SaleCustomerService saleCustomerService) {
     super(repository);
     this.saleCustomerRepository = saleCustomerRepository;
     this.customerCustomRepository = customerCustomRepository;
@@ -73,6 +74,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
     this.customerMapper = customerMapper;
     this.customerStatusMapper = customerStatusMapper;
     this.saleCustomerStateMapper = saleCustomerStateMapper;
+    this.saleCustomerService = saleCustomerService;
   }
 
   @Override
@@ -172,7 +174,7 @@ public class CustomerService extends AbstractCrudService<Customer> {
   }
 
   public CustomerStatus getCustomerStatus(Long customerId) {
-    List<SaleCustomer> saleCustomers = saleCustomerRepository.findAllActiveByCustomerId(customerId);
+    List<SaleCustomer> saleCustomers = saleCustomerService.findAllSaleCustomerActiveByCustomerId(customerId);
     Customer customer = findById(customerId).orElseThrow();
 
     // khách đang lên đơn bởi Ngà, chăm dùm -> chuyển sng cho Trâm (có 2 owner tại 1 thời điểm

@@ -65,7 +65,8 @@ public class CustomerService extends AbstractCrudService<Customer> {
       SaleCustomerStateRepository saleCustomerStateRepository,
       CustomerMapper customerMapper,
       CustomerStatusMapper customerStatusMapper,
-      SaleCustomerStateMapper saleCustomerStateMapper, SaleCustomerService saleCustomerService) {
+      SaleCustomerStateMapper saleCustomerStateMapper,
+      SaleCustomerService saleCustomerService) {
     super(repository);
     this.saleCustomerRepository = saleCustomerRepository;
     this.customerCustomRepository = customerCustomRepository;
@@ -174,7 +175,8 @@ public class CustomerService extends AbstractCrudService<Customer> {
   }
 
   public CustomerStatus getCustomerStatus(Long customerId) {
-    List<SaleCustomer> saleCustomers = saleCustomerService.findAllSaleCustomerActiveByCustomerId(customerId);
+    List<SaleCustomer> saleCustomers =
+        saleCustomerService.findAllSaleCustomerActiveByCustomerId(customerId);
     Customer customer = findById(customerId).orElseThrow();
 
     // khách đang lên đơn bởi Ngà, chăm dùm -> chuyển sng cho Trâm (có 2 owner tại 1 thời điểm

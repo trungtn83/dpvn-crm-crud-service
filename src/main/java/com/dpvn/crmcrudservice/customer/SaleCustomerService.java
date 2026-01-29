@@ -1,7 +1,6 @@
 package com.dpvn.crmcrudservice.customer;
 
 import com.dpvn.crmcrudservice.domain.entity.SaleCustomer;
-import com.dpvn.crmcrudservice.repository.SaleCustomerCategoryRepository;
 import com.dpvn.crmcrudservice.repository.SaleCustomerRepository;
 import com.dpvn.sharedjpa.service.AbstractCrudService;
 import java.util.List;
@@ -10,8 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SaleCustomerService extends AbstractCrudService<SaleCustomer> {
 
-  public SaleCustomerService(
-      SaleCustomerRepository repository) {
+  public SaleCustomerService(SaleCustomerRepository repository) {
     super(repository);
   }
 
